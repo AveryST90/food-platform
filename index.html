@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Gusto: rețete după ingredientele pe care le ai, frigider virtual, listă de cumpărături și planificator de mese.">
+<link rel="icon" href="img/cooking.png">
+<title>Gusto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: bară laterală fixă + conținut pe fundal ivory, carduri albe rotunjite. Pe telefon bara laterală devine meniu jos.
+   Direcție: Fresh & Organic + Smart Kitchen, zonă Premium verde închis cu accente miere. Doar varianta luminoasă. */
+:root{
+  --bg:#f7f6f0; --surface:#ffffff; --soft:#f2f3ec; --line:#e6e7de; --ink:#29362d; --muted:#6c776f;
+  --green:#477653; --green-dk:#355c40; --green-soft:#e7efe5; --sage:#a7be9a;
+  --honey:#e7b96b; --honey-soft:#fbf2df; --honey-ink:#7a5310;
+  --danger:#c2452d; --danger-soft:#fbe9e4; --warn:#c98a1b; --warn-soft:#fdf3e1;
+  --premium:#1f3a2b; --premium-2:#162a1f;
+  --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:18px; --shadow:0 1px 2px rgb(41 54 45 / .04),0 4px 16px rgb(41 54 45 / .05);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:8px}
+h1,h2,h3,h4{margin:0;text-wrap:balance;letter-spacing:-.02em}
+p{margin:0}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green)}
+.num{font-variant-numeric:tabular-nums}
+
+/* Shell */
+.app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100%}
+.side{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:6px;padding-block:22px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;border-right:1px solid var(--line);background:var(--bg)}
+.logo{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:800;letter-spacing:-.03em;padding:0 10px 18px;background:none;border:0;color:var(--ink)}
+.logo svg{width:28px;height:28px;color:var(--green);fill:var(--green-soft)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:0;background:none;color:var(--muted);font-weight:600;text-align:left}
+.nav button:hover{background:var(--soft);color:var(--ink)}
+.nav button[aria-current="page"]{background:var(--green-soft);color:var(--green-dk)}
+.nav .badge{margin-left:auto}
+.side .me{margin-top:auto}
+.me{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;border:0;background:none;text-align:left;width:100%}
+.me:hover{background:var(--soft)}
+.me b{display:block;font-size:14px}
+.me span{font-size:12px;color:var(--muted)}
+.me .avatar{color:#fff;font-size:13px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--line);color:var(--ink);font-size:11px;font-weight:700;display:inline-grid;place-items:center}
+.badge.red{background:var(--danger);color:#fff}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;display:flex;align-items:center;gap:12px;padding-block:14px;padding-left:28px;padding-right:max(28px,env(safe-area-inset-right,0px));background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px)}
+.topbar .logo{display:none;padding:0}
+.search{position:relative;flex:1;max-width:460px}
+.search svg{position:absolute;left:14px;top:50%;translate:0 -50%;color:var(--muted)}
+.search input{width:100%;height:42px;border-radius:999px;border:1px solid var(--line);background:var(--surface);padding:0 16px 0 42px}
+.search input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px;position:relative}
+.iconbtn{position:relative;width:40px;height:40px;border-radius:50%;border:0;background:none;display:grid;place-items:center;color:var(--ink)}
+.iconbtn:hover{background:var(--soft)}
+.iconbtn .badge{position:absolute;top:2px;right:0;min-width:17px;height:17px;font-size:10px;padding:0 4px}
+.content{padding-block:8px 64px;padding-left:28px;padding-right:max(28px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:32px}
+.pagehead{display:flex;align-items:flex-end;gap:12px 20px;flex-wrap:wrap}
+.pagehead h1{font-size:30px;font-weight:800;letter-spacing:-.03em}
+.pagehead p{color:var(--muted);margin-top:4px}
+.pagehead .acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* Popovers */
+.pop{position:absolute;top:48px;right:0;z-index:20;width:min(320px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgb(41 54 45 / .16);padding:14px;display:flex;flex-direction:column;gap:10px}
+.pop h4{font-size:14px}
+.pop .row{display:flex;align-items:center;gap:10px;font-size:14px}
+.pop hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
+
+/* Controls */
+.btn{height:42px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;color:var(--ink)}
+.btn:hover{border-color:var(--sage)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-dk)}
+.btn.honey{background:var(--honey);border-color:var(--honey);color:#3b2a08}
+.btn.ghost{background:none;border-color:transparent;color:var(--green)}
+.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.55;cursor:default}
+.field{height:42px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0 12px;min-width:0}
+textarea.field{height:auto;padding:10px 12px;resize:vertical}
+.field:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.chip:hover{border-color:var(--sage)}
+.chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.chip img{width:18px;height:18px}
+.chip.x{background:var(--green-soft);border-color:transparent;color:var(--green-dk)}
+.link{background:none;border:0;padding:0;color:var(--green);font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.link:hover{text-decoration:underline;text-underline-offset:3px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.sechead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sechead h2{font-size:20px;font-weight:800}
+.sechead .link{margin-left:auto}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(110deg,#f3f5ec 0%,#eaf0e2 55%,#e3ebd9 100%);border:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);min-height:330px}
+.hero-txt{position:relative;z-index:1;padding:40px 0 36px 40px;display:flex;flex-direction:column;gap:14px}
+.hero h1{font-size:clamp(30px,3.6vw,44px);line-height:1.08;font-weight:800;letter-spacing:-.035em}
+.hero h1 span{display:block}
+.hero p.lede{color:var(--muted);max-width:44ch;font-size:16px}
+.hero-search{display:flex;gap:6px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px 6px 6px 14px;max-width:520px;box-shadow:var(--shadow)}
+.hero-search input{flex:1;min-width:0;border:0;background:none;height:40px;outline:none}
+.hero-photo{position:relative}
+.hero-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22%);mask-image:linear-gradient(90deg,transparent 0,#000 22%)}
+
+/* Recipe cards */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.rgrid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1100px){.rgrid.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rcard{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s,border-color .2s}
+.rcard:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgb(41 54 45 / .1)}
+.rcard[aria-current="true"]{border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
+.rtile{position:relative;aspect-ratio:3/2;max-width:100%;background:radial-gradient(circle at 50% 60%,#fff 0,var(--green-soft) 75%);display:grid;place-items:center;overflow:hidden}
+.rtile img.photo{width:100%;height:100%;object-fit:cover}
+.rtile img.ill{width:44%;filter:drop-shadow(0 12px 14px rgb(41 54 45 / .18));transition:transform .4s}
+.rcard:hover .rtile img.ill{transform:scale(1.06) rotate(-3deg)}
+.rtile .ph{font-size:44px;font-weight:800;color:var(--sage)}
+.heart{position:absolute;top:10px;right:10px;z-index:2;width:34px;height:34px;border-radius:50%;border:0;background:rgb(255 255 255 / .92);display:grid;place-items:center;color:var(--danger);box-shadow:0 2px 8px rgb(0 0 0 / .1)}
+.heart svg{width:17px;height:17px}
+.heart[aria-pressed="true"] svg{fill:currentColor}
+.rbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.rbody h3{font-size:15px;font-weight:700;line-height:1.3}
+.meta{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.meta svg.i{width:15px;height:15px}
+.compat{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--green)}
+.compat svg.i{width:16px;height:16px}
+.compat.low{color:var(--muted)}
+
+/* Recipes page */
+.rlayout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.detail{position:sticky;top:84px;overflow:hidden;padding:0}
+.detail .rtile{aspect-ratio:16/10}
+.detail-b{padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+.detail-b h2{font-size:20px;font-weight:800}
+.ilist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ilist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.ilist li:last-child{border-bottom:0}
+.ilist img,.ilist .tph{width:28px;height:28px;flex:none}
+.ilist .n{flex:1;min-width:0}
+.ilist .n small{display:block;color:var(--honey-ink);font-size:12px}
+.ilist .q{color:var(--muted);white-space:nowrap}
+.st{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;flex:none}
+.st svg{width:13px;height:13px;stroke-width:3}
+.st.ok{background:var(--green);color:#fff}
+.st.sub{background:var(--honey);color:#3b2a08}
+.st.no{background:var(--danger-soft);color:var(--danger)}
+.tph{display:inline-grid;place-items:center;border-radius:50%;background:var(--green-soft);color:var(--green);font-weight:700;font-size:12px}
+.freebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:var(--honey-soft);color:var(--honey-ink);font-size:14px;font-weight:600}
+.freebar .link{color:var(--honey-ink);margin-left:auto}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar .chips{flex:1;min-width:0}
+.selbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* Modal */
+.scrim{position:fixed;inset:0;z-index:40;background:rgb(22 30 24 / .5);display:grid;place-items:center;padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:fade .18s}
+.sheet{position:relative;width:100%;max-width:880px;max-height:100%;overflow:auto;background:var(--surface);border-radius:24px;animation:rise .25s cubic-bezier(.2,.8,.2,1)}
+.sheet.sm{max-width:520px}
+.sheet .x{position:absolute;top:12px;right:12px;z-index:3;background:rgb(255 255 255 / .92)}
+.sheet-top{display:grid;grid-template-columns:300px minmax(0,1fr);gap:24px;padding:24px 28px 0;align-items:center}
+.sheet-top .media{position:relative;border-radius:18px;overflow:hidden}
+.sheet-top .rtile{aspect-ratio:4/3}
+.sheet-top .heart{right:auto;left:10px}
+.sheet-top h2{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.sheet-b{padding:24px 28px 28px;display:flex;flex-direction:column;gap:20px}
+.sheet-b h2{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.cols2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.facts{display:flex;gap:10px;flex-wrap:wrap}
+.fact{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;background:var(--soft);font-size:14px;font-weight:600}
+.nut{position:relative}
+.cells{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cells div{background:var(--soft);border-radius:12px;padding:10px 6px;text-align:center;display:flex;flex-direction:column}
+.cells b{font-size:18px;font-variant-numeric:tabular-nums}
+.cells span{font-size:12px;color:var(--muted)}
+.nut.locked .cells{filter:blur(7px);user-select:none}
+.lockmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.lockmsg .btn{box-shadow:0 6px 20px rgb(0 0 0 / .12)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:12px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:12px}
+.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--green-soft);color:var(--green-dk);font-weight:800;font-size:13px;display:grid;place-items:center}
+.h3{font-size:16px;font-weight:800}
+.box{padding:14px;border-radius:14px;background:var(--soft);display:flex;flex-direction:column;gap:10px}
+.box.honey{background:var(--honey-soft)}
+.paywall{padding:22px;border-radius:18px;background:var(--premium);color:#eef3ec;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.paywall h3{font-size:20px;color:#fff}
+
+/* Fridge */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.stat{display:flex;align-items:center;gap:14px;padding:18px}
+.stat .ic{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none}
+.stat .ic svg{width:22px;height:22px}
+.stat small{display:block;color:var(--muted);font-size:13px}
+.stat b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.ic.g{background:var(--green-soft);color:var(--green)}
+.ic.r{background:var(--danger-soft);color:var(--danger)}
+.ic.h{background:var(--honey-soft);color:var(--honey-ink)}
+.fcols{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;align-items:start}
+.fcol{padding:14px 16px 6px}
+.fcol-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;padding-bottom:6px}
+.fcol-h .badge{margin-left:auto}
+.frow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.frow .chk{width:20px;height:20px;accent-color:var(--green);flex:none}
+.frow img,.frow .tph{width:36px;height:36px;flex:none}
+.frow .n{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.frow .n b{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frow .n>span{font-size:12px;color:var(--muted)}
+.exp{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap}
+.exp::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.exp.d{color:var(--danger)} .exp.w{color:var(--warn)} .exp.o{color:var(--green)}
+.qty{display:flex;align-items:center;gap:2px}
+.qty button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+.qty button:hover{color:var(--ink);border-color:var(--sage)}
+.qty svg.i{width:14px;height:14px}
+.frow .del{width:28px;height:28px;border:0;background:none;color:var(--muted);border-radius:8px;display:grid;place-items:center}
+.frow .del:hover{background:var(--danger-soft);color:var(--danger)}
+.addpanel{padding:18px;display:flex;flex-direction:column;gap:12px}
+.form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.form .grow{flex:1;min-width:180px}
+.lbl{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:700}
+.lbl .field{font-weight:400}
+.w90{width:90px}.w120{width:130px}
+.suggest{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:14px 18px;border-radius:16px;background:var(--warn-soft);border:1px solid #f3e0bb}
+.suggest b{font-weight:800}
+.actionbar{position:sticky;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;background:var(--premium);color:#fff;border-radius:16px;padding:10px 10px 10px 20px;box-shadow:0 12px 30px rgb(22 42 31 / .3);font-weight:700}
+
+/* Shopping */
+.slist{padding:6px 16px}
+.srow{display:flex;align-items:center;gap:12px;min-height:56px;border-top:1px solid var(--line)}
+.srow:first-of-type{border-top:0}
+.srow input[type="checkbox"]{appearance:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--sage);display:grid;place-items:center;flex:none;margin:0;cursor:pointer}
+.srow input[type="checkbox"]:checked{background:var(--green);border-color:var(--green)}
+.srow input[type="checkbox"]:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;rotate:45deg;translate:0 -1px}
+.srow img,.srow .tph{width:34px;height:34px;flex:none}
+.srow label{flex:1;min-width:0;display:flex;flex-direction:column;cursor:pointer;line-height:1.3}
+.srow label b{font-weight:700}
+.srow label span{font-size:12px;color:var(--muted)}
+.srow.done label b{text-decoration:line-through;color:var(--muted)}
+.srow.done img{opacity:.5}
+.scols{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+
+/* Planner */
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.day{padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.day.today{border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
+.day-h{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.day-h b{font-size:14px;font-weight:800}
+.day-h span{font-size:12px;color:var(--muted)}
+.slot{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:12px;background:var(--soft);border:1px dashed transparent;text-align:left;min-height:86px;width:100%}
+.slot:hover{border-color:var(--sage)}
+.slot small{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.slot .slot-add{margin:auto;color:var(--green);font-weight:700;font-size:13px;display:flex;align-items:center;gap:4px}
+.slot .pick{display:flex;flex-direction:column;gap:6px}
+.slot .pick img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:8px;background:var(--green-soft)}
+.slot .pick img.ill{object-fit:contain;padding:6px}
+.slot .pick span{font-size:12px;font-weight:700;line-height:1.25}
+.plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-height:56vh;overflow:auto}
+.plist button{display:flex;align-items:center;gap:12px;width:100%;padding:8px;border:0;border-radius:12px;background:none;text-align:left}
+.plist button:hover{background:var(--soft)}
+.plist .thumb{width:56px;height:40px;border-radius:8px;overflow:hidden;flex:none}
+.plist .thumb .rtile{aspect-ratio:auto;height:100%}
+.plist .thumb img.ill{width:60%}
+
+/* Premium */
+.phero{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(100deg,var(--premium-2) 0%,var(--premium) 55%,#27473a 100%);color:#eef3ec;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);min-height:300px}
+.phero-t{position:relative;z-index:1;padding:40px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.phero .eyebrow{color:var(--honey);display:flex;align-items:center;gap:8px}
+.phero h1{font-size:clamp(28px,3.4vw,40px);line-height:1.1;font-weight:800;color:#fff;letter-spacing:-.03em}
+.phero h1 span{display:block}
+.phero p{color:#c9d6c8;max-width:46ch}
+.phero-img{position:relative}
+.phero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 30%);mask-image:linear-gradient(90deg,transparent 0,#000 30%)}
+.phero .btn.ghost{color:#eef3ec}
+.benefits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.benefit{display:flex;gap:12px;align-items:flex-start}
+.benefit .ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none}
+.benefit b{display:block;font-size:14px}
+.benefit span{font-size:13px;color:var(--muted)}
+.plans{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.9fr);gap:16px;align-items:stretch}
+.plan{padding:22px;display:flex;flex-direction:column;gap:12px;position:relative}
+.plan.feat{border:2px solid var(--green)}
+.plan h3{font-size:18px;font-weight:800}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.plan li{display:flex;gap:8px;align-items:flex-start}
+.plan li svg{color:var(--green);margin-top:2px}
+.plan .price{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:12px}
+.plan .price b{font-size:26px;font-weight:800}
+.plan .price small{color:var(--muted)}
+.ribbon{position:absolute;top:-11px;right:18px;background:var(--green);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px}
+.promo{position:relative;overflow:hidden;padding:22px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(160deg,#f3f6ee,#e7efe0)}
+.promo h3{font-size:17px;font-weight:800;max-width:15ch}
+.promo p{font-size:13px;color:var(--muted);max-width:22ch}
+.promo img{position:absolute;right:-50px;bottom:-30px;width:210px;height:210px;object-fit:cover;border-radius:50%}
+.tablewrap{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.cmp th,.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line)}
+.cmp th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cmp td:last-child{color:var(--green-dk);font-weight:700}
+.cmp tr:last-child td{border-bottom:0}
+
+/* Home extra */
+.home2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.mini{padding:18px;display:flex;flex-direction:column;gap:12px}
+.mrow{display:flex;align-items:center;gap:10px;font-size:14px}
+.mrow img,.mrow .tph{width:30px;height:30px}
+.mrow .n{flex:1;min-width:0}
+.meal{display:flex;align-items:center;gap:12px;padding:8px;border-radius:12px;background:var(--soft);border:0;width:100%;text-align:left}
+.meal .thumb{width:54px;height:40px;border-radius:8px;overflow:hidden;flex:none}
+.meal .thumb .rtile{aspect-ratio:auto;height:100%}
+.meal small{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* Admin */
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;align-items:start}
+.panel{padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel h3{font-size:17px;font-weight:800}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;max-height:180px;overflow:auto;padding:2px}
+.gallery button{aspect-ratio:1;border:1px solid var(--line);border-radius:10px;background:var(--soft);padding:5px}
+.gallery button img{width:100%;height:100%;object-fit:contain}
+.gallery button[aria-pressed="true"]{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green);background:var(--green-soft)}
+.alist{list-style:none;margin:0;padding:0;max-height:330px;overflow:auto}
+.alist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.alist .thumb{width:52px;height:38px;border-radius:8px;overflow:hidden;flex:none}
+.alist .thumb .rtile{aspect-ratio:auto;height:100%}
+.alist .grow{flex:1;min-width:120px;overflow-wrap:anywhere}
+.switch{display:flex;align-items:center;gap:10px;font-size:14px}
+.switch input,.cats input{width:18px;height:18px;accent-color:var(--green)}
+.cats{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:14px}
+.cats label{display:flex;align-items:center;gap:6px}
+
+.empty{padding:36px 20px;text-align:center;border:1px dashed var(--line);border-radius:var(--r);color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface)}
+.empty img{width:56px;height:56px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));translate:-50% 0;z-index:60;background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;animation:rise .25s;max-width:calc(100vw - 32px)}
+.bottomnav{display:none}
+
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{transform:translateY(12px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+@media (max-width:1280px){
+  .rlayout{grid-template-columns:minmax(0,1fr)}
+  .detail{display:none}
+  .week{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .benefits{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .plans{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .promo{grid-column:1/-1;min-height:160px}
+}
+@media (max-width:980px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{display:none}
+  .topbar{flex-wrap:wrap;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+  .topbar .logo{display:flex}
+  .topbar .search{order:3;flex-basis:100%;max-width:none}
+  .content{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgb(255 255 255 / .96);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));justify-content:space-around}
+  .bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;padding:6px 2px;font-size:11px;font-weight:700;color:var(--muted);border-radius:12px;position:relative}
+  .bottomnav button[aria-current="page"]{color:var(--green-dk);background:var(--green-soft)}
+  .bottomnav svg.i{width:22px;height:22px}
+  .bottomnav .badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:16px;height:16px;font-size:10px;padding:0 4px}
+  .actionbar{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero-txt{padding:28px 22px 24px}
+  .hero-photo{height:200px;order:-1}
+  .hero-photo img{-webkit-mask-image:linear-gradient(0deg,transparent 0,#000 35%);mask-image:linear-gradient(0deg,transparent 0,#000 35%)}
+  .phero{grid-template-columns:minmax(0,1fr)}
+  .phero-t{padding:28px 22px}
+  .phero-img{height:180px;order:-1}
+  .phero-img img{-webkit-mask-image:linear-gradient(0deg,transparent 0,#000 40%);mask-image:linear-gradient(0deg,transparent 0,#000 40%)}
+  .home2,.cols2{grid-template-columns:minmax(0,1fr)}
+  .week{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .stats{grid-template-columns:minmax(0,1fr)}
+  .stat{padding:14px}
+  .rgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .rbody{padding:10px 12px 12px}
+  .rbody h3{font-size:14px}
+  .compat{font-size:12px}
+  .week{grid-template-columns:minmax(0,1fr)}
+  .slot{flex-direction:row;align-items:center;min-height:0}
+  .slot small{width:76px;flex:none}
+  .slot .pick{flex-direction:row;align-items:center;flex:1}
+  .slot .pick img{width:56px;flex:none}
+  .slot .slot-add{margin:0}
+  .benefits,.plans{grid-template-columns:minmax(0,1fr)}
+  .cells{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sheet-b{padding:20px}
+  .sheet-top{grid-template-columns:minmax(0,1fr);padding:20px 20px 0}
+  .sheet-top .rtile{aspect-ratio:16/10}
+  .pagehead h1{font-size:26px}
+  .pagehead .acts{margin-left:0}
+  .hero-search{flex-wrap:wrap;padding:6px}
+  .hero-search>svg{margin-left:8px}
+  .hero-search .btn{flex-basis:100%}
+}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" aria-label="Meniu">
+    <button class="logo" onclick="go('acasa')"><span id="logo1"></span>Gusto</button>
+    <nav class="nav" id="sidenav"></nav>
+    <button class="me" id="me1" onclick="togglePop('acct')"></button>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <button class="logo" onclick="go('acasa')"><span id="logo2"></span>Gusto</button>
+      <label class="search"><span id="sic"></span><input id="topq" type="search" placeholder="Caută rețete, ingrediente…" aria-label="Caută rețete și ingrediente" oninput="Q=this.value;if(S.page=='retete')renderRecipes()" onkeydown="if(event.key=='Enter'){go('retete')}"></label>
+      <div class="top-actions">
+        <button class="iconbtn" id="bell" aria-label="Notificări" onclick="togglePop('notif')"></button>
+        <button class="iconbtn" id="me2" aria-label="Contul meu" onclick="togglePop('acct')"></button>
+        <div id="pop" hidden></div>
+      </div>
+    </div>
+    <main class="content" id="app"></main>
+  </div>
+</div>
+<nav class="bottomnav" id="bottomnav" aria-label="Meniu principal"></nav>
+<div id="modal" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+/* ---------- Icons ---------- */
+const PATHS={
+home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
+grid:'<rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/>',
+fridge:'<rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M5 10h14M8.5 5.5v2M8.5 13v3"/>',
+cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2a2 2 0 0 0 2 1.6h8.1a2 2 0 0 0 1.9-1.5L22 8H6.1"/>',
+cal:'<rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/>',
+crown:'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',
+heart:'<path d="M12 20.5s-7.6-4.6-9.4-9.3C1.3 7.7 3.6 4.5 7 4.5c2.1 0 3.8 1.2 5 3 1.2-1.8 2.9-3 5-3 3.4 0 5.7 3.2 4.4 6.7-1.8 4.7-9.4 9.3-9.4 9.3z"/>',
+shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+level:'<path d="M6 20v-4M12 20V10M18 20V4"/>',
+check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+checkc:'<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.8"/>',
+x:'<path d="M18 6 6 18M6 6l12 12"/>',
+leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z"/><path d="M2 21c0-3 1.9-5.4 5.1-6"/>',
+share:'<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.4 13.4 7.2 4.2M15.6 6.4l-7.2 4.2"/>',
+trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
+arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+coin:'<circle cx="12" cy="12" r="9"/><path d="M14.6 9.4c-.5-.9-1.5-1.4-2.6-1.4-1.7 0-3 .9-3 2.1 0 2.8 6 1.4 6 4.2 0 1.2-1.3 2.2-3 2.2-1.2 0-2.3-.6-2.8-1.5M12 6.3v1.7M12 16.4v1.6"/>',
+alarm:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/>',
+lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.3-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/>',
+spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+chef:'<path d="M7 21h10M7 17h10v4H7zM7 17c-2.8-.5-4-2.6-4-4.6a4 4 0 0 1 4.6-4A4.5 4.5 0 0 1 12 4a4.5 4.5 0 0 1 4.4 4.4 4 4 0 0 1 4.6 4c0 2-1.2 4.1-4 4.6"/>',
+filter:'<path d="M3 5h18M6 12h12M10 19h4"/>',
+cook:'<path d="M3 11h18M5 11v6a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-6M8 7c0-1.5 1-1.5 1-3M12 7c0-1.5 1-1.5 1-3M16 7c0-1.5 1-1.5 1-3"/>',
+reset:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'
+};
+const I=(n,cls="")=>`<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${PATHS[n]}</svg>`;
+
+/* ---------- Data ---------- */
+// produs: [imagine, categorie, preț estimat MDL, unitatea prețului]
+const PROD={
+"roșii":["tomato","Legume",35,"kg"],"salată verde":["green_salad","Legume",18,"buc"],"spanac":["leafy_green","Legume",90,"kg"],"ardei gras":["bell_pepper","Legume",9,"buc"],"ardei iute":["hot_pepper","Legume",3,"buc"],
+"morcovi":["carrot","Legume",14,"kg"],"ceapă":["onion","Legume",3,"buc"],"usturoi":["garlic","Legume",6,"cap"],"cartofi":["potato","Legume",12,"kg"],"castraveți":["cucumber","Legume",32,"kg"],
+"ciuperci":["mushroom","Legume",65,"kg"],"broccoli":["broccoli","Legume",28,"buc"],"mazăre":["pea_pod","Legume",45,"kg"],"fasole":["beans","Legume",30,"kg"],"dovleac":["jack-o-lantern","Legume",12,"kg"],
+"varză":["leafy_green","Legume",10,"buc"],"avocado":["avocado","Legume",22,"buc"],"busuioc":["herb","Legume",15,"legătură"],"ghimbir":["ginger_root","Legume",120,"kg"],"porumb":["ear_of_corn","Legume",8,"buc"],
+"lămâie":["lemon","Fructe",6,"buc"],"mere":["red_apple","Fructe",16,"kg"],"banane":["banana","Fructe",5,"buc"],"căpșuni":["strawberry","Fructe",90,"kg"],"fructe de pădure":["blueberries","Fructe",180,"kg"],"kiwi":["kiwi_fruit","Fructe",5,"buc"],"pere":["pear","Fructe",25,"kg"],
+"lapte":["glass_of_milk","Lactate",22,"l"],"ouă":["egg","Lactate",3,"buc"],"cașcaval":["cheese_wedge","Lactate",170,"kg"],"brânză feta":["cheese_wedge","Lactate",150,"kg"],"iaurt":["teacup_without_handle","Lactate",40,"kg"],"smântână":["jar","Lactate",60,"l"],"unt":["butter","Lactate",180,"kg"],
+"piept de pui":["poultry_leg","Carne",95,"kg"],"somon":["fish","Carne",320,"kg"],"carne tocată":["cut_of_meat","Carne",110,"kg"],"crenvurști":["hot_dog","Carne",90,"kg"],"bacon":["bacon","Carne",160,"kg"],"creveți":["fried_shrimp","Carne",260,"kg"],
+"apă":["droplet","Băuturi",8,"l"],"suc de portocale":["cup_with_straw","Băuturi",30,"l"],
+"pâine":["bread","Altele",10,"buc"],"paste":["spaghetti","Altele",32,"kg"],"orez":["cooked_rice","Altele",26,"kg"],"făină":["sheaf_of_rice","Altele",12,"kg"],"mălai":["ear_of_corn","Altele",14,"kg"],
+"ulei de măsline":["olive","Altele",170,"l"],"sare":["salt","Altele",8,"kg"],"miere":["honey_pot","Altele",130,"kg"]};
+const CATS=["Legume","Fructe","Lactate","Carne","Băuturi","Altele"];
+const CATT={"Legume":"Legume și verdețuri","Fructe":"Fructe","Lactate":"Lactate și ouă","Carne":"Carne și pește","Băuturi":"Băuturi","Altele":"Altele"};
+const SUBS={"smântână":["iaurt"],"cașcaval":["brânză feta"],"brânză feta":["cașcaval"],"ulei de măsline":["unt"],"unt":["ulei de măsline"],"lapte":["iaurt"],"spanac":["salată verde"],"salată verde":["spanac"],"piept de pui":["carne tocată"],"fructe de pădure":["căpșuni"],"căpșuni":["fructe de pădure"],"mazăre":["fasole"]};
+const MEALS=["Mic dejun","Prânz","Cină"];
+const R=[
+{id:"shakshuka",n:"Shakshuka cu ouă",ph:"shakshuka",t:20,dif:"Ușor",por:2,cat:["Mic dejun","Prânz"],veg:1,d:"Ouă coapte într-un sos gros de roșii și ardei, servite direct din tigaie.",
+ i:[["roșii",500,"g"],["ouă",4,"buc"],["ardei gras",1,"buc"],["ceapă",1,"buc"],["usturoi",2,"căței"]],k:320,p:18,c:20,f:19,
+ s:["Călește ceapa tocată și ardeiul în puțin ulei, 5 minute.","Adaugă usturoiul și roșiile tăiate; fierbe 8–10 minute, până sosul se îngroașă.","Fă patru adâncituri în sos și sparge câte un ou în fiecare.","Acoperă tigaia și gătește 5–6 minute, până se coc albușurile."]},
+{id:"paste-spanac",n:"Paste cu spanac și brânză",ph:"paste-spanac",t:25,dif:"Ușor",por:2,cat:["Prânz","Cină"],veg:1,d:"Paste cremoase cu spanac proaspăt și cașcaval topit.",
+ i:[["paste",250,"g"],["spanac",200,"g"],["cașcaval",100,"g"],["usturoi",2,"căței"]],k:560,p:24,c:78,f:17,
+ s:["Fierbe pastele al dente, păstrând o cană din apa în care au fiert.","Rumenește usturoiul 1 minut și adaugă spanacul până se înmoaie.","Pune pastele, cașcavalul ras și puțină apă de la paste.","Amestecă până se formează un sos cremos."]},
+{id:"salata-pui",n:"Salată cu pui și avocado",ph:"salata-pui",t:15,dif:"Ușor",por:2,cat:["Prânz","Cină"],veg:0,d:"Piept de pui la grătar, avocado și verdeață, cu dressing de lămâie.",
+ i:[["piept de pui",300,"g"],["avocado",1,"buc"],["salată verde",1,"buc"],["roșii",200,"g"],["lămâie",1,"buc"],["ulei de măsline",2,"linguri"]],k:420,p:36,c:14,f:26,
+ s:["Condimentează puiul și frige-l 5 minute pe fiecare parte.","Taie salata, roșiile și avocado.","Amestecă uleiul cu zeama de lămâie.","Feliază puiul, așază-l peste salată și toarnă dressingul."]},
+{id:"supa-rosii",n:"Supă cremă de roșii",ph:"supa-rosii",t:30,dif:"Mediu",por:4,cat:["Prânz","Cină"],veg:1,d:"Supă catifelată cu roșii coapte, busuioc și un strop de smântână.",
+ i:[["roșii",800,"g"],["ceapă",1,"buc"],["usturoi",2,"căței"],["smântână",100,"ml"],["busuioc",1,"legătură"]],k:180,p:4,c:18,f:10,
+ s:["Călește ceapa și usturoiul 4 minute.","Adaugă roșiile tăiate și 300 ml apă; fierbe 15 minute.","Pasează supa cu blenderul.","Adaugă smântâna și busuiocul tocat."]},
+{id:"tocanita",n:"Tocăniță de legume",ph:"tocanita",t:40,dif:"Mediu",por:4,cat:["Prânz","Cină"],veg:1,d:"Legume de sezon fierte încet, într-un sos de roșii.",
+ i:[["cartofi",500,"g"],["morcovi",200,"g"],["ardei gras",2,"buc"],["ceapă",1,"buc"],["roșii",300,"g"],["mazăre",150,"g"]],k:260,p:7,c:42,f:6,
+ s:["Călește ceapa, morcovii și ardeiul 5 minute.","Adaugă cartofii cuburi și roșiile.","Acoperă cu apă și fierbe 20 de minute.","Adaugă mazărea și mai fierbe 8 minute."]},
+{id:"clatite",n:"Clătite proteice",ph:"clatite",t:20,dif:"Ușor",por:2,cat:["Mic dejun","Desert"],veg:1,d:"Clătite pufoase, servite cu fructe de pădure.",
+ i:[["ouă",3,"buc"],["făină",100,"g"],["lapte",200,"ml"],["fructe de pădure",100,"g"]],k:340,p:22,c:38,f:10,
+ s:["Bate ouăle cu laptele.","Adaugă făina și amestecă până nu mai sunt cocoloașe.","Coace clătite mici, câte 1–2 minute pe fiecare parte.","Servește-le cu fructele de pădure."]},
+{id:"omleta",n:"Omletă cu legume",img:"cooking",t:15,dif:"Ușor",por:2,cat:["Mic dejun"],veg:1,d:"Ouă pufoase cu ardei, roșii și cașcaval.",
+ i:[["ouă",4,"buc"],["ardei gras",1,"buc"],["roșii",200,"g"],["cașcaval",50,"g"]],k:300,p:20,c:7,f:21,
+ s:["Taie legumele cubulețe și călește-le 3 minute.","Bate ouăle și toarnă-le peste legume.","Presară cașcavalul și gătește acoperit 4 minute."]},
+{id:"sarmale",n:"Sarmale",img:"pot_of_food",t:150,dif:"Avansat",por:6,cat:["Prânz","Cină"],veg:0,d:"Rețeta clasică, fiartă încet, în sos de roșii.",
+ i:[["carne tocată",500,"g"],["orez",100,"g"],["varză",1,"buc"],["ceapă",2,"buc"],["roșii",400,"g"]],k:480,p:28,c:40,f:22,
+ s:["Călește ceapa și amestec-o cu carnea și orezul.","Umple foile de varză și rulează-le strâns.","Așază sarmalele în oală, printre roșii tăiate.","Acoperă cu apă și fierbe la foc mic 2 ore."]},
+{id:"mamaliga",n:"Mămăligă cu brânză și smântână",img:"custard",t:30,dif:"Ușor",por:3,cat:["Mic dejun","Cină"],veg:1,d:"Mămăligă caldă cu brânză sărată și smântână.",
+ i:[["mălai",300,"g"],["brânză feta",200,"g"],["smântână",200,"ml"],["unt",30,"g"]],k:410,p:16,c:48,f:16,
+ s:["Adu la fiert 1 litru de apă cu sare.","Adaugă mălaiul în ploaie, amestecând continuu.","Fierbe 20 de minute la foc mic, apoi adaugă untul.","Servește cu brânză și smântână."]},
+{id:"pui-cuptor",n:"Pui la cuptor cu cartofi",img:"poultry_leg",t:50,dif:"Mediu",por:4,cat:["Prânz","Cină"],veg:0,d:"Piept de pui cu usturoi, copt pe un pat de cartofi.",
+ i:[["piept de pui",600,"g"],["cartofi",800,"g"],["usturoi",3,"căței"],["ulei de măsline",3,"linguri"]],k:430,p:42,c:30,f:14,
+ s:["Marinează puiul cu usturoi, ulei și sare 15 minute.","Taie cartofii felii groase și pune-i în tavă.","Așază puiul deasupra.","Coace 40 de minute la 200°C."]},
+{id:"somon",n:"Somon la cuptor cu lămâie",img:"fish",t:25,dif:"Mediu",por:2,cat:["Cină"],veg:0,d:"File de somon cu lămâie și broccoli la abur.",
+ i:[["somon",400,"g"],["lămâie",1,"buc"],["usturoi",2,"căței"],["broccoli",1,"buc"],["ulei de măsline",1,"lingură"]],k:450,p:40,c:9,f:28,
+ s:["Pune somonul în tavă, stropit cu ulei, usturoi și felii de lămâie.","Coace 15 minute la 200°C.","Fierbe broccoli la abur 5 minute.","Servește împreună."]},
+{id:"ciuperci",n:"Ciuperci sote cu smântână",img:"mushroom",t:20,dif:"Ușor",por:2,cat:["Prânz","Cină"],veg:1,d:"Ciuperci rumenite în unt, cu sos cremos.",
+ i:[["ciuperci",400,"g"],["ceapă",1,"buc"],["usturoi",2,"căței"],["smântână",150,"ml"],["unt",20,"g"]],k:260,p:7,c:10,f:21,
+ s:["Călește ceapa în unt.","Adaugă ciupercile feliate și gătește 8 minute.","Pune usturoiul și smântâna.","Mai fierbe 2 minute."]},
+{id:"toast",n:"Toast cu avocado și ou",img:"sandwich",t:10,dif:"Ușor",por:1,cat:["Mic dejun"],veg:1,d:"Mic dejun rapid și sățios.",
+ i:[["pâine",2,"felii"],["avocado",1,"buc"],["ouă",1,"buc"],["lămâie",0.5,"buc"]],k:390,p:15,c:32,f:22,
+ s:["Prăjește pâinea.","Zdrobește avocado cu lămâie și sare.","Gătește oul ochi.","Întinde avocado pe pâine și pune oul deasupra."]},
+{id:"placinta",n:"Plăcintă cu mere",img:"pie",t:75,dif:"Mediu",por:8,cat:["Desert"],veg:1,d:"Aluat fraged cu umplutură de mere și miere.",
+ i:[["făină",400,"g"],["unt",150,"g"],["ouă",2,"buc"],["mere",1,"kg"],["miere",3,"linguri"]],k:340,p:5,c:48,f:14,
+ s:["Frământă făina cu untul și un ou.","Rade merele și amestecă-le cu mierea.","Întinde jumătate din aluat, pune umplutura și acoperă.","Coace 40 de minute la 180°C."]},
+{id:"orez",n:"Orez cu legume",img:"curry_rice",t:30,dif:"Ușor",por:3,cat:["Prânz","Cină"],veg:1,d:"Garnitură colorată sau fel principal de post.",
+ i:[["orez",200,"g"],["morcovi",150,"g"],["ardei gras",1,"buc"],["mazăre",100,"g"],["ceapă",1,"buc"]],k:380,p:8,c:70,f:7,
+ s:["Călește legumele 5 minute.","Adaugă orezul și amestecă 1 minut.","Toarnă 400 ml apă și pune mazărea.","Fierbe acoperit 18 minute."]},
+{id:"fasole",n:"Ciorbă de fasole",img:"steaming_bowl",t:70,dif:"Mediu",por:6,cat:["Prânz"],veg:1,d:"Ciorbă de post, groasă și aromată.",
+ i:[["fasole",400,"g"],["ceapă",1,"buc"],["morcovi",150,"g"],["ardei gras",1,"buc"],["roșii",300,"g"]],k:290,p:15,c:44,f:5,
+ s:["Fierbe fasolea înmuiată până se înmoaie.","Adaugă legumele tăiate mărunt.","Fierbe încă 25 de minute.","Pune roșiile și mai lasă 10 minute."]},
+{id:"smoothie",n:"Smoothie cu banane și căpșuni",img:"cup_with_straw",t:5,dif:"Ușor",por:2,cat:["Mic dejun","Desert"],veg:1,d:"Răcoritor, gata în cinci minute.",
+ i:[["banane",2,"buc"],["căpșuni",200,"g"],["iaurt",250,"g"],["miere",1,"lingură"]],k:210,p:8,c:38,f:3,
+ s:["Pune toate ingredientele în blender.","Mixează 1 minut, până devine omogen.","Servește imediat, rece."]}
+];
+const EXTRA=["pizza","hamburger","taco","dumpling","croissant","waffle","bagel","falafel","fondue","bento_box","burrito","french_fries","shortcake","rice_ball","stuffed_flatbread","flatbread","roasted_sweet_potato","meat_on_bone","green_salad","bowl_with_spoon","pancakes","spaghetti","cooking","pot_of_food","curry_rice","steaming_bowl","pie","sandwich","custard","shallow_pan_of_food"];
+
+/* ---------- State ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const jsq=s=>esc(JSON.stringify(String(s)));
+const num=v=>(+v).toLocaleString("ro-RO",{maximumFractionDigits:1});
+const iso=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10)};
+const inDays=n=>{const x=new Date();x.setDate(x.getDate()+n);return iso(x)};
+const today0=()=>new Date(new Date().toDateString());
+const daysLeft=x=>x?Math.round((new Date(x+"T00:00")-today0())/864e5):null;
+
+function seed(){return{page:"acasa",role:"free",limit:5,price:49,viewed:[],fav:["shakshuka","supa-rosii"],demo:true,
+ fridge:[["roșii",500,"g",1],["salată verde",1,"buc",3],["spanac",200,"g",4],["ardei gras",3,"buc",5],["morcovi",400,"g",7],["ceapă",4,"buc",20],["usturoi",1,"cap",25],
+  ["lapte",1,"l",1],["ouă",10,"buc",4],["cașcaval",250,"g",6],["iaurt",500,"g",8],["unt",200,"g",10],
+  ["piept de pui",600,"g",2],["somon",400,"g",4],["carne tocată",500,"g",6],["crenvurști",300,"g",8],
+  ["mere",4,"buc",9],["lămâie",2,"buc",14],["suc de portocale",1,"l",7],["pâine",1,"buc",2],["paste",500,"g",5],["ulei de măsline",250,"ml",12]].map(([n,q,u,d])=>({n,q,u,x:inDays(d),s:false})),
+ shop:[{n:"avocado",q:2,u:"buc",d:false},{n:"fructe de pădure",q:200,u:"g",d:false},{n:"făină",q:1,u:"kg",d:false},{n:"busuioc",q:1,u:"legătură",d:true}],
+ sel:[],rcat:"Toate",sort:"compat",fcat:"Toate",plan:{},detail:"shakshuka",custom:[],photos:{},blocked:["185.220.101.4"],addOpen:false,
+ hero:{t1:"Ai ingredientele.",t2:"Noi îți arătăm ce poți găti.",d:"Descoperă rețete delicioase din ingredientele pe care le ai deja, gestionează-ți frigiderul și creează liste de cumpărături inteligente."},
+ users:[{n:"andrei.popescu@exemplu.md",r:"Administrator"},{n:"ana.rusu@exemplu.md",r:"Moderator"},{n:"ion.ceban@exemplu.md",r:"Membru"},{n:"maria.lungu@exemplu.md",r:"Membru"}],modFront:false}}
+let S=seed();
+try{const o=JSON.parse(localStorage.getItem("gusto1")||"null");if(o&&typeof o=="object")S=Object.assign(S,o)}catch(e){}
+if(!Object.keys(S.plan).length){const m=monday();const ids=[["shakshuka","salata-pui","supa-rosii"],["clatite","paste-spanac","somon"],["toast","tocanita",null]];ids.forEach((row,di)=>row.forEach((id,mi)=>{if(id)S.plan[iso(addD(m,di))+"|"+MEALS[mi]]=id}))}
+function save(){try{localStorage.setItem("gusto1",JSON.stringify(S))}catch(e){toast("Nu am putut salva în acest browser")}}
+let Q="",POP=null,NEWIMG={img:"cooking",photo:null},COOK=null;
+function monday(){const d=today0();const k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return d}
+function addD(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+
+const recipes=()=>R.concat(S.custom);
+const byId=id=>recipes().find(r=>r.id==id);
+const prem=()=>S.role!="free";
+const canEdit=()=>S.role=="mod"||S.role=="admin";
+const isAdmin=()=>S.role=="admin";
+const canFront=()=>isAdmin()||(S.role=="mod"&&S.modFront);
+const prod=n=>{const p=PROD[n];return p?{img:p[0],cat:p[1],p:p[2],u:p[3]}:{img:null,cat:"Altele",p:0,u:"buc"}};
+const inFridge=n=>S.fridge.some(f=>f.n==n);
+const avail=()=>new Set([...S.fridge.map(f=>f.n),...S.sel]);
+const compat=(r,A=avail())=>r.i.filter(x=>A.has(x[0])).length;
+const subFor=(n,A=avail())=>(SUBS[n]||[]).find(s=>A.has(s));
+const allProducts=()=>[...new Set([...Object.keys(PROD),...recipes().flatMap(r=>r.i.map(x=>x[0]))])].sort((a,b)=>a.localeCompare(b,"ro"));
+const expiring=()=>S.fridge.filter(f=>f.x&&daysLeft(f.x)<=3).sort((a,b)=>a.x.localeCompare(b.x));
+function value(f){const p=prod(f.n);if(!p.p)return 0;const q=+f.q||0;
+ if(f.u==p.u)return q*p.p;if((f.u=="g"&&p.u=="kg")||(f.u=="ml"&&p.u=="l"))return q/1000*p.p;if((f.u=="kg"&&p.u=="g")||(f.u=="l"&&p.u=="ml"))return q*1000*p.p;return p.p}
+
+/* ---------- UI helpers ---------- */
+function thumb(n,cls=""){const p=prod(n);return p.img?`<img class="${cls}" src="img/${p.img}.png" alt="" loading="lazy" width="40" height="40">`:`<span class="tph ${cls}">${esc((n||"?")[0].toUpperCase())}</span>`}
+function rsrc(r){const u=S.photos[r.id]||r.photo||(r.ph?`photo/${r.ph}.jpg`:null);return u?{u,photo:true}:r.img?{u:`img/${r.img}.png`,photo:false}:null}
+function tile(r){const s=rsrc(r);return `<div class="rtile">${!s?`<span class="ph">${esc(r.n[0])}</span>`:s.photo?`<img class="photo" src="${s.u}" alt="${esc(r.n)}" loading="lazy">`:`<img class="ill" src="${s.u}" alt="${esc(r.n)}" loading="lazy">`}</div>`}
+const fmtQ=(q,u)=>q===""||q==null?esc(u||""):`${num(q)} ${esc(u||"")}`;
+function expLabel(x){const d=daysLeft(x);if(d==null)return"";const c=d<=2?"d":d<=5?"w":"o";
+ const t=d<0?"Expirat":d==0?"Expiră azi":d==1?"Expiră mâine":`Expiră în ${d} zile`;return `<span class="exp ${c}">${t}</span>`}
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
+function compatLine(r){const A=avail(),c=compat(r,A),n=r.i.length;return `<p class="compat ${c/n<.5?"low":""}">${I("checkc")}${c} din ${n} ingrediente disponibile</p>`}
+function heartBtn(id){return `<button class="heart" data-fav="${id}" aria-pressed="${S.fav.includes(id)}" aria-label="Salvează la favorite" onclick="event.stopPropagation();togFav('${id}')">${I("heart")}</button>`}
+function rcard(r,cur){return `<article class="rcard" tabindex="0" ${cur?'aria-current="true"':""} onclick="pick('${r.id}')" onkeydown="if(event.key=='Enter')pick('${r.id}')">
+ <div style="position:relative">${tile(r)}${heartBtn(r.id)}</div>
+ <div class="rbody"><h3>${esc(r.n)}</h3><p class="meta">${I("clock")}${r.t} min <span aria-hidden="true">·</span> ${I("level")}${esc(r.dif)}</p>${compatLine(r)}</div></article>`}
+
+/* ---------- Navigation ---------- */
+const NAV=[["acasa","Acasă","home"],["retete","Rețete","grid"],["frigider","Frigider","fridge"],["lista","Cumpărături","cart"],["plan","Planificator","cal"],["premium","Premium","crown"]];
+function go(p){S.page=p;POP=null;save();draw();scrollTo({top:0})}
+function setRole(r){S.role=r;if(S.page=="admin"&&!canEdit())S.page="acasa";save();draw();toast(r=="premium"?"Premium activat (demonstrație)":"Rol schimbat")}
+function togFav(id){const k=S.fav.indexOf(id);k<0?(S.fav.push(id),toast("Salvată la favorite")):S.fav.splice(k,1);save();
+ document.querySelectorAll(`[data-fav="${id}"]`).forEach(b=>b.setAttribute("aria-pressed",S.fav.includes(id)))}
+function togSel(n){const k=S.sel.indexOf(n);k<0?S.sel.push(n):S.sel.splice(k,1);save();draw()}
+function togglePop(w){POP=POP==w?null:w;drawPop()}
+document.addEventListener("click",e=>{if(POP&&!e.target.closest(".top-actions")&&!e.target.closest(".me")){POP=null;drawPop()}});
+
+function draw(){
+ const sh=S.shop.filter(s=>!s.d).length,ex=expiring().length;
+ const items=NAV.concat(canEdit()?[["admin","Administrare","shield"]]:[]);
+ if(S.page=="admin"&&!canEdit())S.page="acasa";
+ $("sidenav").innerHTML=items.map(([k,l,ic])=>`<button ${S.page==k?'aria-current="page"':""} onclick="go('${k}')">${I(ic)}${l}${k=="lista"&&sh?`<span class="badge">${sh}</span>`:k=="frigider"&&ex?`<span class="badge red">${ex}</span>`:""}</button>`).join("");
+ $("bottomnav").innerHTML=[["acasa","Acasă","home"],["retete","Rețete","grid"],["frigider","Frigider","fridge"],["lista","Listă","cart"],["plan","Plan","cal"]].map(([k,l,ic])=>`<button ${S.page==k?'aria-current="page"':""} onclick="go('${k}')">${I(ic)}${l}${k=="lista"&&sh?`<span class="badge">${sh}</span>`:k=="frigider"&&ex?`<span class="badge red">${ex}</span>`:""}</button>`).join("");
+ const roleL={free:"Plan gratuit",premium:"Premium",mod:"Moderator",admin:"Administrator"}[S.role];
+ $("me1").innerHTML=`<span class="avatar">AP</span><span><b>Andrei Popescu</b><span>${roleL}</span></span>`;
+ $("me2").innerHTML=`<span class="avatar" style="width:34px;height:34px">AP</span>`;
+ $("bell").innerHTML=I("bell")+(ex?`<span class="badge red">${ex}</span>`:"");
+ $("logo1").innerHTML=$("logo2").innerHTML=`<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS.leaf}</svg>`;
+ $("sic").innerHTML=I("search");
+ if($("topq").value!==Q)$("topq").value=Q;
+ $("app").innerHTML=({acasa:vHome,retete:vRecipes,frigider:vFridge,lista:vList,plan:vPlan,premium:vPremium,admin:vAdmin})[S.page]();
+ if(S.page=="retete")renderRecipes();
+ drawPop();
+}
+function drawPop(){const p=$("pop");if(!POP){p.hidden=true;p.innerHTML="";return}
+ p.hidden=false;
+ if(POP=="notif"){const e=expiring();p.innerHTML=`<div class="pop"><h4>Expiră curând</h4>${e.length?e.map(f=>`<div class="row">${thumb(f.n,"")}<span style="flex:1">${esc(f.n)}</span>${expLabel(f.x)}</div>`).join(""):`<p class="muted small">Nimic nu expiră în următoarele 3 zile.</p>`}
+  <hr><button class="link" onclick="go('frigider')">Vezi frigiderul ${I("arrow")}</button></div>`;
+  p.querySelectorAll(".row img").forEach(i=>{i.style.width=i.style.height="28px"})}
+ else p.innerHTML=`<div class="pop"><div class="row"><span class="avatar">AP</span><span><b>Andrei Popescu</b><br><span class="muted small">andrei.popescu@exemplu.md</span></span></div><hr>
+  <label class="lbl">Vezi site-ul ca<select class="field" onchange="setRole(this.value)">${[["free","Membru · Plan gratuit"],["premium","Membru · Premium"],["mod","Moderator"],["admin","Administrator"]].map(([v,l])=>`<option value="${v}" ${S.role==v?"selected":""}>${l}</option>`).join("")}</select></label>
+  <p class="muted small">Comutator demonstrativ. În versiunea reală rolul vine din cont și e verificat pe server.</p>
+  <button class="btn sm" onclick="go('premium')">${I("crown")}Abonament Premium</button>
+  ${canEdit()?`<button class="btn sm" onclick="go('admin')">${I("shield")}Administrare</button>`:""}
+  <hr><button class="link" style="color:var(--muted)" onclick="resetDemo()">${I("reset")}Resetează datele demonstrative</button></div>`}
+function resetDemo(){try{localStorage.removeItem("gusto1")}catch(e){}S=seed();Q="";POP=null;
+ const m=monday();[["shakshuka","salata-pui","supa-rosii"],["clatite","paste-spanac","somon"],["toast","tocanita",null]].forEach((row,di)=>row.forEach((id,mi)=>{if(id)S.plan[iso(addD(m,di))+"|"+MEALS[mi]]=id}));save();draw();toast("Datele au fost resetate")}
+
+/* ---------- Acasă ---------- */
+function vHome(){
+ const A=avail(),top=recipes().slice().sort((a,b)=>compat(b,A)/b.i.length-compat(a,A)/a.i.length||a.t-b.t).slice(0,4);
+ const quick=["roșii","ouă","spanac","cașcaval","piept de pui"],chips=[...new Set([...quick,...S.sel])];
+ const ex=expiring().slice(0,4),exN=new Set(ex.map(f=>f.n));
+ const useIt=recipes().filter(r=>r.i.some(x=>exN.has(x[0]))).sort((a,b)=>b.i.filter(x=>exN.has(x[0])).length-a.i.filter(x=>exN.has(x[0])).length).slice(0,3);
+ const td=iso(today0());
+ return `<section class="hero"><div class="hero-txt"><p class="eyebrow">Gătește mai inteligent</p>
+  <h1><span>${esc(S.hero.t1)}</span><span>${esc(S.hero.t2)}</span></h1><p class="lede">${esc(S.hero.d)}</p>
+  <form class="hero-search" onsubmit="heroGo(event)">${I("search")}<input id="hq" list="dlp" placeholder="Ce ingrediente ai în frigider?" aria-label="Adaugă un ingredient"><datalist id="dlp">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist><button class="btn primary">Descoperă rețete</button></form>
+  <div class="chips">${chips.map(n=>`<button class="chip" aria-pressed="${S.sel.includes(n)}" onclick="togSel(${jsq(n)})">${thumb(n)}${esc(n[0].toUpperCase()+n.slice(1))}</button>`).join("")}</div></div>
+  <div class="hero-photo"><img src="photo/hero.jpg" alt="Bol cu salată de pui, avocado și roșii"></div></section>
+ <section style="display:flex;flex-direction:column;gap:14px"><div class="sechead"><h2>Inspirație pentru azi</h2><button class="link" onclick="go('retete')">Vezi toate ${I("arrow")}</button></div>
+  <div class="rgrid four">${top.map(r=>rcard(r)).join("")}</div></section>
+ <section class="home2">
+  <div class="card mini"><div class="sechead"><h2>Expiră curând</h2><button class="link" onclick="go('frigider')">Frigider ${I("arrow")}</button></div>
+   ${ex.length?ex.map(f=>`<div class="mrow">${thumb(f.n)}<span class="n"><b>${esc(f.n)}</b> <span class="muted small">${fmtQ(f.q,f.u)}</span></span>${expLabel(f.x)}</div>`).join("")
+   +(useIt.length?`<div class="box"><span class="small muted">Folosește-le în:</span><div class="chips">${useIt.map(r=>`<button class="chip" onclick="openRecipe('${r.id}')">${esc(r.n)}</button>`).join("")}</div></div>`:"")
+   :`<p class="muted">Nimic nu expiră în următoarele 3 zile.</p>`}</div>
+  <div class="card mini"><div class="sechead"><h2>Planul de azi</h2><button class="link" onclick="go('plan')">Planificator ${I("arrow")}</button></div>
+   ${MEALS.map(m=>{const r=byId(S.plan[td+"|"+m]);return r?`<button class="meal" onclick="openRecipe('${r.id}')"><span class="thumb">${tile(r)}</span><span><small>${m}</small><b>${esc(r.n)}</b></span></button>`
+   :`<button class="meal" onclick="go('plan')"><span class="thumb" style="display:grid;place-items:center;background:var(--surface);color:var(--green)">${I("plus")}</span><span><small>${m}</small><span class="muted">Nimic planificat</span></span></button>`}).join("")}</div>
+ </section>`}
+function heroGo(e){e.preventDefault();const v=$("hq").value.trim().toLowerCase();if(v&&!S.sel.includes(v))S.sel.push(v);S.page="retete";save();draw();scrollTo({top:0})}
+
+/* ---------- Rețete ---------- */
+const RCATS=["Toate","Favorite","Mic dejun","Prânz","Cină","Desert","Vegetarian","Rapid"];
+function vRecipes(){
+ const opened=Math.min(S.viewed.length,S.limit);
+ return `<div class="pagehead"><div><h1>Rețete</h1><p>Descoperă rețete delicioase, adaptate ingredientelor tale.</p></div></div>
+ ${prem()?"":`<div class="freebar">${I("lock")}Plan gratuit: ai deschis ${opened} din ${S.limit} rețete. Valorile nutriționale sunt disponibile în Premium.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
+ <div class="rlayout"><div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+  <div class="toolbar"><div class="chips">${RCATS.map(c=>`<button class="chip" aria-pressed="${S.rcat==c}" onclick="S.rcat='${c}';save();draw()">${c}</button>`).join("")}</div>
+   <label class="chip" style="padding-right:6px">${I("filter")}<select aria-label="Sortează" style="border:0;background:none;font-weight:600;font-size:13px" onchange="S.sort=this.value;save();renderRecipes()">${[["compat","Compatibilitate"],["time","Timp de preparare"],["dif","Dificultate"]].map(([v,l])=>`<option value="${v}" ${S.sort==v?"selected":""}>${l}</option>`).join("")}</select></label></div>
+  <div class="selbar"><span class="small muted">Ingredientele tale:</span>${S.sel.length?S.sel.map(n=>`<button class="chip x" onclick="togSel(${jsq(n)})" aria-label="Elimină ${esc(n)}">${thumb(n)}${esc(n)} ${I("x")}</button>`).join("")+`<button class="link" onclick="S.sel=[];save();draw()">Șterge</button>`:`<span class="small">tot ce ai în frigider (${S.fridge.length} produse)</span>`}
+   <form onsubmit="addSel(event)" style="display:flex;gap:6px"><input id="selq" class="field" style="height:34px;width:170px" list="dlp2" placeholder="+ ingredient" aria-label="Adaugă ingredient"><datalist id="dlp2">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></form></div>
+  <p class="small muted" id="rcount"></p>
+  <div class="rgrid" id="rlist"></div></div>
+  <aside class="card detail" id="detail"></aside></div>`}
+function addSel(e){e.preventDefault();const v=$("selq").value.trim().toLowerCase();if(v&&!S.sel.includes(v)){S.sel.push(v);save();draw()}}
+function filtered(){const A=avail(),q=Q.trim().toLowerCase();
+ let l=recipes().filter(r=>{
+  if(S.rcat=="Favorite"&&!S.fav.includes(r.id))return false;
+  if(S.rcat=="Vegetarian"&&!r.veg)return false;
+  if(S.rcat=="Rapid"&&r.t>20)return false;
+  if(MEALS.concat("Desert").includes(S.rcat)&&!(r.cat||[]).includes(S.rcat))return false;
+  if(q&&!r.n.toLowerCase().includes(q)&&!r.i.some(x=>x[0].includes(q)))return false;
+  if(S.sel.length&&!r.i.some(x=>S.sel.includes(x[0])))return false;return true});
+ const D={"Ușor":1,"Mediu":2,"Avansat":3};
+ l.sort(S.sort=="time"?(a,b)=>a.t-b.t:S.sort=="dif"?(a,b)=>D[a.dif]-D[b.dif]||a.t-b.t:(a,b)=>compat(b,A)/b.i.length-compat(a,A)/a.i.length||compat(b,A)-compat(a,A)||a.t-b.t);
+ return l}
+function renderRecipes(){if(!$("rlist"))return;const l=filtered();
+ if(!l.find(r=>r.id==S.detail)&&l[0])S.detail=l[0].id;
+ $("rcount").textContent=`${l.length} ${l.length==1?"rețetă":"rețete"}${S.sort=="compat"?", ordonate după ce ai în frigider":""}`;
+ $("rlist").innerHTML=l.map(r=>rcard(r,r.id==S.detail)).join("")||`<div class="empty" style="grid-column:1/-1"><img src="img/bowl_with_spoon.png" alt="">Nicio rețetă nu se potrivește. Încearcă alt filtru sau alte ingrediente.</div>`;
+ renderDetail()}
+function renderDetail(){const d=$("detail");if(!d)return;const r=byId(S.detail);if(!r){d.innerHTML="";return}
+ d.innerHTML=`<div style="position:relative">${tile(r)}${heartBtn(r.id)}</div><div class="detail-b"><h2>${esc(r.n)}</h2>
+  <p class="meta">${I("clock")}${r.t} min · ${I("level")}${esc(r.dif)} · ${r.por} porții</p>${compatLine(r)}
+  <div><p class="h3" style="margin-bottom:4px">Ingrediente</p>${ingList(r)}</div>
+  <button class="btn primary" onclick="openRecipe('${r.id}')">Vezi rețeta completă ${I("arrow")}</button></div>`}
+function ingList(r){const A=avail();return `<ul class="ilist">${r.i.map(([n,q,u])=>{const ok=A.has(n),sb=!ok&&subFor(n,A);
+ return `<li><span class="st ${ok?"ok":sb?"sub":"no"}">${I(ok||sb?"check":"x")}</span>${thumb(n)}<span class="n">${esc(n)}${sb?`<small>Poți folosi ${esc(sb)} din frigider</small>`:""}</span><span class="q">${fmtQ(q,u)}</span></li>`}).join("")}</ul>`}
+const wide=()=>matchMedia("(min-width:1281px)").matches;
+function pick(id){if(S.page=="retete"&&wide()){S.detail=id;save();document.querySelectorAll(".rcard").forEach(c=>c.removeAttribute("aria-current"));event?.currentTarget?.setAttribute?.("aria-current","true");renderDetail()}else openRecipe(id)}
+
+/* ---------- Modal rețetă ---------- */
+function openModal(html,sm){$("modal").innerHTML=`<div class="scrim" onclick="if(event.target===this)closeModal()"><div class="sheet ${sm?"sm":""}" role="dialog" aria-modal="true"><button class="iconbtn x" onclick="closeModal()" aria-label="Închide">${I("x")}</button>${html}</div></div>`;
+ $("modal").hidden=false;document.body.style.overflow="hidden";$("modal").querySelector(".x").focus()}
+function closeModal(){$("modal").hidden=true;$("modal").innerHTML="";document.body.style.overflow="";COOK=null;draw()}
+addEventListener("keydown",e=>{if(e.key=="Escape"){if(!$("modal").hidden)closeModal();else if(POP){POP=null;drawPop()}}});
+function openRecipe(id){const r=byId(id);if(!r)return;POP=null;drawPop();
+ const locked=!prem()&&!S.viewed.includes(id)&&S.viewed.length>=S.limit;
+ if(!locked&&!prem()&&!S.viewed.includes(id)){S.viewed.push(id);save()}
+ const A=avail(),miss=r.i.filter(x=>!A.has(x[0])),P=prem();
+ const nut=`<div class="nut ${P?"":"locked"}"><div class="cells"><div><b>${P?r.k:"000"}</b><span>kcal</span></div><div><b>${P?r.p:"00"} g</b><span>proteine</span></div><div><b>${P?r.c:"00"} g</b><span>carbohidrați</span></div><div><b>${P?r.f:"00"} g</b><span>grăsimi</span></div></div>
+  ${P?"":`<div class="lockmsg"><button class="btn honey sm" onclick="go('premium')">${I("lock")}Deblochează cu Premium</button></div>`}</div><p class="small muted" style="margin-top:6px">Valori nutriționale pe porție.</p>`;
+ const days=[...Array(7)].map((_,k)=>addD(monday(),k));
+ const body=locked?`<div class="paywall"><p class="eyebrow" style="color:var(--honey)">${I("crown")} Premium</p><h3>Ai deschis toate cele ${S.limit} rețete gratuite</h3><p>Cu Premium ai acces nelimitat la rețete, valori nutriționale și planificare automată.</p><button class="btn honey" onclick="go('premium')">Vezi planurile</button></div>`
+ :`<div class="cols2"><div style="display:flex;flex-direction:column;gap:12px"><p class="h3">Ingrediente</p>${ingList(r)}
+   ${miss.length?`<button class="btn sm" id="missBtn" onclick="addMissing('${id}')">${I("cart")}Adaugă ${miss.length} ${miss.length==1?"produs lipsă":"produse lipsă"} pe listă</button>`:`<p class="compat">${I("checkc")}Ai toate ingredientele</p>`}
+   <div class="box"><p class="h3" style="font-size:14px">Adaugă în planificator</p><div class="form"><select id="pday" class="field" aria-label="Zi">${days.map(d=>`<option value="${iso(d)}" ${iso(d)==iso(today0())?"selected":""}>${dayName(d)} ${d.getDate()}</option>`).join("")}</select>
+   <select id="pmeal" class="field" aria-label="Masă">${MEALS.map(m=>`<option ${(r.cat||[]).includes(m)?"":""}>${m}</option>`).join("")}</select><button class="btn sm" onclick="S.plan[$('pday').value+'|'+$('pmeal').value]='${id}';save();toast('Adăugată în planificator')">${I("cal")}Adaugă</button></div></div></div>
+  <div style="display:flex;flex-direction:column;gap:12px"><p class="h3">Preparare</p><ol class="steps">${r.s.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ol>
+   <div id="cookbox"><button class="btn primary" onclick="cookAsk('${id}')">${I("cook")}Am gătit-o</button><p class="small muted" style="margin-top:6px">Scădem ingredientele folosite din frigider, după confirmare.</p></div></div></div>`;
+ openModal(`<div class="sheet-top"><div class="media">${tile(r)}${heartBtn(id)}</div>
+  <div style="display:flex;flex-direction:column;gap:10px;padding-right:36px"><p class="eyebrow">${(r.cat||[]).join(" · ")}${r.veg?" · Vegetarian":""}</p><h2>${esc(r.n)}</h2><p class="muted">${esc(r.d||"")}</p>
+  <div class="facts"><span class="fact">${I("clock")}${r.t} min</span><span class="fact">${I("level")}${esc(r.dif)}</span><span class="fact">${I("users")}${r.por} porții</span><span class="fact" style="color:var(--green)">${I("checkc")}${compat(r,A)} din ${r.i.length} disponibile</span></div></div></div>
+  <div class="sheet-b">${nut}${body}</div>`)}
+function dayName(d){return["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"][d.getDay()]}
+function addMissing(id){const A=avail();let k=0;byId(id).i.forEach(([n,q,u])=>{if(!A.has(n)&&!S.shop.some(s=>s.n==n&&!s.d)){S.shop.push({n,q,u,d:false});k++}});save();
+ const b=$("missBtn");if(b){b.innerHTML=I("check")+(k?`Am adăugat ${k} pe listă`:"Sunt deja pe listă");b.disabled=true}}
+function cookPlan(r){return r.i.map(([n,q,u])=>{const f=S.fridge.find(x=>x.n==n);if(!f)return null;
+ let rq=+q;if(f.u=="kg"&&u=="g")rq=q/1000;else if(f.u=="l"&&u=="ml")rq=q/1000;else if(f.u!=u)return{n,manual:true};return{n,rq,u:f.u}}).filter(Boolean)}
+function cookAsk(id){const pl=cookPlan(byId(id));COOK=id;
+ $("cookbox").innerHTML=`<div class="box honey"><p class="h3" style="font-size:14px">Scădem din frigider:</p><ul style="margin:0;padding-left:18px;font-size:14px">${pl.map(x=>x.manual?`<li>${esc(x.n)}: verifici tu cantitatea</li>`:`<li>${esc(x.n)}: −${num(x.rq)} ${esc(x.u)}</li>`).join("")||"<li>Niciun ingredient din frigider</li>"}</ul>
+  <div style="display:flex;gap:8px"><button class="btn primary sm" onclick="cookDo('${id}')">Confirmă</button><button class="btn sm" onclick="openRecipe('${id}')">Anulează</button></div></div>`}
+function cookDo(id){const pl=cookPlan(byId(id));let k=0;pl.forEach(x=>{if(x.manual)return;const f=S.fridge.find(y=>y.n==x.n);f.q=Math.round((+f.q-x.rq)*100)/100;k++;if(f.q<=0)S.fridge.splice(S.fridge.indexOf(f),1)});
+ S.demo=false;save();$("cookbox").innerHTML=`<p class="compat">${I("checkc")}Poftă bună! Am actualizat ${k} produse în frigider.</p>`}
+
+/* ---------- Frigider ---------- */
+function vFridge(){
+ const total=S.fridge.length,ex=expiring(),val=S.fridge.reduce((s,f)=>s+value(f),0),q=Q.trim().toLowerCase();
+ const list=S.fridge.map((f,i)=>({...f,i,cat:prod(f.n).cat})).filter(f=>(S.fcat=="Toate"||f.cat==S.fcat)&&(!(window.FQ||"")||f.n.includes(window.FQ.toLowerCase())));
+ const sel=S.fridge.filter(f=>f.s).length;
+ const exN=new Set(ex.map(f=>f.n)),useIt=recipes().filter(r=>r.i.some(x=>exN.has(x[0]))).slice(0,3);
+ return `<div class="pagehead"><div><h1>Frigiderul meu</h1><p>Gestionează-ți ingredientele și evită risipa alimentară.</p></div>
+  <div class="acts"><button class="btn primary" onclick="S.addOpen=!S.addOpen;save();draw();setTimeout(()=>$('fn')&&$('fn').focus())">${I("plus")}Adaugă ingredient</button></div></div>
+ ${S.addOpen?`<form class="card addpanel" onsubmit="addFridge(event)"><p class="h3">Ingredient nou</p><div class="form">
+  <label class="lbl grow">Produs<input id="fn" class="field" list="dlp3" required placeholder="ex. roșii" oninput="const p=PROD[this.value.trim().toLowerCase()];if(p){const u=$('fu');const m={kg:'g',l:'ml'}[p[3]]||p[3];if([...u.options].some(o=>o.value==m))u.value=m}"><datalist id="dlp3">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
+  <label class="lbl">Cantitate<input id="fq" class="field w90" type="number" min="0" step="any" value="1"></label>
+  <label class="lbl">Unitate<select id="fu" class="field">${["buc","g","kg","ml","l","cap","legătură"].map(u=>`<option>${u}</option>`).join("")}</select></label>
+  <label class="lbl">Expiră la<input id="fx" class="field" type="date" value="${inDays(7)}"></label>
+  <button class="btn primary">Adaugă</button><button type="button" class="btn ghost" onclick="S.addOpen=false;save();draw()">Închide</button></div></form>`:""}
+ ${S.demo?`<div class="freebar" style="background:var(--green-soft);color:var(--green-dk)">Produsele afișate sunt exemple, ca să vezi cum funcționează frigiderul.<button class="link" style="color:var(--green-dk)" onclick="S.fridge=[];S.demo=false;save();draw()">Golește frigiderul</button></div>`:""}
+ <div class="stats"><div class="card stat"><span class="ic g">${I("leaf")}</span><span><small>Total ingrediente</small><b>${total}</b></span></div>
+  <div class="card stat"><span class="ic r">${I("alarm")}</span><span><small>Expiră în 3 zile</small><b>${ex.length}</b></span></div>
+  <div class="card stat"><span class="ic h">${I("coin")}</span><span><small>Valoare estimată</small><b>${Math.round(val).toLocaleString("ro-RO")} MDL</b></span></div></div>
+ ${useIt.length?`<div class="suggest">${I("alarm")}<span><b>${ex.length} ${ex.length==1?"produs expiră":"produse expiră"} curând.</b> Le poți folosi în:</span><div class="chips">${useIt.map(r=>`<button class="chip" onclick="openRecipe('${r.id}')">${esc(r.n)}</button>`).join("")}</div></div>`:""}
+ <div class="toolbar"><label class="search" style="max-width:260px">${I("search")}<input id="fsearch" type="search" placeholder="Caută ingredient…" value="${esc(window.FQ||"")}" oninput="window.FQ=this.value;draw();const e=$('fsearch');e.focus();e.setSelectionRange(e.value.length,e.value.length)" aria-label="Caută în frigider"></label>
+  <div class="chips">${["Toate",...CATS].map(c=>`<button class="chip" aria-pressed="${S.fcat==c}" onclick="S.fcat='${c}';save();draw()">${c}</button>`).join("")}</div></div>
+ ${list.length?`<div class="fcols">${CATS.map(c=>{const it=list.filter(f=>f.cat==c).sort((a,b)=>(a.x||"9").localeCompare(b.x||"9"));if(!it.length)return"";
+  return `<div class="card fcol"><div class="fcol-h">${CATT[c]}<span class="badge">${it.length}</span></div>${it.map(f=>{const st=["g","ml"].includes(f.u)?50:1;return `<div class="frow">
+   <input type="checkbox" class="chk" ${f.s?"checked":""} onchange="S.fridge[${f.i}].s=this.checked;save();draw()" aria-label="Gătește cu ${esc(f.n)}">${thumb(f.n)}
+   <span class="n"><b>${esc(f.n)}</b><span>${fmtQ(f.q,f.u)}${f.x?" · ":""}${expLabel(f.x)}</span></span>
+   <span class="qty"><button onclick="qty(${f.i},-${st})" aria-label="Mai puțin">${I("minus")}</button><button onclick="qty(${f.i},${st})" aria-label="Mai mult">${I("plus")}</button></span>
+   <button class="del" onclick="S.fridge.splice(${f.i},1);S.demo=false;save();draw()" aria-label="Șterge ${esc(f.n)}">${I("trash")}</button></div>`}).join("")}</div>`}).join("")}</div>`
+ :`<div class="empty"><img src="img/leafy_green.png" alt="">${S.fridge.length?"Niciun produs nu se potrivește filtrului.":"Frigiderul e gol. Apasă „Adaugă ingredient” ca să începi."}</div>`}
+ ${sel?`<div class="actionbar"><span>${sel} ${sel==1?"produs selectat":"produse selectate"}</span><button class="btn honey" onclick="cookFrom()">Vezi ce poți găti ${I("arrow")}</button></div>`:`<p class="small muted">Bifează produsele pe care vrei să le folosești și îți arătăm rețetele potrivite.</p>`}`}
+function qty(i,d){const f=S.fridge[i];f.q=Math.max(0,Math.round((+f.q+d)*100)/100);S.demo=false;save();draw()}
+function addFridge(e){e.preventDefault();const n=$("fn").value.trim().toLowerCase();if(!n)return;
+ const ex=S.fridge.find(f=>f.n==n&&f.u==$("fu").value);
+ if(ex){ex.q=+ex.q+(+$("fq").value||0);if($("fx").value)ex.x=$("fx").value}else S.fridge.push({n,q:+$("fq").value||1,u:$("fu").value,x:$("fx").value,s:false});
+ S.demo=false;save();draw();toast(`Am adăugat ${n} în frigider`);setTimeout(()=>$("fn")&&$("fn").focus())}
+function cookFrom(){S.sel=[...new Set(S.fridge.filter(f=>f.s).map(f=>f.n))];S.rcat="Toate";S.sort="compat";go("retete")}
+
+/* ---------- Cumpărături ---------- */
+function vList(){
+ const todo=S.shop.filter(s=>!s.d),done=S.shop.filter(s=>s.d),est=todo.reduce((a,s)=>a+value(s),0);
+ const inF=S.shop.filter(s=>!s.d&&inFridge(s.n)).length;
+ const row=s=>{const i=S.shop.indexOf(s);return `<div class="srow ${s.d?"done":""}"><input type="checkbox" id="sh${i}" ${s.d?"checked":""} onchange="S.shop[${i}].d=this.checked;save();draw()">${thumb(s.n)}
+  <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&inFridge(s.n)?" · ai deja în frigider":""}</span></label>
+  <button class="iconbtn" onclick="S.shop.splice(${i},1);save();draw()" aria-label="Șterge ${esc(s.n)}">${I("x")}</button></div>`};
+ return `<div class="pagehead"><div><h1>Lista de cumpărături</h1><p>${todo.length} de cumpărat · aproximativ ${Math.round(est)} MDL</p></div>
+  <div class="acts"><button class="btn" onclick="shareList()">${I("share")}Partajează</button><button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button></div></div>
+ <form class="card addpanel" onsubmit="addShop(event)"><div class="form"><label class="lbl grow">Produs<input id="sn" class="field" list="dlp4" required placeholder="ex. lapte"><datalist id="dlp4">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
+  <label class="lbl">Cantitate<input id="sq" class="field w90" type="number" min="0" step="any" placeholder="1"></label>
+  <label class="lbl">Unitate<select id="su" class="field">${["buc","g","kg","ml","l","legătură"].map(u=>`<option>${u}</option>`).join("")}</select></label><button class="btn primary">${I("plus")}Adaugă</button></div></form>
+ ${inF?`<div class="suggest">${I("fridge")}<span><b>${inF} ${inF==1?"produs e":"produse sunt"} deja în frigider.</b></span><button class="btn sm" onclick="S.shop=S.shop.filter(s=>s.d||!inFridge(s.n));save();draw();toast('Am eliminat produsele pe care le ai')">Elimină-le din listă</button></div>`:""}
+ ${S.shop.length?`<div class="scols">${CATS.map(c=>{const it=todo.filter(s=>prod(s.n).cat==c);return it.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">${CATT[c]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
+  ${done.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">În coș<span class="badge">${done.length}</span></div>${done.map(row).join("")}
+   <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 0"><button class="btn primary sm" onclick="toFridge()">${I("fridge")}Mută în frigider</button><button class="btn sm" onclick="S.shop=S.shop.filter(s=>!s.d);save();draw()">Șterge din listă</button></div></div>`:""}</div>`
+ :`<div class="empty"><img src="img/red_apple.png" alt="">Lista e goală. Adaugă produse sau importă ingredientele lipsă dintr-o rețetă.</div>`}
+ ${prem()?"":`<div class="card" style="padding:16px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">${I("users")}<span style="flex:1;min-width:200px"><b>Liste partajate cu familia</b><br><span class="small muted">Cu Premium, lista se actualizează pentru toți membrii familiei.</span></span><button class="btn sm" onclick="go('premium')">${I("crown")}Află mai mult</button></div>`}`}
+function addShop(e){e.preventDefault();const n=$("sn").value.trim().toLowerCase();if(!n)return;S.shop.push({n,q:$("sq").value?+$("sq").value:"",u:$("sq").value?$("su").value:"",d:false});save();draw();setTimeout(()=>$("sn")&&$("sn").focus())}
+function toFridge(){const d=S.shop.filter(s=>s.d);d.forEach(s=>{const f=S.fridge.find(x=>x.n==s.n&&x.u==s.u);if(f&&s.q)f.q=+f.q+(+s.q);else if(!f)S.fridge.push({n:s.n,q:s.q||1,u:s.u||"buc",x:inDays(7),s:false})});
+ S.shop=S.shop.filter(s=>!s.d);S.demo=false;save();draw();toast(`${d.length} produse mutate în frigider`)}
+function shareList(){const t="Lista de cumpărături Gusto:\n"+S.shop.filter(s=>!s.d).map(s=>`- ${s.n}${s.q?` (${num(s.q)} ${s.u})`:""}`).join("\n");
+ const done=()=>toast("Lista a fost copiată. O poți lipi într-un mesaj.");
+ try{navigator.clipboard.writeText(t).then(done,()=>showText(t))}catch(e){showText(t)}}
+function showText(t){openModal(`<div class="sheet-b"><h2 style="font-size:20px">Copiază lista</h2><textarea id="sharet" class="field" rows="8" readonly>${esc(t)}</textarea><p class="small muted">Textul e selectat. Copiază-l și trimite-l cui vrei.</p></div>`,1);setTimeout(()=>{$("sharet").select()})}
+function importPick(){openModal(`<div class="sheet-b"><h2 style="font-size:20px">Importă din rețetă</h2><p class="muted small">Adăugăm doar ingredientele pe care nu le ai.</p>
+ <ul class="plist">${recipes().map(r=>{const m=r.i.filter(x=>!avail().has(x[0])).length;return `<li><button onclick="addMissing('${r.id}');closeModal();toast('Ingredientele lipsă au fost adăugate')"><span class="thumb">${tile(r)}</span><span style="flex:1"><b>${esc(r.n)}</b><br><span class="small muted">${m?`${m} ${m==1?"ingredient lipsă":"ingrediente lipsă"}`:"ai tot"}</span></span></button></li>`}).join("")}</ul></div>`,1)}
+
+/* ---------- Planificator ---------- */
+function vPlan(){const m=monday(),days=[...Array(7)].map((_,k)=>addD(m,k)),td=iso(today0());
+ const planned=days.flatMap(d=>MEALS.map(x=>S.plan[iso(d)+"|"+x])).filter(Boolean);
+ const f=d=>`${d.getDate()}.${String(d.getMonth()+1).padStart(2,"0")}`;
+ return `<div class="pagehead"><div><h1>Planificator de mese</h1><p>Săptămâna ${f(days[0])} – ${f(days[6])} · ${planned.length} din 21 de mese planificate</p></div>
+  <div class="acts"><button class="btn" onclick="planShop()">${I("cart")}Lipsurile pe listă</button>
+  <button class="btn ${prem()?"primary":""}" onclick="autoPlan()">${prem()?I("spark"):I("lock")}Planificare automată</button></div></div>
+ ${prem()?"":`<div class="freebar">${I("crown")}Planificarea automată pentru toată săptămâna, după ce ai în frigider, e inclusă în Premium. Manual poți planifica oricând.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
+ <div class="week">${days.map(d=>{const k=iso(d);return `<div class="card day ${k==td?"today":""}"><div class="day-h"><b>${dayName(d)}</b><span>${f(d)}</span></div>
+  ${MEALS.map(x=>{const r=byId(S.plan[k+"|"+x]);const s=r&&rsrc(r);return `<button class="slot" onclick="slotPick('${k}','${x}')"><small>${x}</small>${r?`<span class="pick">${s?`<img src="${s.u}" class="${s.photo?"":"ill"}" alt="">`:""}<span>${esc(r.n)}</span></span>`:`<span class="slot-add">${I("plus")}Adaugă</span>`}</button>`}).join("")}</div>`}).join("")}</div>
+ ${planned.length?`<p class="small muted">Atinge o masă ca s-o schimbi sau s-o elimini.</p>`:""}`}
+function slotPick(k,meal){const A=avail(),cur=S.plan[k+"|"+meal];
+ const l=recipes().slice().sort((a,b)=>((b.cat||[]).includes(meal)-(a.cat||[]).includes(meal))||compat(b,A)/b.i.length-compat(a,A)/a.i.length);
+ openModal(`<div class="sheet-b"><div><p class="eyebrow">${dayName(new Date(k+"T00:00"))} · ${meal}</p><h2 style="font-size:22px">Alege o rețetă</h2></div>
+ <ul class="plist">${l.map(r=>`<li><button onclick="S.plan['${k}|${meal}']='${r.id}';save();closeModal()"><span class="thumb">${tile(r)}</span><span style="flex:1"><b>${esc(r.n)}</b><br><span class="small muted">${r.t} min · ${compat(r,A)} din ${r.i.length} disponibile</span></span>${r.id==cur?I("checkc"):""}</button></li>`).join("")}</ul>
+ ${cur?`<button class="btn" onclick="delete S.plan['${k}|${meal}'];save();closeModal()">${I("trash")}Elimină din plan</button>`:""}</div>`,1)}
+function autoPlan(){if(!prem()){go("premium");toast("Planificarea automată e inclusă în Premium");return}
+ const A=avail(),used=new Set(Object.values(S.plan));let n=0;
+ [...Array(7)].map((_,k)=>iso(addD(monday(),k))).forEach(k=>MEALS.forEach(m=>{if(S.plan[k+"|"+m])return;
+  const c=recipes().filter(r=>(r.cat||[]).includes(m)).sort((a,b)=>(used.has(a.id)-used.has(b.id))||compat(b,A)/b.i.length-compat(a,A)/a.i.length);
+  if(c[0]){S.plan[k+"|"+m]=c[0].id;used.add(c[0].id);n++}}));
+ save();draw();toast(n?`Am completat ${n} mese, după ce ai în frigider`:"Săptămâna e deja planificată")}
+function planShop(){const A=avail(),need={};Object.entries(S.plan).forEach(([k,id])=>{const d=new Date(k.split("|")[0]+"T00:00");if(d<monday()||d>addD(monday(),6))return;const r=byId(id);r&&r.i.forEach(([n,q,u])=>{if(!A.has(n)){need[n]=need[n]||{q:0,u};if(need[n].u==u&&typeof q=="number")need[n].q+=q}})});
+ let k=0;Object.entries(need).forEach(([n,v])=>{if(!S.shop.some(s=>s.n==n&&!s.d)){S.shop.push({n,q:v.q||"",u:v.q?v.u:"",d:false});k++}});save();draw();toast(k?`Am adăugat ${k} produse pe listă`:"Ai deja tot ce trebuie")}
+
+/* ---------- Premium ---------- */
+function vPremium(){const P=prem();
+ const B=[["grid","Rețete nelimitate","Acces la toate rețetele, cu filtre avansate."],["cal","Planificator de mese","Planificare automată pentru toată săptămâna."],["fridge","Frigider avansat","Notificări de expirare și sugestii de rețete."],["users","Liste partajate","Cumpărături comune cu familia."],["spark","Recomandări personalizate","Rețete adaptate preferințelor tale."]];
+ const T=[["Descoperire de rețete","De bază","Filtre și personalizare extinsă"],["Gestionare frigider","Inventar de bază","Inventar avansat și notificări"],["Liste de cumpărături","Liste interactive","Liste partajate și optimizate"],["Planificator de mese","Manual","Planificare automată"],["Valori nutriționale","Ascunse","Calorii și macronutrienți"],["Preferințe alimentare","Setări de bază","Recomandări personalizate"],["Statistici anti-risipă","Sumar simplu","Rapoarte și tendințe"],["Rețete pe lună",`${S.limit}`,"Nelimitat"]];
+ return `<section class="phero"><div class="phero-t"><p class="eyebrow">${I("crown")}Abonament Premium</p><h1><span>Mai mult decât rețete.</span><span>Un stil de viață mai sănătos.</span></h1>
+  <p>Accesează toate funcționalitățile avansate și bucură-te de o experiență completă în bucătărie.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn honey" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">Alege planul potrivit</button><button class="btn ghost" onclick="document.getElementById('cmp').scrollIntoView({behavior:'smooth'})">Află mai multe ${I("arrow")}</button></div></div>
+  <div class="phero-img"><img src="photo/premium.jpg" alt=""></div></section>
+ <section style="display:flex;flex-direction:column;gap:16px"><div class="sechead"><h2>Beneficiile tale Premium</h2></div>
+  <div class="benefits">${B.map(([ic,t,d])=>`<div class="benefit"><span class="ic ${ic=="spark"?"h":"g"}">${I(ic)}</span><span><b>${t}</b><span>${d}</span></span></div>`).join("")}</div></section>
+ <section id="plans" style="display:flex;flex-direction:column;gap:16px"><div class="sechead"><h2>Alege planul</h2></div>
+  <div class="plans"><div class="card plan"><h3>Gratuit</h3><p class="small muted">Esențial pentru început</p>
+   <ul>${["Rețete de bază (" + S.limit + " pe lună)","Inventar simplu al frigiderului","Liste interactive","Planificare manuală"].map(x=>`<li>${I("check")}${x}</li>`).join("")}</ul>
+   <div class="price"><span><b>0 MDL</b> <small>/ lună</small></span>${P?`<button class="btn sm" onclick="setRole('free')">Treci la Gratuit</button>`:`<button class="btn sm" disabled>Planul tău</button>`}</div></div>
+  <div class="card plan feat"><span class="ribbon">Popular</span><h3>Premium</h3><p class="small muted">Tot ce ai nevoie pentru o experiență completă</p>
+   <ul>${["Toate funcționalitățile gratuite","Rețete nelimitate și valori nutriționale","Planificator de mese automat","Recomandări personalizate","Liste partajate și optimizate"].map(x=>`<li>${I("check")}${x}</li>`).join("")}</ul>
+   <div class="price"><span><b>${num(S.price)} MDL</b> <small>/ lună</small></span>${P?`<button class="btn sm" disabled>${I("check")}Activ</button>`:`<button class="btn primary sm" onclick="setRole('premium')">Alege Premium</button>`}</div></div>
+  <div class="card promo">${I("leaf")}<h3>Investește în sănătatea ta și în timpul tău.</h3><p>Cu Premium gătești mai ușor, mai inteligent și mai gustos.</p><img src="photo/hero.jpg" alt=""></div></div>
+  <p class="small muted">Demonstrație: butonul activează Premium fără plată. În versiunea reală plata se face prin Stripe, confirmată prin webhook.</p></section>
+ <section id="cmp" style="display:flex;flex-direction:column;gap:16px"><div class="sechead"><h2>Gratuit sau Premium</h2></div>
+  <div class="card tablewrap"><table class="cmp"><thead><tr><th>Funcționalitate</th><th>Gratuit</th><th>Premium</th></tr></thead><tbody>${T.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table></div></section>`}
+
+/* ---------- Administrare ---------- */
+function vAdmin(){const ROLES=["Membru","Moderator","Administrator"];const G=[...new Set([...R.filter(r=>r.img).map(r=>r.img),...EXTRA])];
+ return `<div class="pagehead"><div><h1>Administrare</h1><p>${isAdmin()?"Acces complet":"Acces de moderator: rețete și imagini"}</p></div></div><div class="panels">
+ ${isAdmin()?`<div class="card panel"><h3>Abonament Premium</h3>
+  <label class="lbl">Rețete gratuite pe lună (plan Gratuit)<input id="alim" class="field" type="number" min="0" value="${S.limit}" onchange="S.limit=Math.max(0,+this.value);save();toast('Limită salvată')"></label>
+  <label class="lbl">Preț Premium (MDL pe lună)<input id="aprc" class="field" type="number" min="0" step="1" value="${S.price}" onchange="S.price=+this.value;save();toast('Preț salvat')"></label>
+  <p class="small muted">Plata reală: Stripe, confirmată prin webhook, în versiunea Next.js.</p></div>`:""}
+ ${canFront()?`<div class="card panel"><h3>Pagina principală</h3>
+  <label class="lbl">Titlu, rândul 1<input id="h1a" class="field" value="${esc(S.hero.t1)}"></label><label class="lbl">Titlu, rândul 2<input id="h1b" class="field" value="${esc(S.hero.t2)}"></label>
+  <label class="lbl">Text<textarea id="hd" class="field" rows="3">${esc(S.hero.d)}</textarea></label>
+  <div><button class="btn primary" onclick="S.hero={t1:$('h1a').value,t2:$('h1b').value,d:$('hd').value};save();toast('Pagina principală a fost actualizată')">Salvează</button></div></div>`
+ :`<div class="card panel"><h3>Pagina principală</h3><p class="muted">Un administrator îți poate da dreptul să editezi pagina principală.</p></div>`}
+ <div class="card panel"><h3>Rețetă nouă</h3>
+  <label class="lbl">Nume<input id="rn" class="field" placeholder="ex. Zacuscă de vinete"></label>
+  <label class="lbl">Descriere scurtă<input id="rd" class="field"></label>
+  <label class="lbl">Ingrediente, câte unul pe rând (nume cantitate unitate)<textarea id="ri" class="field" rows="4" placeholder="roșii 500 g&#10;ouă 4 buc&#10;usturoi 2 căței"></textarea></label>
+  <div class="form"><label class="lbl">Minute<input id="rt" class="field w90" type="number" min="1" value="30"></label><label class="lbl">Porții<input id="rp2" class="field w90" type="number" min="1" value="4"></label>
+   <label class="lbl">Dificultate<select id="rdf" class="field"><option>Ușor</option><option>Mediu</option><option>Avansat</option></select></label></div>
+  <div class="cats">${["Mic dejun","Prânz","Cină","Desert"].map(c=>`<label><input type="checkbox" class="rcat" value="${c}">${c}</label>`).join("")}<label><input type="checkbox" id="rveg">Vegetarian</label></div>
+  <div class="form"><label class="lbl">kcal<input id="rk" class="field w90" type="number" min="0"></label><label class="lbl">Proteine (g)<input id="rp" class="field w90" type="number" min="0"></label><label class="lbl">Carbohidrați (g)<input id="rc" class="field w90" type="number" min="0"></label><label class="lbl">Grăsimi (g)<input id="rf" class="field w90" type="number" min="0"></label></div>
+  <label class="lbl">Pași, câte unul pe rând<textarea id="rs" class="field" rows="4"></textarea></label>
+  <div class="lbl">Imagine<div class="gallery" id="gal">${G.map(g=>`<button type="button" aria-pressed="${!NEWIMG.photo&&NEWIMG.img==g}" onclick="NEWIMG={img:'${g}',photo:null};document.querySelectorAll('#gal button').forEach(b=>b.setAttribute('aria-pressed',b===this))" aria-label="${g.replace(/_/g," ")}"><img src="img/${g}.png" alt="" loading="lazy"></button>`).join("")}</div>
+   <label class="btn sm" style="align-self:flex-start">${I("plus")}Încarcă o fotografie<input type="file" accept="image/*" hidden onchange="readImg(this.files[0],u=>{NEWIMG={img:null,photo:u};document.querySelectorAll('#gal button').forEach(b=>b.setAttribute('aria-pressed',false));toast('Fotografie încărcată')})"></label></div>
+  <div><button class="btn primary" onclick="addRec()">Publică rețeta</button></div></div>
+ <div class="card panel"><h3>Rețete și fotografii</h3><p class="small muted">${recipes().length} rețete. La lansare: cel puțin 100.</p>
+  <ul class="alist">${recipes().map(r=>`<li><span class="thumb">${tile(r)}</span><span class="grow">${esc(r.n)}</span>
+   <label class="btn sm">Schimbă poza<input type="file" accept="image/*" hidden onchange="readImg(this.files[0],u=>{S.photos['${r.id}']=u;save();draw();toast('Fotografie înlocuită')})"></label>
+   ${S.photos[r.id]?`<button class="iconbtn" aria-label="Revino la imaginea inițială" onclick="delete S.photos['${r.id}'];save();draw()">${I("reset")}</button>`:""}
+   ${r.id.startsWith("c-")?`<button class="iconbtn" aria-label="Șterge rețeta" onclick="S.custom=S.custom.filter(x=>x.id!='${r.id}');save();draw()">${I("trash")}</button>`:""}</li>`).join("")}</ul></div>
+ ${isAdmin()?`<div class="card panel"><h3>Utilizatori și roluri</h3>
+  <ul class="alist">${S.users.map((u,i)=>`<li><span class="avatar" style="width:30px;height:30px;font-size:11px">${esc(u.n.slice(0,2).toUpperCase())}</span><span class="grow">${esc(u.n)}</span>
+   <select class="field" aria-label="Rol pentru ${esc(u.n)}" onchange="S.users[${i}].r=this.value;save();toast('Rol actualizat')">${ROLES.map(r=>`<option ${r==u.r?"selected":""}>${r}</option>`).join("")}</select>
+   <button class="btn sm" onclick="blk(${jsq(u.n)})">Blochează</button></li>`).join("")}</ul>
+  <label class="switch"><input type="checkbox" ${S.modFront?"checked":""} onchange="S.modFront=this.checked;save()">Moderatorii pot edita pagina principală</label></div>
+ <div class="card panel"><h3>Blocări</h3>
+  <form class="form" onsubmit="event.preventDefault();blk($('bk').value)"><input id="bk" class="field grow" placeholder="Adresă IP sau email" aria-label="IP sau email de blocat"><button class="btn">Blochează</button></form>
+  ${S.blocked.length?`<ul class="alist">${S.blocked.map((b,i)=>`<li><span class="exp d">Blocat</span><span class="grow">${esc(b)}</span><button class="btn sm" onclick="S.blocked.splice(${i},1);save();draw()">Deblochează</button></li>`).join("")}</ul>`:`<p class="muted">Nicio blocare activă.</p>`}
+  <p class="small muted">Blocarea și verificarea rolurilor se aplică pe server în versiunea Next.js.</p></div>`:""}
+ </div>`}
+function blk(v){v=(v||"").trim();if(v&&!S.blocked.includes(v)){S.blocked.push(v);save();draw();toast("Blocat: "+v)}}
+function readImg(file,cb){if(!file)return;const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.82))};im.src=fr.result};fr.readAsDataURL(file)}
+function addRec(){const n=$("rn").value.trim();
+ const i=$("ri").value.split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(.*)$/);return m?[m[1].toLowerCase(),+m[2].replace(",","."),m[3]]:[l.toLowerCase(),"",""]});
+ if(!n||!i.length){toast("Completează numele și cel puțin un ingredient");return}
+ const r={id:"c-"+Date.now(),n,d:$("rd").value.trim(),i,img:NEWIMG.img,photo:NEWIMG.photo,t:+$("rt").value||30,por:+$("rp2").value||4,dif:$("rdf").value,
+  cat:[...document.querySelectorAll(".rcat:checked")].map(x=>x.value),veg:$("rveg").checked?1:0,
+  k:+$("rk").value||0,p:+$("rp").value||0,c:+$("rc").value||0,f:+$("rf").value||0,s:$("rs").value.split("\n").map(x=>x.trim()).filter(Boolean)};
+ if(!r.s.length)r.s=["Pașii vor fi adăugați în curând."];
+ S.custom.push(r);NEWIMG={img:"cooking",photo:null};save();draw();toast("Rețeta a fost publicată")}
+
+draw();
+</script>
+</body>
+</html>
