@@ -951,6 +951,12 @@ const TXT_FIELDS=[["premEyebrow","Premium: etichetă"],["premT1","Premium: titlu
 const DEF_PLANS=[{id:"p1",name:"Lunar",price:49,days:30,on:true,pop:true},{id:"p2",name:"Anual",price:399,days:365,on:true,pop:false}];
 const ADMIN_PAGES=[["acasa","Acasă"],["retete","Rețete"],["frigider","Frigider"],["lista","Cumpărături"],["plan","Planificator"],["premium","Premium"]];
 
+/* ---------- Configurare server ---------- */
+// Adresa serverului API (Railway). Gol = modul demonstrativ, fără server (datele rămân în browser).
+const API_URL="https://gusto-api-production.up.railway.app";
+// ?demo=1 în adresă pornește oricând varianta demonstrativă locală, separat de datele cu server.
+const SRV=!!API_URL&&!/[?&]demo=1\b/.test(location.search);
+
 /* ---------- Rețete inițiale ---------- */
 const R_SEED=[
 {id:"shakshuka",n:"Shakshuka cu ouă",ph:"shakshuka",t:20,dif:"Ușor",por:2,cat:["Mic dejun","Prânz"],veg:1,d:"Ouă coapte într-un sos gros de roșii și ardei, servite direct din tigaie.",
@@ -1037,12 +1043,12 @@ const ROLE_DEF={member:[],trainer:[],moderator:["recipes"],admin:["recipes","pro
 const GRANT={admin:["recipes","products","frontend","security"],super:["recipes","products","frontend","security","monetization"]};
 
 /* ---------- Stare ---------- */
-const KEY="gusto3";
+const KEY=SRV?"gusto3s":"gusto3";
 let S={};
 let ED=null;          // ciorna editorului vizual
 let POP=null;         // popover deschis
 let HASHREADY=Promise.resolve();
-const PERSIST=["v","uid","page","accounts","ud","recipes","products","home","theme","txt","plans","limit","blocked","settings","audit","rcat","sort","fcat","detail","addOpen","hideDemo","myIp","atab","anSub","families","invites","coach"];
+const PERSIST=["v","uid","page","accounts","ud","recipes","products","home","theme","txt","plans","limit","blocked","settings","audit","rcat","sort","fcat","detail","addOpen","hideDemo","myIp","atab","anSub","families","invites","coach","srv","srvUsed"];
 const UK=["fridge","shop","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
 const freshUD=()=>({fridge:[],shop:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
 
@@ -1136,8 +1142,9 @@ async function ensureHashes(){let ch=false;for(const a of S.accounts){if(!a.hash
 const FAILS={};
 const lockMsg=n=>`Prea multe încercări greșite. Reîncearcă în ${n} ${n===1?"secundă":n>=20?"de secunde":"secunde"}.`;
 function setUser(id){stash();S.uid=id;unstash(id);ED=null;POP=null;const u=ME();if(u)u.last=todayS();if(S.page==="admin"&&!isStaff())S.page="acasa";applyTheme(S.theme);save()}
-function logoutNow(){stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
+function logoutNow(){if(SRV&&getTok()){api("/auth/logout",{method:"POST"});setTok("")}stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
 async function loginCore(email,pw){
+ if(SRV){email=String(email||"").trim().toLowerCase();if(!EMAIL_RE.test(email)||!pw)return{err:"Scrie emailul și parola."};return srvAuth("/auth/login",{email,password:String(pw)})}
  if(!window.crypto||!crypto.subtle)return{err:"Autentificarea necesită o conexiune securizată (HTTPS)."};
  try{await HASHREADY}catch(e){return{err:"Nu am putut inițializa criptarea parolelor."}}
  email=String(email||"").trim().toLowerCase();
@@ -1155,6 +1162,7 @@ async function registerCore(name,email,pw,pw2){
  if(!EMAIL_RE.test(email))return{err:"Adresa de email nu este validă."};
  if(!pwOk(pw))return{err:"Parola trebuie să aibă cel puțin 8 caractere, cu litere și cifre."};
  if(pw!==pw2)return{err:"Parolele nu coincid."};
+ if(SRV)return srvAuth("/auth/register",{name:name.slice(0,60),email,password:pw});
  if(S.accounts.some(a=>a.email===email))return{err:"Există deja un cont cu acest email."};
  if(isBlockedEmail(email))return{err:"Această adresă de email nu poate fi folosită."};
  if(!window.crypto||!crypto.subtle)return{err:"Înregistrarea necesită o conexiune securizată (HTTPS)."};
@@ -1162,11 +1170,13 @@ async function registerCore(name,email,pw,pw2){
  const a={id:"u-"+uid8(),name:name.slice(0,60),email,role:"member",extra:[],plan:"free",until:null,blocked:false,salt,hash,created:todayS(),last:todayS(),famShare:false,famGrant:false,famOff:false};
  S.accounts.push(a);S.ud[a.id]=freshUD();setUser(a.id);return{ok:true,u:a}}
 async function changePwCore(oldp,nw,nw2){const u=ME();if(!u)return{err:"Nu ești autentificat."};
+ if(SRV){if(!pwOk(nw))return{err:"Parola nouă trebuie să aibă cel puțin 8 caractere, cu litere și cifre."};if(nw!==nw2)return{err:"Parolele noi nu coincid."};
+  const r=await api("/me/password",{method:"POST",body:{current:String(oldp||""),new:nw}});return r.ok?{ok:true}:{err:(r.data&&r.data.error)||"Ceva nu a mers."}}
  if((await hashPw(String(oldp||""),u.salt))!==u.hash)return{err:"Parola actuală este incorectă."};
  if(!pwOk(nw))return{err:"Parola nouă trebuie să aibă cel puțin 8 caractere, cu litere și cifre."};
  if(nw!==nw2)return{err:"Parolele noi nu coincid."};
  u.salt=newSalt();u.hash=await hashPw(nw,u.salt);save();return{ok:true}}
-function deleteMyAccount(){const u=ME();if(!u||RANK[u.role]>=4&&S.accounts.filter(a=>a.role==="super").length<2)return false;
+function deleteMyAccount(){if(SRV){api("/me",{method:"DELETE"});setTok("")}const u=ME();if(!u||RANK[u.role]>=4&&S.accounts.filter(a=>a.role==="super").length<2)return false;
  const id=u.id;stash();S.uid=null;unstash(null);cleanupUser(id);S.accounts=S.accounts.filter(a=>a.id!==id);delete S.ud[id];S.page="acasa";save();return true}
 
 /* ---------- Abonament Premium ---------- */
@@ -1360,6 +1370,62 @@ function seedCoach(){const m=monday(),D=n=>iso(addD(m,n));
  return{groups:{"u-victor":["u-andrei","u-maria","u-ion"]},menus,sessions}}
 const byIdSeed=id=>R_SEED.some(r=>r.id===id);
 
+/* ---------- Legătura cu serverul (autentificare, cont, paywall) ---------- */
+const TOKEN_KEY="gusto_token",VIS_KEY="gusto_visitor";
+const getTok=()=>{try{return localStorage.getItem(TOKEN_KEY)||""}catch(e){return""}};
+const setTok=t=>{try{t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY)}catch(e){}};
+let _vis="";
+function visitorId(){if(_vis)return _vis;
+ try{_vis=localStorage.getItem(VIS_KEY)||""}catch(e){}
+ if(!_vis){_vis="v"+[...crypto.getRandomValues(new Uint8Array(12))].map(b=>b.toString(16).padStart(2,"0")).join("");try{localStorage.setItem(VIS_KEY,_vis)}catch(e){}}
+ return _vis}
+async function api(path,o={}){
+ const headers={"X-Visitor":visitorId()},t=getTok();
+ if(t)headers.Authorization="Bearer "+t;
+ if(o.body!==undefined)headers["Content-Type"]="application/json";
+ const ac=new AbortController(),to=setTimeout(()=>ac.abort(),25000);
+ try{const r=await fetch(API_URL+"/api"+path,{method:o.method||"GET",headers,body:o.body!==undefined?JSON.stringify(o.body):undefined,signal:ac.signal});
+  let data=null;try{data=await r.json()}catch(e){}
+  return{status:r.status,ok:r.ok,data}}
+ catch(e){return{status:0,ok:false,data:{error:"Nu mă pot conecta la server. Verifică internetul și încearcă din nou."}}}
+ finally{clearTimeout(to)}}
+
+// Contul primit de la server se oglindește în lista locală de conturi (restul site-ului lucrează cu ME()).
+function srvMirror(u){
+ const old=S.accounts.find(a=>a.id===u.id)||{};
+ const staff=RANK[u.role]>=2;
+ const a={id:u.id,name:u.name,email:u.email,role:u.role,
+  extra:(u.permissions||[]).filter(p=>!(ROLE_DEF[u.role]||[]).includes(p)),
+  plan:u.premium&&!staff?"premium":"free",until:u.premiumUntil?String(u.premiumUntil).slice(0,10):null,
+  blocked:false,salt:"",hash:"",created:String(u.createdAt||"").slice(0,10)||todayS(),last:todayS(),
+  famShare:!!old.famShare,famGrant:!!old.famGrant,famOff:!!old.famOff};
+ S.accounts=[a];return a}
+function srvMigrate(){   // la prima deschidere în modul cu server: fără conturile și datele demonstrative
+ if(S.srv)return;
+ S.accounts=[];S.uid=null;S.families=[];S.invites=[];S.coach={groups:{},menus:[],sessions:[]};
+ S.ud={};S.blocked=[];S.audit=[];S.hideDemo=true;S.srv=1;unstash(null);save()}
+async function srvBoot(){
+ const s=await api("/settings");
+ if(s.ok){S.limit=s.data.freeRecipeLimit||S.limit;S.settings.reg=s.data.registrationOpen!==false;S.settings.maint=!!s.data.maintenance}
+ if(getTok()){
+  const r=await api("/me");
+  if(r.ok){const a=srvMirror(r.data.user);if(S.uid!==a.id){stash();S.uid=a.id;unstash(a.id)}}
+  else if(r.status===401){setTok("");if(S.uid){stash();S.uid=null;unstash(null)}}
+ }else if(S.uid){stash();S.uid=null;unstash(null);S.accounts=[]}
+ save();draw()}
+async function srvAuth(path,body){
+ const r=await api(path,{method:"POST",body});
+ if(!r.ok)return{err:(r.data&&r.data.error)||"Ceva nu a mers. Încearcă din nou."};
+ setTok(r.data.token);const a=srvMirror(r.data.user);setUser(a.id);return{ok:true,u:a}}
+async function srvGate(id){   // serverul decide dacă rețeta se poate deschide (limita lunară) și dacă ești Premium
+ const r=await api("/recipes/"+encodeURIComponent(id));
+ if(r.status===402){const l=(r.data&&r.data.limit)||{};if(l.max)S.limit=l.max;S.srvUsed=l.used;return{locked:true}}
+ if(!r.ok)return{err:(r.data&&r.data.error)||"Nu am putut deschide rețeta."};
+ const l=r.data.recipe.limit||{};if(l.max)S.limit=l.max;
+ S.srvUsed=r.data.premium?null:l.used;
+ return{locked:false,premium:!!r.data.premium}}
+const usedN=()=>SRV&&S.srvUsed!=null?S.srvUsed:S.viewed.length;
+
 /* ---------- Interfață: ajutoare ---------- */
 let Q="",COOK=null,CONFIRM_CB=null;
 const DEFAULT_IP="198.51.100.23";
@@ -1421,7 +1487,7 @@ function draw(){
  if(S.page==="admin"&&!isStaff())S.page="acasa";
  if(!PAGES[S.page])S.page="acasa";
  famSync();
- const extra=m?[["familie","Familie","users"],...(isTrainer()?[["antrenor","Cabinet antrenor","dumbbell"]]:isStudent()?[["antrenor","Antrenorul meu","dumbbell"]]:[])]:[];
+ const extra=m&&!SRV?[["familie","Familie","users"],...(isTrainer()?[["antrenor","Cabinet antrenor","dumbbell"]]:isStudent()?[["antrenor","Antrenorul meu","dumbbell"]]:[])]:[];
  const items=[...NAV.slice(0,7),...extra,NAV[7],...(isStaff()?[["admin","Administrare","shield"]]:[])];
  const ni=m?invitesTo(m.id).length:0;
  const bd=k=>k==="lista"&&sh&&m?`<span class="badge">${sh}</span>`:k==="frigider"&&ex?`<span class="badge red">${ex}</span>`:k==="familie"&&ni?`<span class="badge red">${ni}</span>`:"";
@@ -1435,7 +1501,7 @@ function draw(){
  $("logo1").innerHTML=$("logo2").innerHTML=`<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS.leaf}</svg>`;
  $("sic").innerHTML=I("search");
  if($("topq").value!==Q)$("topq").value=Q;
- $("demobar").innerHTML=S.hideDemo?"":`<div class="demobar"><span class="dtag">Demo</span><span class="dtxt">Intră rapid ca:</span><span class="dchips">${[["_v","Vizitator"],...DEMO_USERS].map(([id,l])=>`<button class="dchip" aria-pressed="${(S.uid||"_v")===id}" onclick="demoAs('${id}')">${l}</button>`).join("")}</span><button class="dx" onclick="S.hideDemo=true;save();draw()" aria-label="Ascunde bara demonstrativă">${I("x")}</button></div>`;
+ $("demobar").innerHTML=S.hideDemo||SRV?"":`<div class="demobar"><span class="dtag">Demo</span><span class="dtxt">Intră rapid ca:</span><span class="dchips">${[["_v","Vizitator"],...DEMO_USERS].map(([id,l])=>`<button class="dchip" aria-pressed="${(S.uid||"_v")===id}" onclick="demoAs('${id}')">${l}</button>`).join("")}</span><button class="dx" onclick="S.hideDemo=true;save();draw()" aria-label="Ascunde bara demonstrativă">${I("x")}</button></div>`;
  const need=NEEDLOGIN.includes(S.page)&&!m;let html;
  try{html=need?gatePage(S.page):PAGES[S.page]()}catch(err){console.error(err);html=`<div class="empty"><img src="${IM("img/pot_of_food.png")}" alt="">A apărut o eroare la afișarea paginii. Încearcă din nou sau resetează demonstrația din meniul contului.</div>`}
  $("app").innerHTML=html;
@@ -1455,14 +1521,14 @@ function drawPop(){const p=$("pop");if(!POP){p.hidden=true;p.innerHTML="";return
   const e=expiring();p.innerHTML=`<div class="pop"><h4>Expiră curând</h4>${e.length?e.slice(0,6).map(f=>`<div class="row">${thumb(f.n,"s28")}<span style="flex:1">${esc(f.n)}</span>${expLabel(f.x)}</div>`).join(""):`<p class="muted small">Nimic nu expiră în următoarele 3 zile.</p>`}<hr><button class="link" onclick="go('frigider')">Vezi frigiderul ${I("arrow")}</button></div>`;return}
  if(!me){p.innerHTML=`<div class="pop"><div class="row"><span class="avatar ghost">${I("user")}</span><span><b>Vizitator</b><br><span class="muted small">Nu ești autentificat</span></span></div><hr>
   <button class="btn primary sm" onclick="POP=null;authModal('login')">${I("login")}Autentificare</button><button class="btn sm" onclick="POP=null;authModal('register')">Creează cont</button><hr>
-  <button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button></div>`;return}
+  ${SRV?"":`<button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button>`}</div>`;return}
  const pl=premLeft(me);
  p.innerHTML=`<div class="pop"><div class="row"><span class="avatar">${esc(initials(me.name))}</span><span><b>${esc(me.name)}</b><br><span class="muted small">${esc(me.email)}</span></span></div>
   <div class="chips"><span class="tag">${esc(ROLE_L[me.role])}</span>${hasPrem(me)&&RANK[me.role]<2?`<span class="tag honey">Premium${pl!=null?` · ${pl} zile`:""}</span>`:""}</div><hr>
-  <button class="menu" onclick="go('cont')">${I("user")}Contul meu</button><button class="menu" onclick="go('fav')">${I("heart")}Favorite</button><button class="menu" onclick="go('stats')">${I("chart")}Anti-risipă</button><button class="menu" onclick="go('familie')">${I("users")}Familie</button>${isTrainer()||isStudent()?`<button class="menu" onclick="go('antrenor')">${I("dumbbell")}${isTrainer()?"Cabinet antrenor":"Antrenorul meu"}</button>`:""}<button class="menu" onclick="go('premium')">${I("crown")}Abonament Premium</button>
+  <button class="menu" onclick="go('cont')">${I("user")}Contul meu</button><button class="menu" onclick="go('fav')">${I("heart")}Favorite</button><button class="menu" onclick="go('stats')">${I("chart")}Anti-risipă</button>${SRV?"":`<button class="menu" onclick="go('familie')">${I("users")}Familie</button>`}${!SRV&&(isTrainer()||isStudent())?`<button class="menu" onclick="go('antrenor')">${I("dumbbell")}${isTrainer()?"Cabinet antrenor":"Antrenorul meu"}</button>`:""}<button class="menu" onclick="go('premium')">${I("crown")}Abonament Premium</button>
   ${isStaff()?`<button class="menu" onclick="go('admin')">${I("shield")}Administrare</button>`:""}${can("frontend")?`<button class="menu" onclick="POP=null;edStart()">${I("layout")}Editează pagina principală</button>`:""}<hr>
   <button class="menu" onclick="doLogout()">${I("logout")}Ieșire din cont</button>
-  <button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button></div>`}
+  ${SRV?"":`<button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button>`}</div>`}
 function toggleDemo(){S.hideDemo=!S.hideDemo;POP=null;save();draw()}
 function doLogout(){logoutNow();draw();toast("Ai ieșit din cont");scrollTo({top:0})}
 function askReset(){POP=null;drawPop();ask("Resetezi demonstrația?","Toate datele din acest browser (conturi create, rețete modificate, setări, frigider) revin la valorile inițiale.","Resetează",()=>{resetAll();draw();toast("Demonstrația a fost resetată")},true)}
@@ -1608,7 +1674,7 @@ function edColor(k,v){ED.theme[k]=v;applyTheme(ED.theme);const el=$(k==="color"?
 /* ---------- Rețete ---------- */
 const RCATS=["Toate","Favorite","Mic dejun","Prânz","Cină","Desert","Vegetarian","Rapid"];
 PAGES.retete=function(){
- ensureMonth();const opened=Math.min(S.viewed.length,S.limit),P=prem();
+ ensureMonth();const opened=Math.min(usedN(),S.limit),P=prem();
  return pagehead(esc(txt("recTitle")),esc(txt("recSub")))+
  `${P?"":`<div class="freebar">${I("lock")}${ME()?"Plan gratuit":"Fără cont"}: ai deschis ${opened} din ${S.limit} rețete luna aceasta. Valorile nutriționale sunt disponibile în Premium.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
  <div class="rlayout"><div style="display:flex;flex-direction:column;gap:16px;min-width:0">
@@ -1646,9 +1712,12 @@ function ingList(r){const A=avail();return `<ul class="ilist">${r.i.map(([n,q,u]
 function pick(id){if(S.page==="retete"&&wide()){S.detail=id;save();document.querySelectorAll(".rcard").forEach(c=>c.removeAttribute("aria-current"));event?.currentTarget?.setAttribute?.("aria-current","true");renderDetail()}else openRecipe(id)}
 
 /* ---------- Fereastra rețetei ---------- */
-function openRecipe(id){const r=byId(id);if(!r||(r.status==="hid"&&!isStaff()))return;POP=null;drawPop();ensureMonth();
- const P=prem(),locked=!P&&!S.viewed.includes(id)&&S.viewed.length>=S.limit;
- if(!locked&&!P&&!S.viewed.includes(id)){S.viewed.push(id);save()}
+function openRecipe(id){const r=byId(id);if(!r||(r.status==="hid"&&!isStaff()))return;
+ if(!SRV)return openRecipeCore(id);
+ srvGate(id).then(g=>{if(g.err)return toast(g.err);openRecipeCore(id,g)})}
+function openRecipeCore(id,g){const r=byId(id);if(!r||(r.status==="hid"&&!isStaff()))return;POP=null;drawPop();ensureMonth();
+ const P=g?g.premium&&!g.locked:prem(),locked=g?g.locked:(!P&&!S.viewed.includes(id)&&S.viewed.length>=S.limit);
+ if(!locked&&!P&&!S.viewed.includes(id)){S.viewed.push(id);save()}else if(g)save()
  const A=avail(),miss=r.i.filter(x=>!A.has(x[0])),me=ME();
  const nut=`<div class="nut ${P?"":"locked"}"><div class="cells"><div><b>${P?r.k:"000"}</b><span>kcal</span></div><div><b>${P?r.p:"00"} g</b><span>proteine</span></div><div><b>${P?r.c:"00"} g</b><span>carbohidrați</span></div><div><b>${P?r.f:"00"} g</b><span>grăsimi</span></div></div>
   ${P?"":`<div class="lockmsg"><button class="btn honey sm" onclick="closeModal();go('premium')">${I("lock")}Deblochează cu Premium</button></div>`}</div><p class="small muted" style="margin-top:6px">Valori nutriționale pe porție.</p>`;
@@ -1903,6 +1972,7 @@ PAGES.premium=function(){const m=ME(),P=prem(),plans=S.plans.filter(p=>p.on);
   <div class="card tablewrap"><table class="cmp"><thead><tr><th>Funcționalitate</th><th>Gratuit</th><th>Premium</th></tr></thead><tbody>${T.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table></div></section>`};
 function choosePlan(pid){const m=ME();if(!m){toast("Creează un cont ca să activezi Premium.");authModal("register");return}
  if(RANK[m.role]>=2){toast("Ca membru al echipei ai deja acces Premium.");return}
+ if(SRV){openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("crown")} Premium</p><h2 style="font-size:24px">Plata online nu este activă încă</h2></div><div class="box honey"><p class="small">Plățile prin card se conectează în etapa următoare. Până atunci, Premium se activează de administrator, după ce confirmi plata. Scrie-i administratorului site-ului, cu emailul contului tău.</p></div><div class="rowacts"><button class="btn primary" onclick="closeModal()">Am înțeles</button></div></div>`,1);return}
  const p=S.plans.find(x=>x.id===pid&&x.on);if(!p){toast("Acest plan nu mai este disponibil.");return}
  const base=hasPrem(m)&&m.until&&m.until>todayS()?m.until:todayS(),end=addDaysS(base,p.days);
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("crown")} Finalizare</p><h2 style="font-size:24px">Premium · ${esc(p.name)}</h2></div>
@@ -1913,21 +1983,21 @@ function confirmBuy(pid){if(!buyPlan(pid)){toast("Nu am putut activa planul.");r
 
 /* ---------- Autentificare și cont ---------- */
 function authModal(tab){POP=null;tab=tab==="register"?"register":"login";
- const demo=tab==="login"?`<div class="demoacc"><p class="small muted">Conturi demonstrative · parola: <b>${esc(DEMO_PW)}</b></p><div class="chips">${DEMO_USERS.map(([id,l])=>{const a=ACC_SEED.find(x=>x.id===id);return `<button type="button" class="chip" onclick="fillDemo('${a.email}')">${l}</button>`}).join("")}</div></div>`:"";
+ const demo=tab==="login"&&!SRV?`<div class="demoacc"><p class="small muted">Conturi demonstrative · parola: <b>${esc(DEMO_PW)}</b></p><div class="chips">${DEMO_USERS.map(([id,l])=>{const a=ACC_SEED.find(x=>x.id===id);return `<button type="button" class="chip" onclick="fillDemo('${a.email}')">${l}</button>`}).join("")}</div></div>`:"";
  const eye=id=>`<button type="button" class="eye" onclick="pwEye('${id}',this)" aria-label="Arată parola">${I("eye")}</button>`;
  openModal(`<div class="sheet-b auth"><div class="seg" role="tablist"><button role="tab" aria-selected="${tab==="login"}" onclick="authModal('login')">Autentificare</button><button role="tab" aria-selected="${tab==="register"}" onclick="authModal('register')">Cont nou</button></div>
  ${tab==="login"?`<form id="af" onsubmit="authGo(event,'login')" novalidate>
   <label class="lbl">Email<input id="ae" class="field" type="email" autocomplete="username" placeholder="adresa@exemplu.md"></label>
   <label class="lbl">Parola<span class="pw"><input id="ap" class="field" type="password" autocomplete="current-password">${eye("ap")}</span></label>
   <p class="err" id="aerr" role="alert"></p><button class="btn primary" id="abtn">Intră în cont</button>
-  <p class="small muted">Ai uitat parola? Resetarea prin email se face în versiunea cu server.</p></form>${demo}`
+  <p class="small muted">${SRV?"Ai uitat parola? Resetarea prin email se adaugă într-o etapă următoare.":"Ai uitat parola? Resetarea prin email se face în versiunea cu server."}</p></form>${demo}`
  :`<form id="af" onsubmit="authGo(event,'register')" novalidate>
   <label class="lbl">Nume<input id="an" class="field" autocomplete="name" maxlength="60" placeholder="Prenume și nume"></label>
   <label class="lbl">Email<input id="ae" class="field" type="email" autocomplete="username" placeholder="adresa@exemplu.md"></label>
   <label class="lbl">Parola<span class="pw"><input id="ap" class="field" type="password" autocomplete="new-password">${eye("ap")}</span><small class="muted">Cel puțin 8 caractere, cu litere și cifre.</small></label>
   <label class="lbl">Repetă parola<input id="ap2" class="field" type="password" autocomplete="new-password"></label>
   <p class="err" id="aerr" role="alert"></p><button class="btn primary" id="abtn">Creează contul</button>
-  <p class="small muted">Contul nou este de tip Membru, cu planul gratuit. Parola este stocată criptat (PBKDF2).</p></form>`}</div>`,1,tab==="login"?"#ae":"#an")}
+  <p class="small muted">Contul nou este de tip Membru, cu planul gratuit. Parola este stocată criptat${SRV?" pe server (bcrypt)":" (PBKDF2)"}.</p></form>`}</div>`,1,tab==="login"?"#ae":"#an")}
 function fillDemo(email){$("ae").value=email;$("ap").value=DEMO_PW;$("abtn").focus()}
 function pwEye(id,b){const i=$(id);const show=i.type==="password";i.type=show?"text":"password";b.innerHTML=I(show?"eyeoff":"eye");b.setAttribute("aria-label",show?"Ascunde parola":"Arată parola")}
 async function authGo(e,mode){e.preventDefault();const b=$("abtn"),er=$("aerr");er.textContent="";b.disabled=true;const t=b.textContent;b.textContent="Se verifică…";
@@ -1935,11 +2005,11 @@ async function authGo(e,mode){e.preventDefault();const b=$("abtn"),er=$("aerr");
  if(r.err){er.textContent=r.err;b.disabled=false;b.textContent=t;return}
  closeModal();draw();scrollTo({top:0});const n=r.u.name.split(" ")[0];toast(mode==="login"?`Bine ai revenit, ${n}!`:`Cont creat. Bine ai venit, ${n}!`)}
 
-PAGES.cont=function(){const u=ME(),pl=premLeft(u),ps=perms(u),opened=Math.min(S.viewed.length,S.limit);
+PAGES.cont=function(){const u=ME(),pl=premLeft(u),ps=perms(u),opened=Math.min(usedN(),S.limit);
  let plan;
  if(RANK[u.role]>=2)plan=`<p>Ca membru al echipei ai acces Premium inclus.</p>`;
  else if(hasPrem(u))plan=`<p><span class="tag honey">Premium activ</span></p><div class="kv"><span>Valabil până la</span><b>${u.until?fmtDate(u.until):"nelimitat"}</b></div>${pl!=null?`<div class="kv"><span>Zile rămase</span><b>${pl}</b></div>`:""}${pl!=null&&pl<=7?`<p class="freebar">${I("alarm")}Abonamentul expiră curând.</p>`:""}
-  <div class="rowacts"><button class="btn sm primary" onclick="go('premium')">Prelungește</button><button class="btn sm" onclick="ask('Anulezi abonamentul?','Pierzi imediat accesul Premium (valori nutriționale, rețete nelimitate, planificare automată).','Anulează abonamentul',()=>{cancelPlan();draw();toast('Abonament anulat')},true)">Anulează abonamentul</button></div>`;
+  <div class="rowacts"><button class="btn sm primary" onclick="go('premium')">Prelungește</button>${SRV?"":`<button class="btn sm" onclick="ask('Anulezi abonamentul?','Pierzi imediat accesul Premium (valori nutriționale, rețete nelimitate, planificare automată).','Anulează abonamentul',()=>{cancelPlan();draw();toast('Abonament anulat')},true)">Anulează abonamentul</button>`}</div>`;
  else plan=`<p><span class="tag">Plan gratuit</span></p><div class="kv"><span>Rețete deschise luna aceasta</span><b>${opened} din ${S.limit}</b></div>${u.until&&u.plan==="premium"?`<p class="freebar">${I("alarm")}Premium-ul tău a expirat pe ${fmtDate(u.until)}.</p>`:""}<div class="rowacts"><button class="btn sm primary" onclick="go('premium')">${I("crown")}Vezi planurile Premium</button></div>`;
  return pagehead("Contul meu","Profilul, abonamentul și securitatea contului tău.")+`<div class="panels">
  <div class="card panel"><h3>Profil</h3><div class="row prof"><span class="avatar big">${esc(initials(u.name))}</span><span><b>${esc(u.name)}</b><br><span class="muted small">${esc(u.email)}</span></span></div>
@@ -1947,7 +2017,7 @@ PAGES.cont=function(){const u=ME(),pl=premLeft(u),ps=perms(u),opened=Math.min(S.
   <div class="kv"><span>Rol</span><b>${esc(ROLE_L[u.role])}</b></div><div class="kv"><span>Cont creat</span><b>${fmtDate(u.created)}</b></div>
   ${ps.length?`<div><p class="small muted" style="margin-bottom:6px">Drepturile tale în administrare</p><div class="chips">${ps.map(p=>`<span class="tag">${PERM_L[p]}</span>`).join("")}</div></div>`:""}</div>
  <div class="card panel"><h3>Abonament</h3>${plan}</div>
- ${famPanel(u)}
+ ${SRV?"":famPanel(u)}
  <div class="card panel"><h3>Schimbă parola</h3><form onsubmit="doChangePw(event)" class="stack" novalidate>
   <label class="lbl">Parola actuală<input id="cp0" class="field" type="password" autocomplete="current-password"></label>
   <label class="lbl">Parola nouă<input id="cp1" class="field" type="password" autocomplete="new-password"><small class="muted">Cel puțin 8 caractere, cu litere și cifre.</small></label>
@@ -1955,7 +2025,8 @@ PAGES.cont=function(){const u=ME(),pl=premLeft(u),ps=perms(u),opened=Math.min(S.
   <p class="err" id="cperr" role="alert"></p><div><button class="btn primary" id="cpbtn">Schimbă parola</button></div></form></div>
  <div class="card panel"><h3>Datele mele</h3><p class="muted small">Poți vedea toate datele salvate despre tine sau îți poți șterge contul definitiv.</p>
   <div class="rowacts"><button class="btn sm" onclick="exportMine()">${I("copy")}Vezi datele mele</button><button class="btn sm danger" onclick="delMe()">${I("trash")}Șterge contul</button></div></div></div>`};
-function saveName(v){v=String(v||"").trim().replace(/\s+/g," ");if(v.length<2)return toast("Numele trebuie să aibă cel puțin 2 caractere.");ME().name=v.slice(0,60);save();draw();toast("Numele a fost salvat")}
+function saveName(v){v=String(v||"").trim().replace(/\s+/g," ");if(v.length<2)return toast("Numele trebuie să aibă cel puțin 2 caractere.");if(SRV){api("/me",{method:"PATCH",body:{name:v.slice(0,60)}}).then(r=>{if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva numele.");ME().name=r.data.user.name;save();draw();toast("Numele a fost salvat")});return}
+ ME().name=v.slice(0,60);save();draw();toast("Numele a fost salvat")}
 async function doChangePw(e){e.preventDefault();const er=$("cperr"),b=$("cpbtn");er.textContent="";er.style.color="var(--danger)";b.disabled=true;
  let r;try{r=await changePwCore($("cp0").value,$("cp1").value,$("cp2").value)}catch(x){r={err:"Ceva nu a mers. Încearcă din nou."}}
  b.disabled=false;if(r.err){er.textContent=r.err;return}
@@ -2007,7 +2078,7 @@ const ATAB_FN={};
 let AQ="",AST="all",UQ="",UF="all",PQ="",PCAT="Toate",PLIM=60;
 const need=p=>can(p)?true:deny("Nu ai dreptul să faci această acțiune.");
 PAGES.admin=function(){const tabs=ATABS.filter(t=>!t[3]||can(t[3]));if(!tabs.some(t=>t[0]===S.atab))S.atab="ov";
- return pagehead("Administrare",`${esc(ROLE_L[role()])} · ${esc(ME().name)}`)+
+ return pagehead("Administrare",`${esc(ROLE_L[role()])} · ${esc(ME().name)}`)+(SRV?`<div class="freebar">${I("alarm")}<span>Panoul de administrare funcționează deocamdată doar în acest browser: modificările de aici nu ajung în baza de date și nu le văd alți utilizatori. Conectarea lui la server vine în etapa 4. Drepturile tale reale (rolul) sunt verificate de server.</span></div>`:"")+
  `<div class="atabs" role="tablist">${tabs.map(([k,l,ic])=>`<button role="tab" aria-selected="${S.atab===k}" onclick="S.atab='${k}';save();draw()">${I(ic)}${l}</button>`).join("")}</div>`+ATAB_FN[S.atab]()};
 const auditRows=l=>l.length?`<ul class="alist audit">${l.map(a=>`<li><span class="small muted nowrap">${fmtTs(a.t)}</span><span class="grow"><b>${esc(a.by)}</b> <span class="tag">${esc(ROLE_L[a.r]||a.r)}</span><br>${esc(a.m)}</span></li>`).join("")}</ul>`:`<p class="muted">Nicio activitate înregistrată.</p>`;
 
@@ -2438,9 +2509,11 @@ function sessGo(id){if(sessSave({id,st:$("sst").value,d:$("sdd").value,s:$("sss"
 
 /* ---------- Pornire ---------- */
 load();
+if(SRV)srvMigrate();
 applyTheme(S.theme);
 HASHREADY=ensureHashes();
 draw();
+if(SRV)srvBoot();
 
 </script>
 </body>
