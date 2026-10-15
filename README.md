@@ -13,7 +13,8 @@ Parola pentru toate conturile: `Gusto2026!`
 | Rol | Email |
 |---|---|
 | Membru (plan gratuit) | membru@gusto.md |
-| Membru cu Premium activ | premium@gusto.md |
+| Membru cu Premium activ (are și familie) | premium@gusto.md |
+| Antrenor personal | antrenor@gusto.md |
 | Moderator | moderator@gusto.md |
 | Administrator | admin@gusto.md |
 | Administrator principal | super@gusto.md |
@@ -36,6 +37,20 @@ Banda **DEMO** din partea de sus a paginii permite trecerea rapidă între rolur
 **Membru Premium**
 - Rețete nelimitate, calorii și macronutrienți la fiecare rețetă, planificator automat de mese, rapoarte anti-risipă pe 4, 8 și 12 săptămâni.
 - Accesul durează cât perioada planului (lunar: 30 de zile, anual: 365 de zile). La expirare, accesul Premium se retrage automat.
+
+**Familie (Premium sau activată de administrator)**
+- Membrii își trimit invitații după emailul contului și formează o familie (cel mult 6 persoane).
+- Fiecare alege dacă folosește frigiderul comun al familiei sau pe al lui; poate schimba oricând.
+- Din „Contul meu” funcția de familie se poate dezactiva: ieși din familie și revii la frigiderul personal.
+- Un administrator poate activa familia pentru orice membru, fără să-i dea Premium (butonul „Activează familia” din Utilizatori).
+
+**Antrenor personal**
+- Rol nou, atribuit de un administrator. Antrenorul are „Cabinet antrenor”: grupul de studenți (adăugare și eliminare după email), meniuri dedicate și calendar.
+- Meniurile sunt confidențiale (le văd doar antrenorul și studentul respectiv) și se copiază dintr-un click pentru alt student.
+- Calendarul are vedere pe zi (pe ore), săptămână și lună, cu rezumatul ședințelor. Studentul vede în „Antrenorul meu” același calendar, doar cu orele lui, și își poate pune meniul în planificator.
+
+**Mese flexibile**
+- În planificator și în meniurile antrenorului, pe lângă mic dejun, prânz și cină, se pot adăuga sau șterge gustări și chindii pentru fiecare zi.
 
 **Moderator**
 - Prezentare generală și gestionarea rețetelor și imaginilor. Un administrator îi poate acorda drepturi în plus.
@@ -70,6 +85,8 @@ Un administrator poate acorda unui moderator drepturi în plus, doar în limita 
 - **Conturi:** după 5 parole greșite la rând, autentificarea se blochează 60 de secunde.
 
 ## Limitele prototipului
+
+- Datele salvate de versiunile anterioare ale site-ului nu se mută în această versiune (la prima deschidere apar datele demonstrative noi).
 
 Acest site arată cum arată și cum se comportă platforma, dar **nu este o aplicație de producție**:
 
