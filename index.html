@@ -1049,8 +1049,8 @@ let ED=null;          // ciorna editorului vizual
 let POP=null;         // popover deschis
 let HASHREADY=Promise.resolve();
 const PERSIST=["v","uid","page","accounts","ud","recipes","products","home","theme","txt","plans","limit","blocked","settings","audit","rcat","sort","fcat","detail","addOpen","hideDemo","myIp","atab","anSub","families","invites","coach","srv","srvUsed"];
-const UK=["fridge","shop","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
-const freshUD=()=>({fridge:[],shop:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
+const UK=["rev","pend","fridge","shop","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
+const freshUD=()=>({rev:0,pend:0,fridge:[],shop:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
 
 function demoLog(){let s=7;const rnd=()=>(s=(s*9301+49297)%233280)/233280;const out=[];
  const N=[["roșii","Legume",35],["lapte","Lactate",22],["pâine","Cereale",10],["salată verde","Legume",18],["iaurt","Lactate",20],["piept de pui","Carne",60],["spanac","Legume",18],["banane","Fructe",15],["cașcaval","Lactate",34],["ouă","Lactate",12]];
@@ -1085,8 +1085,9 @@ function seedState(){
 function load(){let s=seedState();
  try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.v===3&&Array.isArray(o.accounts)&&Array.isArray(o.recipes))s=Object.assign(s,o)}catch(e){}
  S=s;if(S.uid&&!S.accounts.some(a=>a.id===S.uid))S.uid=null;unstash(S.uid)}
-function save(){stash();try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntries(PERSIST.map(k=>[k,S[k]]))))}
- catch(e){if(!save.w){save.w=1;toast("Nu am putut salva în browser (spațiu plin?)")}}}
+function persist(){stash();try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntries(PERSIST.map(k=>[k,S[k]]))))}
+ catch(e){if(!persist.w){persist.w=1;toast("Nu am putut salva în browser (spațiu plin?)")}}}
+function save(){persist();if(SRV)srvDirty()}
 function resetAll(){try{localStorage.removeItem(KEY)}catch(e){}S=seedState();unstash(S.uid);ED=null;POP=null;HASHREADY=ensureHashes();applyTheme(S.theme);save()}
 const exportData=()=>JSON.stringify(Object.fromEntries(PERSIST.map(k=>[k,S[k]])),null,1);
 function importData(txt){let o;try{o=JSON.parse(txt)}catch(e){return"Textul nu este JSON valid."}
@@ -1141,8 +1142,8 @@ async function hashPw(pw,saltHex){const k=await crypto.subtle.importKey("raw",ne
 async function ensureHashes(){let ch=false;for(const a of S.accounts){if(!a.hash){a.salt=newSalt();a.hash=await hashPw(DEMO_PW,a.salt);ch=true}}if(ch)save()}
 const FAILS={};
 const lockMsg=n=>`Prea multe încercări greșite. Reîncearcă în ${n} ${n===1?"secundă":n>=20?"de secunde":"secunde"}.`;
-function setUser(id){stash();S.uid=id;unstash(id);ED=null;POP=null;const u=ME();if(u)u.last=todayS();if(S.page==="admin"&&!isStaff())S.page="acasa";applyTheme(S.theme);save()}
-function logoutNow(){if(SRV&&getTok()){api("/auth/logout",{method:"POST"});setTok("")}stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
+function setUser(id){if(SRV)SYNC.ready=false;stash();S.uid=id;unstash(id);ED=null;POP=null;const u=ME();if(u)u.last=todayS();if(S.page==="admin"&&!isStaff())S.page="acasa";applyTheme(S.theme);save()}
+function logoutNow(){if(SRV&&getTok()){api("/auth/logout",{method:"POST"});setTok("")}if(SRV){clearTimeout(SYNC.timer);SYNC.dirty=false;SYNC.ready=false}stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
 async function loginCore(email,pw){
  if(SRV){email=String(email||"").trim().toLowerCase();if(!EMAIL_RE.test(email)||!pw)return{err:"Scrie emailul și parola."};return srvAuth("/auth/login",{email,password:String(pw)})}
  if(!window.crypto||!crypto.subtle)return{err:"Autentificarea necesită o conexiune securizată (HTTPS)."};
@@ -1409,14 +1410,14 @@ async function srvBoot(){
  if(s.ok){S.limit=s.data.freeRecipeLimit||S.limit;S.settings.reg=s.data.registrationOpen!==false;S.settings.maint=!!s.data.maintenance}
  if(getTok()){
   const r=await api("/me");
-  if(r.ok){const a=srvMirror(r.data.user);if(S.uid!==a.id){stash();S.uid=a.id;unstash(a.id)}}
+  if(r.ok){const a=srvMirror(r.data.user);if(S.uid!==a.id){stash();S.uid=a.id;unstash(a.id)}await srvPull(true)}
   else if(r.status===401){setTok("");if(S.uid){stash();S.uid=null;unstash(null)}}
  }else if(S.uid){stash();S.uid=null;unstash(null);S.accounts=[]}
  save();draw()}
 async function srvAuth(path,body){
  const r=await api(path,{method:"POST",body});
  if(!r.ok)return{err:(r.data&&r.data.error)||"Ceva nu a mers. Încearcă din nou."};
- setTok(r.data.token);const a=srvMirror(r.data.user);setUser(a.id);return{ok:true,u:a}}
+ setTok(r.data.token);const a=srvMirror(r.data.user);setUser(a.id);await srvPull(true);return{ok:true,u:a}}
 async function srvGate(id){   // serverul decide dacă rețeta se poate deschide (limita lunară) și dacă ești Premium
  const r=await api("/recipes/"+encodeURIComponent(id));
  if(r.status===402){const l=(r.data&&r.data.limit)||{};if(l.max)S.limit=l.max;S.srvUsed=l.used;return{locked:true}}
@@ -1425,6 +1426,47 @@ async function srvGate(id){   // serverul decide dacă rețeta se poate deschide
  S.srvUsed=r.data.premium?null:l.used;
  return{locked:false,premium:!!r.data.premium}}
 const usedN=()=>SRV&&S.srvUsed!=null?S.srvUsed:S.viewed.length;
+
+/* ---------- Sincronizarea datelor personale (frigider, liste, favorite, planificator, anti-risipă) ---------- */
+const SYNC={timer:null,busy:false,dirty:false,pulling:false,ready:false,sig:"",fails:0};
+const syncOn=()=>SRV&&!!getTok()&&!!ME();
+const syncSig=()=>JSON.stringify([S.fridge,S.shop,S.fav,S.plan,S.pdays,S.log.filter(e=>!e.s&&!e.demo).length]);
+function srvDirty(){if(!syncOn()||SYNC.pulling||!SYNC.ready)return;
+ if(syncSig()===SYNC.sig)return;                 // s-a schimbat doar aspectul/pagina, nu datele
+ SYNC.dirty=true;if(!S.pend){S.pend=1;persist()}clearTimeout(SYNC.timer);SYNC.timer=setTimeout(srvPush,1200)}
+function applySnap(d){
+ S.fridge=d.fridge||[];S.shop=d.shop||[];S.fav=d.fav||[];S.plan=d.plan||{};S.pdays=d.pdays||{};
+ S.log=[...(d.log||[]),...S.log.filter(e=>!e.s&&!e.demo)];S.rev=d.rev||0;
+ SYNC.sig=syncSig()}
+async function srvPush(){
+ if(!syncOn()||SYNC.busy||!SYNC.dirty)return;
+ SYNC.busy=true;SYNC.dirty=false;
+ const sent=S.log.filter(e=>!e.s&&!e.demo).slice(-500);
+ const body={rev:S.rev||0,fridge:S.fridge,shop:S.shop,fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:sent};
+ const r=await api("/me/data",{method:"PUT",body});
+ SYNC.busy=false;
+ if(r.ok){SYNC.fails=0;S.rev=r.data.rev;sent.forEach(e=>e.s=1);SYNC.sig=syncSig();if(!SYNC.dirty)S.pend=0;persist();if(SYNC.dirty)srvDirty();return}
+ if(r.status===409){applySnap(r.data.data);S.pend=0;persist();draw();toast("Datele au fost actualizate de pe alt dispozitiv.");return}
+ if(r.status===401){setTok("");toast("Sesiunea a expirat. Autentifică-te din nou.");return}
+ SYNC.dirty=true;SYNC.fails++;
+ if(SYNC.fails===1)toast(r.status===0?"Nu am putut salva pe server. Mai încerc.":"Nu am putut salva datele pe server. Mai încerc.");
+ clearTimeout(SYNC.timer);SYNC.timer=setTimeout(srvPush,Math.min(60000,5000*SYNC.fails))}
+// aduce datele de pe server; întoarce true dacă s-a schimbat ceva
+async function srvPull(force){
+ if(!syncOn()||SYNC.busy||SYNC.dirty)return false;
+ SYNC.pulling=true;const r=await api("/me/data"+(force?"":"?rev="+(S.rev||0)));SYNC.pulling=false;
+ if(!r.ok)return false;
+ if(r.data.unchanged){SYNC.ready=true;if(S.pend){SYNC.dirty=true;srvPush()}return false}
+ const local=(S.fridge.length+S.shop.length+S.fav.length+Object.keys(S.plan).length)>0;
+ if((r.data.rev||0)===0&&local){SYNC.ready=true;S.rev=0;SYNC.sig="";srvDirty();return false}   // prima sincronizare: urcă ce există deja local
+ if(S.pend){SYNC.ready=true;SYNC.dirty=true;srvPush();return false}   // modificări rămase nesalvate dintr-o sesiune anterioară (offline): încearcă să le urce
+ applySnap(r.data);S.pend=0;SYNC.ready=true;persist();return true}
+const editing=()=>/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||"")||!!($("modal")&&!$("modal").hidden);
+async function srvRefresh(){if(!syncOn()||editing())return;if(await srvPull(!SYNC.ready))draw()}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)srvRefresh()});
+window.addEventListener("online",()=>{if(SYNC.dirty)srvPush();else srvRefresh()});
+setInterval(()=>{if(!document.hidden)srvRefresh()},60000);
+window.addEventListener("pagehide",()=>{if(SYNC.dirty&&syncOn()){try{fetch(API_URL+"/api/me/data",{method:"PUT",keepalive:true,headers:{"Content-Type":"application/json",Authorization:"Bearer "+getTok()},body:JSON.stringify({rev:S.rev||0,fridge:S.fridge,shop:S.shop,fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:S.log.filter(e=>!e.s&&!e.demo).slice(-500)})})}catch(e){}}});
 
 /* ---------- Interfață: ajutoare ---------- */
 let Q="",COOK=null,CONFIRM_CB=null;
@@ -1749,7 +1791,7 @@ function cookDo(id){const pl=cookPlan(byId(id));let k=0;
 
 /* ---------- Frigider ---------- */
 let FQ="";
-function logEv(k,n,q,u){const v=Math.round(value({n,q,u}));S.log.push({d:todayS(),k,n,c:prod(n).cat,v});if(S.log.length>2000)S.log.splice(0,S.log.length-2000)}
+function logEv(k,n,q,u){const v=Math.round(value({n,q,u}));S.log.push({i:uid8()+uid8(),d:todayS(),k,n,c:prod(n).cat,v});if(S.log.length>2000)S.log.splice(0,S.log.length-2000)}
 PAGES.frigider=function(){
  const total=S.fridge.length,ex=expiring(),val=S.fridge.reduce((s,f)=>s+value(f),0),fq=FQ.trim().toLowerCase();
  const expired=S.fridge.filter(f=>f.x&&daysLeft(f.x)<0);
