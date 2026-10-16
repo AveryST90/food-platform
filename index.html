@@ -1143,7 +1143,7 @@ async function ensureHashes(){let ch=false;for(const a of S.accounts){if(!a.hash
 const FAILS={};
 const lockMsg=n=>`Prea multe încercări greșite. Reîncearcă în ${n} ${n===1?"secundă":n>=20?"de secunde":"secunde"}.`;
 function setUser(id){if(SRV)SYNC.ready=false;stash();S.uid=id;unstash(id);ED=null;POP=null;const u=ME();if(u)u.last=todayS();if(S.page==="admin"&&!isStaff())S.page="acasa";applyTheme(S.theme);save()}
-function logoutNow(){if(SRV&&getTok()){api("/auth/logout",{method:"POST"});setTok("")}if(SRV){clearTimeout(SYNC.timer);SYNC.dirty=false;SYNC.ready=false;SOC.sig="";S.families=[];S.invites=[];S.coach={groups:{},menus:[],sessions:[]};S.accounts=S.accounts.filter(a=>!a.ext)}stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
+function logoutNow(){if(SRV&&getTok()){api("/auth/logout",{method:"POST"});setTok("")}if(SRV){clearTimeout(SYNC.timer);SYNC.dirty=false;SYNC.ready=false;SOC.sig="";S.blocked=[];S.audit=[];ADM.at=0;S.families=[];S.invites=[];S.coach={groups:{},menus:[],sessions:[]};S.accounts=S.accounts.filter(a=>!a.ext)}stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
 async function loginCore(email,pw){
  if(SRV){email=String(email||"").trim().toLowerCase();if(!EMAIL_RE.test(email)||!pw)return{err:"Scrie emailul și parola."};return srvAuth("/auth/login",{email,password:String(pw)})}
  if(!window.crypto||!crypto.subtle)return{err:"Autentificarea necesită o conexiune securizată (HTTPS)."};
@@ -1408,6 +1408,7 @@ function srvMigrate(){   // la prima deschidere în modul cu server: fără cont
  S.ud={};S.blocked=[];S.audit=[];S.hideDemo=true;S.srv=1;unstash(null);save()}
 async function srvBoot(){
  const s=await api("/settings");
+ const pl=await api("/plans");if(pl.ok&&Array.isArray(pl.data.plans))S.plans=pl.data.plans;
  if(s.ok){S.limit=s.data.freeRecipeLimit||S.limit;S.settings.reg=s.data.registrationOpen!==false;S.settings.maint=!!s.data.maintenance}
  if(getTok()){
   const r=await api("/me");
@@ -1479,7 +1480,8 @@ function socApply(sc){
  me.famShare=!!sc.me.famShare;me.famGrant=!!sc.me.famGrant;me.famOff=!!sc.me.famOff;
  const ext=(sc.users||[]).filter(u=>u.id!==me.id).map(u=>({id:u.id,name:u.name,email:u.email,role:u.role,extra:[],plan:u.premium?"premium":"free",until:null,
   blocked:false,salt:"",hash:"",created:todayS(),last:todayS(),famShare:!!u.share,famGrant:!!u.fam,famOff:false,ext:1}));
- S.accounts=[me,...ext];
+ const old=S.accounts.filter(a=>a.adm&&a.id!==me.id);
+ S.accounts=[me,...ext.map(e=>{const a=old.find(x=>x.id===e.id);return a?{...a,famShare:e.famShare}:e}),...old.filter(a=>!ext.some(e=>e.id===a.id))];
  S.families=(sc.families||[]).map(f=>({id:f.id,name:f.name,owner:f.owner,members:f.members,created:f.created,fridge:new Array(f.fridgeCount||0).fill(0)}));
  S.invites=sc.invites||[];S.coach=sc.coach||{groups:{},menus:[],sessions:[]}}
 function socSet(sc){SOC.sig=JSON.stringify(sc);socApply(sc);persist()}
@@ -1499,11 +1501,12 @@ function socOp(method,path,body,opt){
   if(opt.flush)await srvFlush();
   const r=await api(path,{method,body});
   SOC.n--;SOC.v++;
-  if(r.ok&&r.data&&r.data.social)socSet(r.data.social);
+  if(r.ok&&r.data&&(r.data.social||r.data.admin)){if(r.data.social)socSet(r.data.social);if(r.data.admin)admApply(r.data.admin)}
   else if(!r.ok){
    toast((r.data&&r.data.error)||"Nu am putut salva modificarea pe server.");
    if(r.status===401){setTok("");return r}
-   const rr=await api("/social");if(rr.ok)socSet(rr.data.social)}
+   if(path.startsWith("/admin")){const ra=await api("/admin/overview");if(ra.ok)admApply(ra.data.admin)}
+   else{const rr=await api("/social");if(rr.ok)socSet(rr.data.social)}}
   if(opt.pull||(!r.ok&&opt.flush))await srvPull(true);
   if(!editing())draw();
   return r});
@@ -1544,6 +1547,49 @@ if(SRV){
  optW("sessSave",a=>{const o=a[0],id=o.id||(S.coach.sessions[S.coach.sessions.length-1]||{}).id;
   return["PUT","/coach/sessions",{id,st:o.st,d:o.d,s:o.s,dur:+o.dur,title:o.title,note:o.note}]});
  optW("sessDelete",a=>["DELETE","/coach/sessions/"+enc(a[0])]);
+}
+
+
+/* ---------- Administrare: datele vin de pe server ---------- */
+const ADM={at:0,busy:false};
+function admApply(o){
+ ADM.at=Date.now();const me=ME();if(!o||!me)return;
+ if(o.settings){S.limit=o.settings.freeRecipeLimit;S.settings.reg=o.settings.registrationOpen;S.settings.maint=o.settings.maintenance}
+ if(o.plans)S.plans=o.plans;
+ if(o.users){const prev=S.accounts;
+  const adm=o.users.filter(u=>u.id!==me.id).map(u=>{const p=prev.find(x=>x.id===u.id)||{};
+   return{id:u.id,name:u.name,email:u.email,role:u.role,extra:u.extra||[],plan:u.plan,until:u.until,blocked:!!u.blocked,salt:"",hash:"",created:u.created||todayS(),last:u.last||todayS(),
+    famGrant:!!u.famGrant,famOff:!!u.famOff,famShare:!!p.famShare,students:u.students,ext:1,adm:1}});
+  S.accounts=[me,...adm,...prev.filter(x=>x.id!==me.id&&!adm.some(a=>a.id===x.id))];S.admN=o.users.length}
+ if(o.blocked)S.blocked=o.blocked;
+ if(o.audit)S.audit=o.audit}
+async function admLoad(){
+ if(!SRV||!syncOn()||ADM.busy||RANK[(ME()||{}).role]<2)return;
+ ADM.busy=true;const r=await api("/admin/overview");ADM.busy=false;
+ if(!r.ok){ADM.at=Date.now();return}
+ const before=JSON.stringify([S.accounts,S.blocked,S.audit,S.plans,S.limit,S.settings]);
+ admApply(r.data.admin);persist();
+ if(before!==JSON.stringify([S.accounts,S.blocked,S.audit,S.plans,S.limit,S.settings])&&S.page==="admin"&&!editing())draw()}
+if(SRV){
+ const enc=encodeURIComponent;
+ optW("setRoleOf",a=>["PUT","/admin/users/"+enc(a[0])+"/role",{role:a[1]}]);
+ optW("toggleExtra",a=>{const t=acct(a[0]);return["PUT","/admin/users/"+enc(a[0])+"/permission",{permission:a[1],on:!!(t&&(t.extra||[]).includes(a[1]))}]});
+ optW("setBlocked",a=>["PUT","/admin/users/"+enc(a[0])+"/block",{blocked:!!a[1]}]);
+ optW("grantPremium",a=>["POST","/admin/users/"+enc(a[0])+"/premium",{days:a[1]}]);
+ optW("setFamGrant",a=>["PUT","/admin/users/"+enc(a[0])+"/family-grant",{on:!!a[1]}]);
+ optW("removeUser",a=>["DELETE","/admin/users/"+enc(a[0])]);
+ optW("addBlock",a=>["POST","/admin/blocks",{kind:a[0],value:a[1],reason:a[2]||""}]);
+ {const o=globalThis.removeBlock;   // are nevoie de intrarea ștearsă (id-ul de pe server)
+  globalThis.removeBlock=function(i){const b=S.blocked[i];const r=o.call(this,i);if(r===true&&b&&b.id)socOp("DELETE","/admin/blocks/"+enc(b.id));return r}}
+ globalThis.setLimit=function(v){if(!need("monetization"))return;v=Math.round(+v);if(!(v>=0&&v<=999)){toast("Introdu un număr între 0 și 999.");draw();return}
+  socOp("PUT","/admin/settings",{freeRecipeLimit:v}).then(r=>r.ok&&toast("Limita a fost salvată"))};
+ globalThis.setReg=function(v){if(!need("security")){draw();return}socOp("PUT","/admin/settings",{registrationOpen:!!v}).then(r=>r.ok&&toast(v?"Înregistrările sunt permise":"Înregistrările sunt oprite"))};
+ globalThis.setMaint=function(v){if(!need("system")){draw();return}socOp("PUT","/admin/settings",{maintenance:!!v}).then(r=>r.ok&&toast(v?"Mentenanță activată pentru public":"Mentenanță oprită"))};
+ globalThis.planSet=function(id,k,v){if(!need("monetization"))return;socOp("PATCH","/admin/plans/"+enc(id),{[k]:v}).then(r=>r.ok&&toast("Plan salvat"))};
+ globalThis.planPop=function(id){if(!need("monetization"))return;socOp("PUT","/admin/plans/"+enc(id)+"/popular",{})};
+ globalThis.planAdd=function(){if(!need("monetization"))return;socOp("POST","/admin/plans",{}).then(r=>r.ok&&toast("Plan adăugat. Activează-l ca să fie vizibil."))};
+ globalThis.planDel=function(id){if(!need("monetization"))return;const p=S.plans.find(x=>x.id===id);if(!p)return;
+  ask("Ștergi planul?",`Planul „${esc(p.name)}” dispare din pagina Premium. Abonamentele deja cumpărate rămân valabile.`,"Șterge planul",()=>{socOp("DELETE","/admin/plans/"+enc(id))},true)};
 }
 
 /* ---------- Interfață: ajutoare ---------- */
@@ -2198,7 +2244,7 @@ const ATAB_FN={};
 let AQ="",AST="all",UQ="",UF="all",PQ="",PCAT="Toate",PLIM=60;
 const need=p=>can(p)?true:deny("Nu ai dreptul să faci această acțiune.");
 PAGES.admin=function(){const tabs=ATABS.filter(t=>!t[3]||can(t[3]));if(!tabs.some(t=>t[0]===S.atab))S.atab="ov";
- return pagehead("Administrare",`${esc(ROLE_L[role()])} · ${esc(ME().name)}`)+(SRV?`<div class="freebar">${I("alarm")}<span>Panoul de administrare funcționează deocamdată doar în acest browser: modificările de aici nu ajung în baza de date și nu le văd alți utilizatori. Conectarea lui la server vine în etapa 4. Drepturile tale reale (rolul) sunt verificate de server.</span></div>`:"")+
+ return pagehead("Administrare",`${esc(ROLE_L[role()])} · ${esc(ME().name)}`)+(SRV&&["rec","prod","look"].includes(S.atab)?`<div class="freebar">${I("alarm")}<span>Această filă funcționează deocamdată doar în acest browser: modificările de aici nu ajung în baza de date și nu le văd alți utilizatori. Utilizatorii, blocările, planurile și setările sunt deja pe server.</span></div>`:"")+
  `<div class="atabs" role="tablist">${tabs.map(([k,l,ic])=>`<button role="tab" aria-selected="${S.atab===k}" onclick="S.atab='${k}';save();draw()">${I(ic)}${l}</button>`).join("")}</div>`+ATAB_FN[S.atab]()};
 const auditRows=l=>l.length?`<ul class="alist audit">${l.map(a=>`<li><span class="small muted nowrap">${fmtTs(a.t)}</span><span class="grow"><b>${esc(a.by)}</b> <span class="tag">${esc(ROLE_L[a.r]||a.r)}</span><br>${esc(a.m)}</span></li>`).join("")}</ul>`:`<p class="muted">Nicio activitate înregistrată.</p>`;
 
@@ -2320,7 +2366,7 @@ ATAB_FN.usr=function(){const me=ME(),q=UQ.trim().toLowerCase();
   return `<li class="${a.blocked?"blocked":""}"><span class="avatar" style="width:38px;height:38px">${esc(initials(a.name))}</span>
   <span class="grow"><b>${esc(a.name)}</b>${self?` <span class="tag">Tu</span>`:""}${a.blocked?` <span class="tag red">Blocat</span>`:""}<br><span class="small muted">${esc(a.email)} · cont din ${fmtDate(a.created)}</span></span>
   <select class="field sm" aria-label="Rol pentru ${esc(a.name)}" ${mg?"":"disabled"} onchange="roleChange('${a.id}',this.value)">${ro.map(r=>`<option value="${r}" ${a.role===r?"selected":""} ${r===a.role||assignable().includes(r)?"":"disabled"}>${ROLE_L[r]}</option>`).join("")}</select>
-  <span class="small plancol">${a.famGrant&&RANK[a.role]<2?`<span class="tag">Familie activată manual</span> `:""}${a.role==="trainer"?`Antrenor · ${studentsOf(a.id).length} studenți · `:""}${RANK[a.role]>=2?"inclus în echipă":hasPrem(a)?`Premium${a.until?` · până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}`:""}`:"Plan gratuit"}</span>
+  <span class="small plancol">${a.famGrant&&RANK[a.role]<2?`<span class="tag">Familie activată manual</span> `:""}${a.role==="trainer"?`Antrenor · ${a.students!=null?a.students:studentsOf(a.id).length} studenți · `:""}${RANK[a.role]>=2?"inclus în echipă":hasPrem(a)?`Premium${a.until?` · până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}`:""}`:"Plan gratuit"}</span>
   <span class="rowacts">${mg&&RANK[a.role]<2?`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button><button class="btn sm" aria-pressed="${!!a.famGrant}" onclick="famGrantUI('${a.id}')">${I("users")}${a.famGrant?"Oprește familia":"Activează familia"}</button>`:""}${mg&&a.role==="moderator"&&(GRANT[me.role]||[]).length?`<button class="btn sm" onclick="permModal('${a.id}')">${I("key")}Drepturi</button>`:""}
   ${canBlock(a)?`<button class="btn sm" onclick="blockUser('${a.id}',${!a.blocked})">${I("ban")}${a.blocked?"Deblochează":"Blochează"}</button>`:""}${mg?`<button class="iconbtn" onclick="delUser('${a.id}')" aria-label="Șterge contul ${esc(a.name)}">${I("trash")}</button>`:""}
   ${!mg&&!self?`<span class="small muted" title="Doar un administrator principal poate modifica acest cont">acces limitat</span>`:""}</span></li>`}).join("")}</ul></div>
@@ -2626,6 +2672,12 @@ function sessModal(id,sid,day){const x=id?mySessions().find(z=>z.id===id):null;i
   <label class="lbl">Notă pentru student (opțional)<textarea id="snt" class="field" rows="2" maxlength="300">${esc(x?x.note:"")}</textarea></label>
   <div class="rowacts"><button class="btn primary">${x?"Salvează":"Programează"}</button>${x?`<button type="button" class="btn danger" onclick="sessDelete('${x.id}')&&(closeModal(),toast('Ședința a fost ștearsă'))">${I("trash")}Șterge</button>`:""}<button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,1,"#sss")}
 function sessGo(id){if(sessSave({id,st:$("sst").value,d:$("sdd").value,s:$("sss").value,dur:$("sdu").value,title:$("stt").value,note:$("snt").value})){CAL.d=$("sdd").value;closeModal();toast(id?"Ședința a fost salvată":"Ședința a fost programată")}}
+
+/* ---------- Legături cu serverul care depind de paginile definite mai sus ---------- */
+if(SRV){
+ const oa=PAGES.admin;
+ PAGES.admin=function(){if(Date.now()-ADM.at>15000)admLoad();return oa()};
+}
 
 /* ---------- Pornire ---------- */
 load();
