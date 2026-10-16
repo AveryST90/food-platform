@@ -1408,6 +1408,7 @@ function srvMigrate(){   // la prima deschidere în modul cu server: fără cont
  S.ud={};S.blocked=[];S.audit=[];S.hideDemo=true;S.srv=1;unstash(null);save()}
 async function srvBoot(){
  const s=await api("/settings");
+ await catLoad(true);
  const pl=await api("/plans");if(pl.ok&&Array.isArray(pl.data.plans))S.plans=pl.data.plans;
  if(s.ok){S.limit=s.data.freeRecipeLimit||S.limit;S.settings.reg=s.data.registrationOpen!==false;S.settings.maint=!!s.data.maintenance}
  if(getTok()){
@@ -1464,7 +1465,7 @@ async function srvPull(force){
  if(S.pend){SYNC.ready=true;SYNC.dirty=true;srvPush();return false}   // modificări rămase nesalvate dintr-o sesiune anterioară (offline): încearcă să le urce
  applySnap(r.data);S.pend=0;SYNC.ready=true;persist();return true}
 const editing=()=>/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||"")||!!($("modal")&&!$("modal").hidden);
-async function srvRefresh(){if(!syncOn()||editing())return;const a=await srvPull(!SYNC.ready),b=await socRefresh();if(a||b)draw()}
+async function srvRefresh(){if(!syncOn()||editing())return;const a=await srvPull(!SYNC.ready),b=await socRefresh(),c=await catLoad();if(a||b||c)draw()}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)srvRefresh()});
 window.addEventListener("online",()=>{if(SYNC.dirty)srvPush();else srvRefresh()});
 setInterval(()=>{if(!document.hidden)srvRefresh()},60000);
@@ -1501,11 +1502,12 @@ function socOp(method,path,body,opt){
   if(opt.flush)await srvFlush();
   const r=await api(path,{method,body});
   SOC.n--;SOC.v++;
-  if(r.ok&&r.data&&(r.data.social||r.data.admin)){if(r.data.social)socSet(r.data.social);if(r.data.admin)admApply(r.data.admin)}
+  if(r.ok&&r.data&&(r.data.social||r.data.admin||r.data.recipe||r.data.removed)){if(r.data.social)socSet(r.data.social);if(r.data.admin)admApply(r.data.admin);if(r.data.recipe)recSet(r.data.recipe);if(r.data.removed)S.recipes=S.recipes.filter(x=>x.id!==r.data.removed);persist()}
   else if(!r.ok){
    toast((r.data&&r.data.error)||"Nu am putut salva modificarea pe server.");
    if(r.status===401){setTok("");return r}
-   if(path.startsWith("/admin")){const ra=await api("/admin/overview");if(ra.ok)admApply(ra.data.admin)}
+   if(path.startsWith("/recipes"))await catLoad(true);
+   else if(path.startsWith("/admin")){const ra=await api("/admin/overview");if(ra.ok)admApply(ra.data.admin)}
    else{const rr=await api("/social");if(rr.ok)socSet(rr.data.social)}}
   if(opt.pull||(!r.ok&&opt.flush))await srvPull(true);
   if(!editing())draw();
@@ -1590,6 +1592,30 @@ if(SRV){
  globalThis.planAdd=function(){if(!need("monetization"))return;socOp("POST","/admin/plans",{}).then(r=>r.ok&&toast("Plan adăugat. Activează-l ca să fie vizibil."))};
  globalThis.planDel=function(id){if(!need("monetization"))return;const p=S.plans.find(x=>x.id===id);if(!p)return;
   ask("Ștergi planul?",`Planul „${esc(p.name)}” dispare din pagina Premium. Abonamentele deja cumpărate rămân valabile.`,"Șterge planul",()=>{socOp("DELETE","/admin/plans/"+enc(id))},true)};
+}
+
+
+/* ---------- Rețete și fotografii: catalogul vine de pe server ---------- */
+const recMap=r=>({...r,photo:r.photo?(/^(https?:|data:)/.test(r.photo)?r.photo:API_URL+r.photo):undefined});
+function recSet(r){const m=recMap(r);Object.keys(m).forEach(k=>m[k]===undefined&&delete m[k]);
+ const i=S.recipes.findIndex(x=>x.id===m.id);if(i<0)S.recipes.unshift(m);else S.recipes[i]=m}
+async function catLoad(force){
+ const r=await api("/catalog"+(force||!S.catV?"":"?v="+encodeURIComponent(S.catV)));
+ if(!r.ok||r.data.unchanged)return false;
+ if(!Array.isArray(r.data.recipes)||!r.data.recipes.length&&S.recipes.length>0&&!force)return false;
+ S.recipes=r.data.recipes.map(recMap);S.catV=r.data.version;persist();return true}
+function recPut(r){if(!r)return;
+ socOp("PUT","/recipes/"+encodeURIComponent(r.id),{recipe:{n:r.n,d:r.d,t:r.t,por:r.por,dif:r.dif,status:r.status,cat:r.cat,veg:r.veg,k:r.k,p:r.p,c:r.c,f:r.f,i:r.i,s:r.s,ph:r.ph,img:r.img,photo:r.photo}})}
+if(SRV){
+ {const o=globalThis.recSave;
+  globalThis.recSave=function(id){const n0=S.recipes.length,b=id?JSON.stringify(byId(id)):"";o.call(this,id);
+   const r=id?byId(id):(S.recipes.length>n0?S.recipes[0]:null);
+   if(r&&(!id||JSON.stringify(r)!==b))recPut(r)}}
+ {const o=globalThis.recToggle;
+  globalThis.recToggle=function(id){const r0=byId(id),s0=r0&&r0.status;o.call(this,id);const r=byId(id);if(r&&r.status!==s0)recPut(r)}}
+ globalThis.recDel=function(id){if(!need("recipes"))return;const r=byId(id);if(!r)return;
+  ask("Ștergi rețeta?",`„${esc(r.n)}” se șterge definitiv. Dacă vrei doar să nu fie vizibilă, folosește „Ascunde”.`,"Șterge rețeta",()=>{if(!need("recipes"))return;
+   S.recipes=S.recipes.filter(x=>x.id!==id);save();draw();toast("Rețeta a fost ștearsă");socOp("DELETE","/recipes/"+encodeURIComponent(id))},true)}
 }
 
 /* ---------- Interfață: ajutoare ---------- */
@@ -2244,7 +2270,7 @@ const ATAB_FN={};
 let AQ="",AST="all",UQ="",UF="all",PQ="",PCAT="Toate",PLIM=60;
 const need=p=>can(p)?true:deny("Nu ai dreptul să faci această acțiune.");
 PAGES.admin=function(){const tabs=ATABS.filter(t=>!t[3]||can(t[3]));if(!tabs.some(t=>t[0]===S.atab))S.atab="ov";
- return pagehead("Administrare",`${esc(ROLE_L[role()])} · ${esc(ME().name)}`)+(SRV&&["rec","prod","look"].includes(S.atab)?`<div class="freebar">${I("alarm")}<span>Această filă funcționează deocamdată doar în acest browser: modificările de aici nu ajung în baza de date și nu le văd alți utilizatori. Utilizatorii, blocările, planurile și setările sunt deja pe server.</span></div>`:"")+
+ return pagehead("Administrare",`${esc(ROLE_L[role()])} · ${esc(ME().name)}`)+(SRV&&["prod","look"].includes(S.atab)?`<div class="freebar">${I("alarm")}<span>Această filă funcționează deocamdată doar în acest browser: modificările de aici nu ajung în baza de date și nu le văd alți utilizatori. Utilizatorii, blocările, planurile și setările sunt deja pe server.</span></div>`:"")+
  `<div class="atabs" role="tablist">${tabs.map(([k,l,ic])=>`<button role="tab" aria-selected="${S.atab===k}" onclick="S.atab='${k}';save();draw()">${I(ic)}${l}</button>`).join("")}</div>`+ATAB_FN[S.atab]()};
 const auditRows=l=>l.length?`<ul class="alist audit">${l.map(a=>`<li><span class="small muted nowrap">${fmtTs(a.t)}</span><span class="grow"><b>${esc(a.by)}</b> <span class="tag">${esc(ROLE_L[a.r]||a.r)}</span><br>${esc(a.m)}</span></li>`).join("")}</ul>`:`<p class="muted">Nicio activitate înregistrată.</p>`;
 
