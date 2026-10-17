@@ -877,6 +877,13 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .hero.noimg,.banner.noimg{grid-template-columns:minmax(0,1fr)}
 .banstatic .banthumb{width:56px;height:40px}
 
+/* ---------- Editorul de rețete: imaginea ---------- */
+.rimgrow{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.rprev{width:140px;flex:none}
+.rprev .rtile{border-radius:14px;overflow:hidden;aspect-ratio:4/3}
+.rimgacts{display:flex;flex-direction:column;gap:8px;min-width:200px;flex:1}
+.gallery.emojis{margin-top:10px;max-height:260px;overflow:auto;padding:8px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -2621,9 +2628,13 @@ function recEdit(id){if(!need("recipes"))return;const r=id?byId(id):null;if(id&&
  <form class="stack" onsubmit="event.preventDefault();recSave(${r?`'${r.id}'`:"null"})" novalidate>
   <label class="lbl">Nume<input id="rn" class="field" maxlength="90" value="${r?esc(r.n):""}"></label>
   <label class="lbl">Descriere scurtă<input id="rd" class="field" maxlength="240" value="${r?esc(r.d||""):""}"></label>
-  <div class="lbl">Imagine${canGallery(r)?"":`<p class="small muted">Imaginea rețetelor adăugate de alții o pot schimba doar moderatorii și administratorii.</p>`}<div class="gallery big" id="rgal" ${canGallery(r)?"":"hidden"}>${PHOTOS.filter(p=>!["hero","premium"].includes(p)).map(p=>`<button type="button" data-k="ph" data-v="${p}" aria-pressed="${sel("ph",p)&&!RIMG.photo}" onclick="rPick('ph','${p}',this)" aria-label="Fotografie ${p.replace(/-/g," ")}"><img src="${IM("photo/"+p+".jpg")}" alt=""></button>`).join("")}
-   ${ICON_LIST.map(g=>`<button type="button" class="ic" data-k="img" data-v="${g}" aria-pressed="${sel("img",g)&&!RIMG.photo&&!RIMG.ph}" onclick="rPick('img','${g}',this)" aria-label="${g.replace(/_/g," ")}"><img src="${IM("img/"+g+".png")}" alt="" loading="lazy"></button>`).join("")}</div>
-   <div class="rowacts">${canPhoto(r)?`<label class="btn sm">${I("upload")}Încarcă o fotografie<input type="file" accept="image/*" hidden onchange="rUp(this)"></label>`:`<span class="small muted">Fotografii noi poți încărca doar la rețetele adăugate de tine. Pentru aceasta poți alege o imagine din galerie.</span>`}${r&&r.photo?`<span class="small muted" id="rphn">Fotografie încărcată de tine este folosită acum.</span>`:`<span class="small muted" id="rphn"></span>`}</div></div>
+  <div class="lbl">Imagine
+   <div class="rimgrow"><span class="rprev" id="rprev">${rPrev(r?r.n:"")}</span>
+    <div class="rimgacts"><div class="rowacts">
+     ${canPhoto(r)?`<label class="btn sm">${I("upload")}Încarcă o fotografie<input type="file" accept="image/*" hidden onchange="rUp(this)"></label>`:""}
+     ${canGallery(r)?`<button type="button" class="btn sm" id="remobtn" aria-expanded="false" aria-controls="rgal" onclick="rEmoji()">${I("image")}Alege un emoji</button>`:""}</div>
+     <span class="small muted" id="rphn">${!canGallery(r)?"Imaginea rețetelor adăugate de alții o pot schimba doar moderatorii și administratorii.":!canPhoto(r)?"Fotografii noi poți încărca doar la rețetele adăugate de tine; poți alege un emoji.":r&&r.photo?"Acum este folosită o fotografie încărcată.":""}</span></div></div>
+   ${canGallery(r)?`<div class="gallery big emojis" id="rgal" hidden>${ICON_LIST.map(g=>`<button type="button" class="ic" data-k="img" data-v="${g}" aria-pressed="${sel("img",g)&&!RIMG.photo&&!RIMG.ph}" onclick="rPick('img','${g}',this)" aria-label="${g.replace(/_/g," ")}"><img src="${IM("img/"+g+".png")}" alt="" loading="lazy"></button>`).join("")}</div>`:""}</div>
   <div class="form"><label class="lbl">Minute<input id="rt" class="field w90" type="number" min="1" max="1440" value="${r?r.t:30}"></label><label class="lbl">Porții<input id="rp2" class="field w90" type="number" min="1" max="50" value="${r?r.por:4}"></label>
    <label class="lbl">Dificultate<select id="rdf" class="field">${["Ușor","Mediu","Avansat"].map(d=>`<option ${r&&r.dif===d?"selected":""}>${d}</option>`).join("")}</select></label>
    <label class="lbl">Stare<select id="rst" class="field"><option value="pub" ${!r||r.status!=="hid"?"selected":""}>Publicată</option><option value="hid" ${r&&r.status==="hid"?"selected":""}>Ascunsă</option></select></label></div>
@@ -2633,8 +2644,12 @@ function recEdit(id){if(!need("recipes"))return;const r=id?byId(id):null;if(id&&
   <label class="lbl">Pași, câte unul pe rând<textarea id="rs" class="field" rows="5">${esc(r?r.s.join("\n"):"")}</textarea></label>
   <p class="err" id="rerr" role="alert"></p>
   <div class="rowacts"><button class="btn primary">${r?"Salvează modificările":"Publică rețeta"}</button><button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,0,"#rn")}
-function rPick(k,v,btn){RIMG={ph:null,img:null,photo:null};RIMG[k]=v;$("rgal").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn));$("rphn").textContent=""}
-function rUp(inp){optimizeImg(inp.files[0],1200,u=>{RIMG={ph:null,img:null,photo:u};$("rgal").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false"));$("rphn").textContent="Fotografia încărcată va fi folosită."})}
+// previzualizarea imaginii alese (fotografie încărcată, fotografie din galerie sau emoji)
+function rPrev(n){return tile({n:n||($("rn")&&$("rn").value)||"?",...(RIMG.photo?{photo:RIMG.photo}:RIMG.ph?{ph:RIMG.ph}:RIMG.img?{img:RIMG.img}:{})})}
+function rShowPrev(){const p=$("rprev");if(p)p.innerHTML=rPrev()}
+function rEmoji(){const g=$("rgal"),b=$("remobtn");if(!g)return;g.hidden=!g.hidden;if(b)b.setAttribute("aria-expanded",String(!g.hidden));if(!g.hidden){const c=g.querySelector('[aria-pressed="true"]');(c||g.querySelector("button")).focus()}}
+function rPick(k,v,btn){RIMG={ph:null,img:null,photo:null};RIMG[k]=v;$("rgal").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn));$("rphn").textContent="Emoji ales.";rShowPrev();rEmoji();$("remobtn")&&$("remobtn").focus()}
+function rUp(inp){optimizeImg(inp.files[0],1200,u=>{RIMG={ph:null,img:null,photo:u};const g=$("rgal");if(g){g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false"));g.hidden=true}$("rphn").textContent="Fotografia încărcată va fi folosită după salvare.";rShowPrev()})}
 function recSave(id){if(!need("recipes"))return;const er=$("rerr");er.textContent="";
  const n=$("rn").value.trim(),i=parseIng($("ri").value),s=$("rs").value.split("\n").map(x=>x.trim()).filter(Boolean),t=Math.round(+$("rt").value),por=Math.round(+$("rp2").value);
  if(n.length<2){er.textContent="Scrie numele rețetei.";return}
