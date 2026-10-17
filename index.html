@@ -973,6 +973,24 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .tgl.dis{opacity:.5;cursor:not-allowed}
 @media (max-width:640px){.uopts{margin-left:0}.users .optbtn{margin-left:0}}
 
+/* ---------- Pachete personalizate ---------- */
+.btn.locked{opacity:.92}
+.btn.locked .i{color:var(--honey)}
+.lockline{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tag.gift{background:#fbefd5;color:#8a5a00;border:1px solid #efd49a;font-weight:800;text-transform:uppercase;font-size:10px;letter-spacing:.04em}
+.tag.pk{background:var(--green-soft);color:var(--green-dk);font-weight:700}
+.plancol .tag{margin:1px 2px 1px 0}
+.pklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.pklist li{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.planfeats{flex-basis:100%;display:flex;flex-direction:column;gap:10px}
+.pfhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.lbl.inl{flex-direction:row;align-items:center;gap:8px;font-size:13px}
+.pfgroup{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.pfgroup>b{flex-basis:100%;color:var(--green-dk)}
+.pfgroup .switch{font-size:13px}
+.pkcmp td:not(:first-child),.pkcmp th:not(:first-child){text-align:center}
+.plan li.pinc{color:var(--green-dk)}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -1153,7 +1171,9 @@ const DEF_TXT={premEyebrow:"Abonament Premium",premT1:"Mai mult decât rețete."
  shopSub:"Cumpără doar ce îți lipsește.",planSub:"Planifică mesele săptămânii după ce ai în frigider.",statsSub:"Vezi cât ai economisit și ce ai aruncat."};
 const TXT_FIELDS=[["premEyebrow","Premium: etichetă"],["premT1","Premium: titlu, rândul 1"],["premT2","Premium: titlu, rândul 2"],["premP","Premium: text","area"],["premBtn","Premium: text buton"],
  ["recTitle","Rețete: titlu pagină"],["recSub","Rețete: subtitlu"],["frSub","Frigider: subtitlu"],["shopSub","Cumpărături: subtitlu"],["planSub","Planificator: subtitlu"],["statsSub","Anti-risipă: subtitlu"]];
-const DEF_PLANS=[{id:"p1",name:"Lunar",price:49,days:30,on:true,pop:true},{id:"p2",name:"Anual",price:399,days:365,on:true,pop:false}];
+const DEF_PLANS=[{id:"p3",name:"Premium Essential",price:79,days:30,on:true,pop:true,features:["nutrition","unlimited_recipes","auto_plan","waste_reports","family"]},
+ {id:"p4",name:"Smart Kitchen",price:129,days:30,on:true,pop:false,includes:"p3",features:["fridge_match","auto_shopping","cooked_deduct","expiry_alerts","family_fridge","waste_details","ai_import","gallery_5"]},
+ {id:"p5",name:"Antrenor Pro",price:299,days:30,on:true,pop:false,features:["coach_cabinet","recipe_author","ai_recipes","coach_autoplan"]}];
 const ADMIN_PAGES=[["acasa","Acasă"],["retete","Rețete"],["frigider","Frigider"],["lista","Cumpărături"],["plan","Planificator"],["premium","Premium"]];
 
 /* ---------- Configurare server ---------- */
@@ -1406,11 +1426,22 @@ const recipes=()=>{const M=menuRecIds();return S.recipes.filter(r=>recVisible(r,
 const isRecStaff=()=>can("recipes");
 // poate adăuga rețete: dreptul „Rețete” (moderator în sus) sau antrenor căruia i s-a dat dreptul
 // funcțiile care pot fi incluse în pachete sau activate manual
-const FEAT_L={ai_recipes:"Generare rețete cu AI (antrenori)",recipe_author:"Adăugare rețete proprii (antrenori)"};
-const planFeats=u=>{if(!u||!hasPrem(u))return[];const p=(S.plans||[]).find(x=>x.id===u.planId);return p&&p.features||u.planFeatures||[]};
+const FEAT_L={nutrition:"Valori nutriționale pe porție",unlimited_recipes:"Rețete nelimitate",auto_plan:"Planificare automată pe 7 zile",waste_reports:"Rapoarte și tendințe anti-risipă",family:"Funcția de familie",
+ fridge_match:"Compatibilitate completă cu frigiderul („ce îmi lipsește”)",auto_shopping:"Lipsurile adăugate automat în lista de cumpărături",cooked_deduct:"„Am gătit-o”: scădere automată din frigider",expiry_alerts:"Notificări de expirare",family_fridge:"Frigider comun cu familia",waste_details:"Statistici detaliate de risipă",ai_import:"Import de rețete cu AI (link sau text)",gallery_5:"Galerie de profil cu 5 poze",
+ coach_cabinet:"Cabinet de antrenor",recipe_author:"Rețete proprii (antrenori)",ai_recipes:"Generare rețete cu AI (antrenori)",coach_autoplan:"Meniurile antrenorului intră automat în planificator"};
+const FEAT_G=[["Premium Essential",["nutrition","unlimited_recipes","auto_plan","waste_reports","family"]],["Smart Kitchen",["fridge_match","auto_shopping","cooked_deduct","expiry_alerts","family_fridge","waste_details","ai_import","gallery_5"]],["Antrenor Pro",["coach_cabinet","recipe_author","ai_recipes","coach_autoplan"]]];
+const ESS=FEAT_G[0][1];
+const pkgOf=f=>(FEAT_G.find(g=>g[1].includes(f))||["Premium"])[0];
+// toate funcțiile unui pachet, cu cele moștenite din pachetul inclus
+function planAll(p,d=0){if(!p)return[];if(p.all&&SRV)return p.all;const inc=p.includes&&d<5?planAll((S.plans||[]).find(x=>x.id===p.includes),d+1):[];const s=new Set([...(p.features||[]),...inc]);if(s.has("family_fridge"))s.add("family");return[...s]}
+const planFeats=u=>{if(!u||!hasPrem(u))return[];const p=(S.plans||[]).find(x=>x.id===u.planId);return p&&((p.features||[]).length||p.includes)?planAll(p):(u.planFeatures||[]).length?u.planFeatures:ESS};
 const hasFeat=(u,f)=>!!u&&(SRV?(u.features||[]).includes(f):((u.features||[]).includes(f)||planFeats(u).includes(f)));
+// are utilizatorul funcția? echipa are tot; altfel pachet activ sau activare manuală (pe server o verifică serverul)
+const feat=(f,u=ME())=>!!u&&(RANK[u.role]>=2||hasFeat(u,f)||(f==="coach_cabinet"&&!SRV&&u.role==="trainer")||(f==="family"&&(!!u.famGrant||hasFeat(u,"family_fridge"))));
+function featLocked(f){closeModal();go("premium");toast(`„${FEAT_L[f]||"Funcția"}” este inclusă în pachetul ${pkgOf(f)}`)}
+const lockBtn=(f,label,cls)=>`<button class="btn sm ${cls||""} locked" onclick="featLocked('${f}')" title="Inclus în ${esc(pkgOf(f))}">${I("lock")}${label}</button>`;
 // AI: moderatorii și administratorii mereu; antrenorul dacă are pachet cu AI sau activare manuală (serverul verifică oricum)
-const canAI=(u=ME())=>!!u&&(can("recipes",u)||(u.role==="trainer"&&(SRV?!!u.aiRecipes:hasFeat(u,"ai_recipes"))));
+const canAI=(u=ME())=>!!u&&(can("recipes",u)||(SRV?!!u.aiRecipes:((u.role==="trainer"&&hasFeat(u,"ai_recipes"))||hasFeat(u,"ai_import"))));
 const canAuthor=(u=ME())=>!!u&&(can("recipes",u)||(u.role==="trainer"&&(!!u.recipeAuthor||hasFeat(u,"recipe_author")||canAI(u))));
 const ownRec=r=>!!r&&!!S.uid&&((r.by||(r.au&&r.au.id))===S.uid);
 const canEditRec=r=>isRecStaff()||(canAuthor()&&(!r||ownRec(r)));
@@ -1475,8 +1506,8 @@ function demoPdays(plan){const k=iso(addD(monday(),1));plan[k+"|Gustare"]="smoot
 const FAM_MAX=6;
 const nid=p=>SRV?crypto.randomUUID():p+uid8();
 const famOf=uid=>(S.families||[]).find(f=>f.members.includes(uid))||null;
-const canFamily=(u=ME())=>!!u&&(hasPrem(u)||!!u.famGrant);
-const sharesFridge=uid=>{const u=acct(uid),f=famOf(uid);return !!(u&&f&&u.famShare&&!u.famOff&&canFamily(u))};
+const canFamily=(u=ME())=>!!u&&feat("family",u);
+const sharesFridge=uid=>{const u=acct(uid),f=famOf(uid);return !!(u&&f&&u.famShare&&!u.famOff&&canFamily(u)&&(SRV||feat("family_fridge",u)))};
 const invitesTo=uid=>(S.invites||[]).filter(i=>i.to===uid&&S.families.some(f=>f.id===i.fam));
 const famInvites=fid=>(S.invites||[]).filter(i=>i.fam===fid);
 /* schimbă legătura frigiderului (personal ⇄ comun) fără să piardă nimic */
@@ -1572,6 +1603,13 @@ function menuToPlan(id,start){const m=menuById(id);if(!m||m.st!==S.uid)return de
  let n=0;m.days.forEach((d,i)=>{const k=addDaysS(start,i);const extra=(d.slots||[]).filter(isExtra);
   if(extra.length)S.pdays[k]=sortSlots([...daySlots(k),...extra]).filter(isExtra);
   Object.entries(d.m).forEach(([key,v])=>{if(v.r&&rec(v.r)){S.plan[k+"|"+key]=v.r;n++}})});save();return n}
+/* meniurile de la un antrenor cu „Antrenor Pro” intră singure în planificator (o singură dată pe versiune) */
+const trAuto=t=>!!t&&(SRV?!!t.autoplan:feat("coach_autoplan",t));
+function autoMenus(){const me=ME();if(!me||!S.coach)return;S.autoMenus=S.autoMenus||{};let n=0,k=0;
+ (S.coach.menus||[]).filter(m=>m.st===me.id&&trAuto(acct(m.tr))).forEach(m=>{const v=m.updated||m.created||"1";if(S.autoMenus[m.id]===v)return;
+  const ref=v>todayS()?v:todayS(),start=mondayOf(ref)<todayS()?mondayOf(todayS()):mondayOf(ref);
+  const r=menuToPlan(m.id,start);if(r!==false){n+=r;k++}S.autoMenus[m.id]=v});
+ if(k){save();if(S.page==="plan")draw();toast(`Antrenorul tău a pus ${k===1?"un meniu":k+" meniuri"} în planificator (${n} mese)`)}}
 /* ședințe */
 const HHMM=/^([01]\d|2[0-3]):[0-5]\d$/;
 function sessSave(o){if(!isTrainer())return deny("Doar antrenorul programează ședințe.");
@@ -1636,7 +1674,7 @@ async function api(path,o={}){
 function srvMirror(u){
  const old=S.accounts.find(a=>a.id===u.id)||{};
  const staff=RANK[u.role]>=2;
- const a={id:u.id,name:u.name,email:u.email,role:u.role,avatar:u.avatar||null,recipeAuthor:!!u.recipeAuthor,aiRecipes:!!u.aiRecipes,features:u.features||[],featureSources:u.featureSources||{},
+ const a={id:u.id,name:u.name,email:u.email,role:u.role,avatar:u.avatar||null,recipeAuthor:!!u.recipeAuthor,aiRecipes:!!u.aiRecipes,features:u.features||[],featureSources:u.featureSources||{},packages:u.packages||[],
   extra:(u.permissions||[]).filter(p=>!(ROLE_DEF[u.role]||[]).includes(p)),
   plan:u.premium&&!staff?"premium":"free",until:u.premiumUntil?String(u.premiumUntil).slice(0,10):null,
   blocked:false,salt:"",hash:"",created:String(u.createdAt||"").slice(0,10)||todayS(),last:todayS(),
@@ -1722,11 +1760,11 @@ function socApply(sc){
  const me=ME();if(!me||!sc)return;
  me.famShare=!!sc.me.famShare;me.famGrant=!!sc.me.famGrant;me.famOff=!!sc.me.famOff;
  const ext=(sc.users||[]).filter(u=>u.id!==me.id).map(u=>({id:u.id,name:u.name,email:u.email,role:u.role,extra:[],plan:u.premium?"premium":"free",until:null,
-  blocked:false,salt:"",hash:"",created:todayS(),last:todayS(),famShare:!!u.share,famGrant:!!u.fam,famOff:false,ext:1}));
+  blocked:false,salt:"",hash:"",created:todayS(),last:todayS(),famShare:!!u.share,famGrant:!!u.fam,famOff:false,autoplan:!!u.autoplan,ext:1}));
  const old=S.accounts.filter(a=>a.adm&&a.id!==me.id);
- S.accounts=[me,...ext.map(e=>{const a=old.find(x=>x.id===e.id);return a?{...a,famShare:e.famShare}:e}),...old.filter(a=>!ext.some(e=>e.id===a.id))];
+ S.accounts=[me,...ext.map(e=>{const a=old.find(x=>x.id===e.id);return a?{...a,famShare:e.famShare,autoplan:e.autoplan}:e}),...old.filter(a=>!ext.some(e=>e.id===a.id))];
  S.families=(sc.families||[]).map(f=>({id:f.id,name:f.name,owner:f.owner,members:f.members,created:f.created,fridge:new Array(f.fridgeCount||0).fill(0)}));
- S.invites=sc.invites||[];S.coach=sc.coach||{groups:{},menus:[],sessions:[]}}
+ S.invites=sc.invites||[];S.coach=sc.coach||{groups:{},menus:[],sessions:[]};setTimeout(autoMenus,50)}
 function socSet(sc){SOC.sig=JSON.stringify(sc);socApply(sc);persist()}
 async function socRefresh(force){
  if(!syncOn()||SOC.n)return false;
@@ -1803,7 +1841,7 @@ function admApply(o){
  if(o.users){const prev=S.accounts;
   const adm=o.users.filter(u=>u.id!==me.id).map(u=>{const p=prev.find(x=>x.id===u.id)||{};
    return{id:u.id,name:u.name,email:u.email,role:u.role,extra:u.extra||[],plan:u.plan,until:u.until,blocked:!!u.blocked,salt:"",hash:"",created:u.created||todayS(),last:u.last||todayS(),
-    famGrant:!!u.famGrant,famOff:!!u.famOff,famShare:!!p.famShare,students:u.students,mfeat:u.mfeat||[],pfeat:u.pfeat||[],planName:u.planName||null,ext:1,adm:1}});
+    famGrant:!!u.famGrant,famOff:!!u.famOff,famShare:!!p.famShare,students:u.students,mfeat:u.mfeat||[],pfeat:u.pfeat||[],planName:u.planName||null,packages:u.packages||[],ext:1,adm:1}});
   S.accounts=[me,...adm,...prev.filter(x=>x.id!==me.id&&!adm.some(a=>a.id===x.id))];S.admN=o.users.length}
  if(o.blocked)S.blocked=o.blocked;
  if(o.audit)S.audit=o.audit}
@@ -1917,7 +1955,7 @@ function draw(){
  let L=null;if(ipBlocked())L=lockIp();else if(S.settings.maint&&!isStaff())L=lockMaint();
  $("lock").hidden=!L;$("lock").innerHTML=L||"";$("shell").hidden=!!L;$("bottomnav").hidden=!!L;
  if(L){drawEdbar();return}
- const m=ME(),sh=S.shop.filter(s=>!s.d).length,ex=m?expiring().length:0;
+ const m=ME(),sh=S.shop.filter(s=>!s.d).length,ex=m&&feat("expiry_alerts")?expiring().length:0;
  if(S.page==="admin"&&!isStaff())S.page="acasa";
  if(!PAGES[S.page])S.page="acasa";
  famSync();
@@ -1952,7 +1990,8 @@ function drawPop(){const p=$("pop");if(!POP){p.hidden=true;p.innerHTML="";return
  p.hidden=false;const me=ME();
  if(POP==="notif"){
   if(!me){p.innerHTML=`<div class="pop"><h4>Notificări</h4><p class="muted small">Autentifică-te ca să primești alerte când produsele din frigider expiră.</p><button class="btn sm primary" onclick="POP=null;authModal('login')">Autentificare</button></div>`;return}
-  const e=expiring();p.innerHTML=`<div class="pop"><h4>Expiră curând</h4>${e.length?e.slice(0,6).map(f=>`<div class="row">${thumb(f.n,"s28")}<span style="flex:1">${esc(f.n)}</span>${expLabel(f.x)}</div>`).join(""):`<p class="muted small">Nimic nu expiră în următoarele 3 zile.</p>`}<hr><button class="link" onclick="go('frigider')">Vezi frigiderul ${I("arrow")}</button></div>`;return}
+  if(!feat("expiry_alerts")){p.innerHTML=`<div class="pop"><h4>Notificări de expirare</h4><p class="muted small">Alertele pentru produsele care expiră sunt incluse în pachetul Smart Kitchen. Fără el vezi doar eticheta „expiră curând” din frigider.</p>${lockBtn("expiry_alerts","Activează alertele")}</div>`;return}
+  const e=expiring(),np=typeof Notification!=="undefined"?Notification.permission:"x";p.innerHTML=`<div class="pop"><h4>Expiră curând</h4>${np==="default"?`<button class="btn sm" onclick="notifAsk()">${I("bell")}Primește alertele și în browser</button>`:""}${e.length?e.slice(0,6).map(f=>`<div class="row">${thumb(f.n,"s28")}<span style="flex:1">${esc(f.n)}</span>${expLabel(f.x)}</div>`).join(""):`<p class="muted small">Nimic nu expiră în următoarele 3 zile.</p>`}<hr><button class="link" onclick="go('frigider')">Vezi frigiderul ${I("arrow")}</button></div>`;return}
  if(!me){p.innerHTML=`<div class="pop"><div class="row"><span class="avatar ghost">${I("user")}</span><span><b>Vizitator</b><br><span class="muted small">Nu ești autentificat</span></span></div><hr>
   <button class="btn primary sm" onclick="POP=null;authModal('login')">${I("login")}Autentificare</button><button class="btn sm" onclick="POP=null;authModal('register')">Creează cont</button><hr>
   ${SRV?"":`<button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button>`}</div>`;return}
@@ -1984,6 +2023,13 @@ function askIp(){openModal(`<div class="sheet-b"><h2 style="font-size:21px;paddi
  <button class="link" onclick="setMyIp('${DEFAULT_IP}')">Revino la ${DEFAULT_IP}</button><p class="small" id="iperr" style="color:var(--danger)" role="alert"></p></div>`,1,"#ipv")}
 function setMyIp(v){v=String(v||"").trim();if(!IP_RE.test(v)){const e=$("iperr");e?e.textContent="Adresa IP nu este validă (ex. 203.0.113.50).":toast("Adresa IP nu este validă.");return}
  S.myIp=v;save();closeModal();toast("IP simulat: "+v)}
+
+/* alertă de expirare în browser (Smart Kitchen): cel mult o dată pe zi */
+function notifAsk(){try{Notification.requestPermission().then(()=>{drawPop();expiryPush(true)})}catch(e){toast("Browserul tău nu permite notificări.")}}
+function expiryPush(force){try{if(!ME()||!feat("expiry_alerts")||typeof Notification==="undefined"||Notification.permission!=="granted")return;
+ const k="gusto-notif-"+S.uid,d=todayS();if(!force&&localStorage.getItem(k)===d)return;const e=expiring();if(!e.length)return;
+ new Notification("Gusto: produse care expiră curând",{body:e.slice(0,4).map(f=>f.n).join(", ")+(e.length>4?` și încă ${e.length-4}`:""),tag:"gusto-exp"});localStorage.setItem(k,d)}catch(e){}}
+setTimeout(()=>expiryPush(),6000);
 
 /* ---------- Pagina principală: blocuri ---------- */
 const AUD_L={all:"Toți vizitatorii",guest:"Doar vizitatori (neconectați)",member:"Doar utilizatori conectați",nopremium:"Doar cei fără Premium",premium:"Doar utilizatori Premium"};
@@ -2273,9 +2319,9 @@ PATHS.grip='<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circ
 /* ---------- Rețete ---------- */
 const RCATS=["Toate","Favorite","Mic dejun","Prânz","Cină","Desert","Vegetarian","Rapid"];
 PAGES.retete=function(){
- ensureMonth();const opened=Math.min(usedN(),S.limit),P=prem();
- return pagehead(esc(txt("recTitle")),esc(txt("recSub")))+
- `${P?"":`<div class="freebar">${I("lock")}${ME()?"Plan gratuit":"Fără cont"}: ai deschis ${opened} din ${S.limit} rețete luna aceasta. Valorile nutriționale sunt disponibile în Premium.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
+ ensureMonth();const opened=Math.min(usedN(),S.limit),P=feat("unlimited_recipes");
+ return pagehead(esc(txt("recTitle")),esc(txt("recSub")),ME()?(canAI()?`<button class="btn" onclick="aiImport()">${I("spark")}Importă cu AI</button>`:lockBtn("ai_import","Importă cu AI","")):"")+
+ `${P?"":`<div class="freebar">${I("lock")}${ME()?"Plan gratuit":"Fără cont"}: ai deschis ${opened} din ${S.limit} rețete luna aceasta. Rețetele nelimitate și valorile nutriționale sunt în Premium Essential.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
  <div class="rlayout"><div style="display:flex;flex-direction:column;gap:16px;min-width:0">
   <div class="toolbar"><div class="chips">${RCATS.filter(c=>c!=="Favorite"||ME()).map(c=>`<button class="chip" aria-pressed="${S.rcat===c}" onclick="S.rcat='${c}';save();draw()">${c}</button>`).join("")}</div>
    <label class="chip" style="padding-right:6px">${I("filter")}<select aria-label="Sortează" class="bare" onchange="S.sort=this.value;save();renderRecipes()">${[["compat","Compatibilitate"],["time","Timp de preparare"],["dif","Dificultate"]].map(([v,l])=>`<option value="${v}" ${S.sort===v?"selected":""}>${l}</option>`).join("")}</select></label></div>
@@ -2306,8 +2352,8 @@ function renderDetail(){const d=$("detail");if(!d)return;const r=rec(S.detail);i
   <p class="meta">${I("clock")}${r.t} min · ${I("level")}${esc(r.dif)} · ${r.por} porții</p>${compatLine(r)}
   <div><p class="h3" style="margin-bottom:4px">Ingrediente</p>${ingList(r)}</div>
   <button class="btn primary" onclick="openRecipe('${r.id}')">Vezi rețeta completă ${I("arrow")}</button></div>`}
-function ingList(r){const A=avail(),sc=stockCheck(r);return `<ul class="ilist">${sc.map(x=>{const {n,q,u}=x,ok=x.st==="ok",sb=x.st==="none"&&subFor(n,A);
- const note=x.st==="part"?`<small class="lack">Ai ${fmtQ(x.have,u)} · lipsesc ${fmtQ(x.miss,u)}</small>`:x.st==="none"&&!sb?`<small class="lack">Lipsește${x.miss!=null?`: ${fmtQ(x.miss,u)}`:""}</small>`:x.unk?`<small>În frigider, în altă unitate: verifică tu cantitatea</small>`:sb?`<small>Poți folosi ${esc(sb)} din frigider</small>`:"";
+function ingList(r,basic){const A=avail(),sc=stockCheck(r);return `<ul class="ilist">${sc.map(x=>{const {n,q,u}=x,ok=x.st==="ok",sb=x.st==="none"&&subFor(n,A);
+ const note=basic?"":x.st==="part"?`<small class="lack">Ai ${fmtQ(x.have,u)} · lipsesc ${fmtQ(x.miss,u)}</small>`:x.st==="none"&&!sb?`<small class="lack">Lipsește${x.miss!=null?`: ${fmtQ(x.miss,u)}`:""}</small>`:x.unk?`<small>În frigider, în altă unitate: verifică tu cantitatea</small>`:sb?`<small>Poți folosi ${esc(sb)} din frigider</small>`:"";
  return `<li><span class="st ${ok?"ok":sb||x.st==="part"?"sub":"no"}">${I(ok||sb?"check":x.st==="part"?"minus":"x")}</span>${thumb(n)}<span class="n">${esc(n)}${note}</span><span class="q">${fmtQ(q,u)}</span></li>`}).join("")}</ul>`}
 function pick(id){if(S.page==="retete"&&wide()){S.detail=id;save();document.querySelectorAll(".rcard").forEach(c=>c.removeAttribute("aria-current"));event?.currentTarget?.setAttribute?.("aria-current","true");renderDetail()}else openRecipe(id)}
 
@@ -2317,20 +2363,22 @@ function openRecipe(id){const r=byId(id);if(!r||(!recVisible(r)&&!isStaff()))ret
  srvGate(id).then(g=>{if(g.err)return toast(g.err);openRecipeCore(id,g)})}
 function openRecipeCore(id,g){const r=byId(id);if(!r||(!recVisible(r)&&!isStaff()))return;
  if(g&&g.rating){r.rt=g.rating.n?{a:g.rating.a,n:g.rating.n}:undefined;if(!r.rt)delete r.rt;RATE.mine[id]=g.rating.mine}POP=null;drawPop();ensureMonth();
- const P=g?g.premium&&!g.locked:prem(),locked=g?g.locked:(!P&&!S.viewed.includes(id)&&S.viewed.length>=S.limit);
- if(!locked&&!P&&!S.viewed.includes(id)){S.viewed.push(id);save()}else if(g)save()
+ const U=g?!!g.unlimited:feat("unlimited_recipes"),P=g?(g.nutrition!=null?g.nutrition:g.premium)&&!g.locked:feat("nutrition"),locked=g?g.locked:(!U&&!S.viewed.includes(id)&&S.viewed.length>=S.limit);
+ const FM=feat("fridge_match"),AS=feat("auto_shopping"),CD=feat("cooked_deduct");
+ if(!locked&&!U&&!S.viewed.includes(id)){S.viewed.push(id);save()}else if(g)save()
  const A=avail(),miss=lacks(r),me=ME();
  const nut=`<div class="nut ${P?"":"locked"}"><div class="cells"><div><b>${P?r.k:"000"}</b><span>kcal</span></div><div><b>${P?r.p:"00"} g</b><span>proteine</span></div><div><b>${P?r.c:"00"} g</b><span>carbohidrați</span></div><div><b>${P?r.f:"00"} g</b><span>grăsimi</span></div></div>
-  ${P?"":`<div class="lockmsg"><button class="btn honey sm" onclick="closeModal();go('premium')">${I("lock")}Deblochează cu Premium</button></div>`}</div><p class="small muted" style="margin-top:6px">Valori nutriționale pe porție.</p>`;
+  ${P?"":`<div class="lockmsg"><button class="btn honey sm" onclick="featLocked('nutrition')">${I("lock")}Deblochează cu Premium Essential</button></div>`}</div><p class="small muted" style="margin-top:6px">Valori nutriționale pe porție.</p>`;
  const days=[...Array(7)].map((_,k)=>addD(monday(),k));
  const guest=`<div class="box"><p class="small">Cu un cont gratuit poți salva rețeta la favorite, o poți adăuga în planificator, poți trimite lipsurile pe lista de cumpărături și poți scădea ingredientele din frigider.</p><div class="rowacts"><button class="btn sm primary" onclick="closeModal();authModal('register')">Creează cont</button><button class="btn sm" onclick="closeModal();authModal('login')">Autentificare</button></div></div>`;
- const body=locked?`<div class="paywall"><p class="eyebrow" style="color:var(--honey)">${I("crown")} Premium</p><h3>Ai deschis toate cele ${S.limit} rețete gratuite din această lună</h3><p>Cu Premium ai acces nelimitat la rețete, valori nutriționale și planificare automată.</p><button class="btn honey" onclick="closeModal();go('premium')">Vezi planurile</button></div>`
- :`<div class="cols2"><div style="display:flex;flex-direction:column;gap:12px"><p class="h3">Ingrediente</p>${ingList(r)}
-   ${!me?"":miss.length?`<div class="missbox"><p class="small"><b>Îți lipsesc:</b> ${miss.map(x=>esc(x.miss!=null?`${num(x.miss)} ${x.u||""}`.trim()+" "+x.n:x.n)).join(", ")}</p><button class="btn sm primary" id="missBtn" onclick="addMissing('${id}')">${I("cart")}Adaugă ingredientele lipsă în lista de cumpărături</button></div>`:`<p class="compat">${I("checkc")}Ai toate ingredientele</p>`}
+ const body=locked?`<div class="paywall"><p class="eyebrow" style="color:var(--honey)">${I("crown")} Premium</p><h3>Ai deschis toate cele ${S.limit} rețete gratuite din această lună</h3><p>Cu Premium Essential ai acces nelimitat la rețete, valori nutriționale și planificare automată.</p><button class="btn honey" onclick="closeModal();go('premium')">Vezi planurile</button></div>`
+ :`<div class="cols2"><div style="display:flex;flex-direction:column;gap:12px"><p class="h3">Ingrediente</p>${ingList(r,me&&!FM)}
+   ${!me?"":miss.length?`<div class="missbox">${FM?`<p class="small"><b>Îți lipsesc:</b> ${miss.map(x=>esc(x.miss!=null?`${num(x.miss)} ${x.u||""}`.trim()+" "+x.n:x.n)).join(", ")}</p>`:`<p class="small"><b>Îți lipsesc ${miss.length} ${miss.length===1?"ingredient":"ingrediente"}.</b> <button class="link" onclick="featLocked('fridge_match')">${I("lock")}Vezi ce îți lipsește (Smart Kitchen)</button></p>`}
+    ${AS?`<button class="btn sm primary" id="missBtn" onclick="addMissing('${id}')">${I("cart")}Adaugă ingredientele lipsă în lista de cumpărături</button>`:lockBtn("auto_shopping","Adaugă lipsurile în lista de cumpărături")}</div>`:`<p class="compat">${I("checkc")}Ai toate ingredientele</p>`}
    ${me?`<div class="box"><p class="h3" style="font-size:14px">Adaugă în planificator</p><div class="form"><select id="pday" class="field" aria-label="Zi">${days.map(d=>`<option value="${iso(d)}" ${iso(d)===todayS()?"selected":""}>${dayName(d)} ${d.getDate()}</option>`).join("")}</select>
    <select id="pmeal" class="field" aria-label="Masă">${[...MEALS,...EXTRA_MEALS].map(m=>`<option ${(r.cat||[]).includes(m)?"selected":""}>${m}</option>`).join("")}</select><button class="btn sm" onclick="planPut($('pday').value,$('pmeal').value,'${id}')&&toast('Adăugată în planificator')">${I("cal")}Adaugă</button></div></div>`:guest}</div>
   <div style="display:flex;flex-direction:column;gap:12px"><p class="h3">Preparare</p><ol class="steps">${r.s.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ol>
-   ${me?`<div id="cookbox"><button class="btn primary" onclick="cookAsk('${id}')">${I("cook")}Am gătit-o</button><p class="small muted" style="margin-top:6px">Scădem ingredientele folosite din frigider, după confirmare.</p></div>`:""}</div></div>`;
+   ${me?`<div id="cookbox">${CD?`<button class="btn primary" onclick="cookAsk('${id}')">${I("cook")}Am gătit-o</button><p class="small muted" style="margin-top:6px">Scădem ingredientele folosite din frigider, după confirmare.</p>`:`${lockBtn("cooked_deduct","Am gătit-o")}<p class="small muted" style="margin-top:6px">Scăderea automată din frigider este inclusă în Smart Kitchen.</p>`}</div>`:""}</div></div>`;
  openModal(`<div class="sheet-top"><div class="media">${tile(r)}${heartBtn(id)}</div>
   <div style="display:flex;flex-direction:column;gap:10px;padding-right:36px"><p class="eyebrow">${(r.cat||[]).join(" · ")}${r.veg?" · Vegetarian":""}${r.status==="hid"?" · Ascunsă":""}</p><h2>${esc(r.n)}</h2><p class="muted">${esc(r.d||"")}</p>${authorChip(r,"Rețetă de")}
   <div class="ratebox" id="ratebox">${rateBox(r)}</div>
@@ -2338,7 +2386,7 @@ function openRecipeCore(id,g){const r=byId(id);if(!r||(!recVisible(r)&&!isStaff(
   ${canEditRec(r)?`<div><button class="btn sm" onclick="closeModal();recEdit('${id}')">${I("edit")}Editează rețeta</button></div>`:""}</div></div>
   <div class="sheet-b">${nut}${body}</div>`)}
 /* trimite pe listă DOAR ce lipsește (cantitatea lipsă), fără dubluri; lista grupează singură pe categorii */
-function addMissing(id){if(!ME()){authModal("register");return 0}const r=byId(id);if(!r)return 0;let k=0;const cats={};
+function addMissing(id){if(!ME()){authModal("register");return 0}if(!feat("auto_shopping")){featLocked("auto_shopping");return 0}const r=byId(id);if(!r)return 0;let k=0;const cats={};
  lacks(r).forEach(x=>{const q=x.miss!=null?x.miss:"",u=x.miss!=null?(x.u||""):"";
   const ex=S.shop.find(s=>s.n===x.n&&!s.d);
   if(ex){if(q!==""&&(ex.u||"")===u&&(+ex.q||0)<q){ex.q=q;k++;cats[prod(x.n).cat]=(cats[prod(x.n).cat]||0)+1}return}
@@ -2349,7 +2397,7 @@ function addMissing(id){if(!ME()){authModal("register");return 0}const r=byId(id
  if(k)toast(`Pe listă: ${sum}`);return k}
 function cookPlan(r){return r.i.map(([n,q,u])=>{const f=S.fridge.find(x=>x.n===n);if(!f)return null;
  let rq=+q;if(f.u==="kg"&&u==="g")rq=q/1000;else if(f.u==="l"&&u==="ml")rq=q/1000;else if(f.u!==u)return{n,manual:true};return{n,rq,u:f.u}}).filter(Boolean)}
-function cookAsk(id){const pl=cookPlan(byId(id));COOK=id;
+function cookAsk(id){if(!feat("cooked_deduct"))return featLocked("cooked_deduct");const pl=cookPlan(byId(id));COOK=id;
  $("cookbox").innerHTML=`<div class="box honey"><p class="h3" style="font-size:14px">Scădem din frigider:</p><ul style="margin:0;padding-left:18px;font-size:14px">${pl.map(x=>x.manual?`<li>${esc(x.n)}: verifici tu cantitatea</li>`:`<li>${esc(x.n)}: −${num(x.rq)} ${esc(x.u)}</li>`).join("")||"<li>Niciun ingredient din frigider</li>"}</ul>
   <div style="display:flex;gap:8px"><button class="btn primary sm" onclick="cookDo('${id}')">Confirmă</button><button class="btn sm" onclick="openRecipe('${id}')">Anulează</button></div></div>`}
 function cookDo(id){const pl=cookPlan(byId(id));let k=0;
@@ -2417,7 +2465,7 @@ PAGES.lista=function(){
   <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&inFridge(s.n)?" · ai deja în frigider":""}</span></label>
   <button class="iconbtn" onclick="S.shop.splice(${i},1);save();draw()" aria-label="Șterge ${esc(s.n)}">${I("x")}</button></div>`};
  return pagehead("Lista de cumpărături",`${esc(txt("shopSub"))} · ${todo.length} de cumpărat, aproximativ ${Math.round(est)} MDL`,
-  `<button class="btn" onclick="shareList()">${I("share")}Partajează</button><button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`)+
+  `<button class="btn" onclick="shareList()">${I("share")}Partajează</button>${feat("auto_shopping")?`<button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`:lockBtn("auto_shopping","Importă din rețetă","")}`)+
  `<form class="card addpanel" onsubmit="addShop(event)"><div class="form"><label class="lbl grow">Produs<input id="sn" class="field" list="dlp4" required placeholder="ex. lapte"><datalist id="dlp4">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
   <label class="lbl">Cantitate<input id="sq" class="field w90" type="number" min="0" step="any" placeholder="1"></label>
   <label class="lbl">Unitate<select id="su" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label><button class="btn primary">${I("plus")}Adaugă</button></div></form>
@@ -2442,8 +2490,8 @@ PAGES.plan=function(){const m=monday(),days=[...Array(7)].map((_,k)=>addD(m,k)),
  const allSlots=days.flatMap(d=>daySlots(iso(d)).map(x=>iso(d)+"|"+x)),planned=allSlots.map(k=>S.plan[k]).filter(id=>rec(id));
  const f=d=>`${d.getDate()}.${pad2(d.getMonth()+1)}`;
  return pagehead("Planificator de mese",`${esc(txt("planSub"))} Săptămâna ${f(days[0])} – ${f(days[6])} · ${planned.length} din ${allSlots.length} mese planificate`,
-  `<button class="btn" onclick="planShop()">${I("cart")}Lipsurile pe listă</button><button class="btn ${prem()?"primary":""}" onclick="autoPlan()">${prem()?I("spark"):I("lock")}Planificare automată</button>`)+
- `${prem()?"":`<div class="freebar">${I("crown")}Planificarea automată pentru toată săptămâna, după ce ai în frigider, e inclusă în Premium. Manual poți planifica oricând.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
+  `${feat("auto_shopping")?`<button class="btn" onclick="planShop()">${I("cart")}Lipsurile pe listă</button>`:lockBtn("auto_shopping","Lipsurile pe listă","")}<button class="btn ${feat("auto_plan")?"primary":""}" onclick="autoPlan()">${feat("auto_plan")?I("spark"):I("lock")}Planificare automată</button>`)+
+ `${feat("auto_plan")?"":`<div class="freebar">${I("crown")}Planificarea automată pentru toată săptămâna, după ce ai în frigider, e inclusă în Premium Essential. Manual poți planifica oricând.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
  <div class="week">${days.map(d=>{const k=iso(d);return `<div class="card day ${k===td?"today":""}"><div class="day-h"><b>${dayName(d)}</b><span>${f(d)}</span></div>
   ${daySlots(k).map(x=>{const r=rec(S.plan[k+"|"+x]);const s=r&&rsrc(r);return `<div class="slotw ${isExtra(x)?"extra":""}"><button class="slot" onclick="slotPick('${k}','${x}')"><small>${x}</small>${r?`<span class="pick">${s?`<img src="${s.u}" class="${s.photo?"":"ill"}" alt="">`:""}<span>${esc(r.n)}</span></span>`:`<span class="slot-add">${I("plus")}Adaugă</span>`}</button>${isExtra(x)?`<button class="slotx" onclick="delDaySlot('${k}','${x}');draw()" aria-label="Șterge ${x} din ${dayName(d)}">${I("x")}</button>`:""}</div>`}).join("")}
   <div class="addmeal"><button class="link" onclick="addDaySlot('${k}','Gustare')&&draw()">${I("plus")}Gustare</button><button class="link" onclick="addDaySlot('${k}','Chindie')&&draw()">${I("plus")}Chindie</button></div></div>`}).join("")}</div>
@@ -2454,13 +2502,13 @@ function slotPick(k,meal){const A=avail(),cur=S.plan[k+"|"+meal];
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${dayName(new Date(k+"T00:00"))} · ${meal}</p><h2 style="font-size:22px">Alege o rețetă</h2></div>
  <ul class="plist">${l.map(r=>`<li><button onclick="S.plan['${k}|${meal}']='${r.id}';save();closeModal()"><span class="thumb">${tile(r)}</span><span style="flex:1"><b>${esc(r.n)}</b><br><span class="small muted">${r.t} min · ${compat(r,A)} din ${r.i.length} disponibile</span></span>${r.id===cur?I("checkc"):""}</button></li>`).join("")}</ul>
  ${cur?`<button class="btn" onclick="delete S.plan['${k}|${meal}'];save();closeModal()">${I("trash")}Elimină din plan</button>`:""}</div>`,1)}
-function autoPlan(){if(!prem()){go("premium");toast("Planificarea automată e inclusă în Premium");return}
+function autoPlan(){if(!feat("auto_plan"))return featLocked("auto_plan");
  const A=avail(),used=new Set(Object.values(S.plan));let n=0;
  [...Array(7)].map((_,k)=>iso(addD(monday(),k))).forEach(k=>daySlots(k).forEach(m=>{if(rec(S.plan[k+"|"+m]))return;
   const c=recipes().filter(r=>fitsMeal(r,m)).sort((a,b)=>(used.has(a.id)-used.has(b.id))||compat(b,A)/b.i.length-compat(a,A)/a.i.length);
   if(c[0]){S.plan[k+"|"+m]=c[0].id;used.add(c[0].id);n++}}));
  save();draw();toast(n?`Am completat ${n} mese, după ce ai în frigider`:"Săptămâna e deja planificată")}
-function planShop(){const A=avail(),need={};Object.entries(S.plan).forEach(([k,id])=>{const d=new Date(k.split("|")[0]+"T00:00");if(d<monday()||d>addD(monday(),6))return;const r=rec(id);r&&r.i.forEach(([n,q,u])=>{if(!A.has(n)){need[n]=need[n]||{q:0,u};if(need[n].u===u&&typeof q==="number")need[n].q+=q}})});
+function planShop(){if(!feat("auto_shopping"))return featLocked("auto_shopping");const A=avail(),need={};Object.entries(S.plan).forEach(([k,id])=>{const d=new Date(k.split("|")[0]+"T00:00");if(d<monday()||d>addD(monday(),6))return;const r=rec(id);r&&r.i.forEach(([n,q,u])=>{if(!A.has(n)){need[n]=need[n]||{q:0,u};if(need[n].u===u&&typeof q==="number")need[n].q+=q}})});
  let k=0;Object.entries(need).forEach(([n,v])=>{if(!S.shop.some(s=>s.n===n&&!s.d)){S.shop.push({n,q:v.q||"",u:v.q?v.u:"",d:false});k++}});save();draw();toast(k?`Am adăugat ${k} produse pe listă`:"Ai deja tot ce trebuie")}
 
 /* ---------- Favorite ---------- */
@@ -2470,7 +2518,7 @@ PAGES.fav=function(){const l=recipes().filter(r=>S.fav.includes(r.id));
 
 /* ---------- Anti-risipă ---------- */
 const TIPS={"Legume":"Cumpără cantități mici, de două ori pe săptămână, și gătește mai întâi ce expiră repede.","Fructe":"Fructele foarte coapte merg în smoothie-uri sau în clătite; congelează-le înainte să se strice.","Lactate":"Verifică data înainte de cumpărare și pune în planificator rețetele cu lactate.","Carne":"Congelează porțiile pe care nu le gătești în 2 zile.","Cereale":"Pâinea veche se transformă în crutoane; paste și orez se păstrează mult mai bine.","Condimente":"Cumpără ambalaje mici și verifică lista înainte de a reface stocul.","Băuturi":"Deschide un singur ambalaj o dată și notează data deschiderii.","Altele":"Verifică dulapul înainte de cumpărături, ca să nu iei de două ori același lucru."};
-const anWeeks=()=>prem()&&[4,8,12].includes(+S.anSub)?+S.anSub:4;
+const anWeeks=()=>feat("waste_reports")&&[4,8,12].includes(+S.anSub)?+S.anSub:4;
 function anData(){const n=anWeeks(),m0=monday();
  const B=[...Array(n)].map((_,i)=>{const s=addD(m0,-(n-1-i)*7);return{s:iso(s),e:iso(addD(s,6)),u:0,w:0,un:0,wn:0}});
  const from=B[0].s,pFrom=addDaysS(from,-7*n),pTo=addDaysS(from,-1);
@@ -2486,9 +2534,9 @@ function deltaHTML(cur,prev,goodDown){if(!prev)return `<span class="muted">făr�
  return `<span class="delta ${good?"good":"bad"}">${I(p<0?"down":"up")}${Math.abs(p)}% ${p<0?"mai puțin":"mai mult"} decât înainte</span>`}
 const kpi=(l,v,s)=>`<div class="card kpi"><small>${l}</small><b>${v}</b><span class="kd">${s||""}</span></div>`;
 function clearDemoLog(){S.log=S.log.filter(e=>!e.demo);save();draw();toast("Datele demonstrative au fost șterse")}
-PAGES.stats=function(){const P=prem(),D=anData(),c=D.cur,tot=c.u+c.w,rate=tot?Math.round(c.u/tot*100):null;
+PAGES.stats=function(){const P=feat("waste_reports"),DET=feat("waste_details"),D=anData(),c=D.cur,tot=c.u+c.w,rate=tot?Math.round(c.u/tot*100):null;
  const demoN=S.log.some(e=>e.demo),n=D.n;
- const filt=[4,8,12].map(w=>w===4||P?`<button class="chip" aria-pressed="${n===w}" onclick="S.anSub='${w}';save();draw()">${w} săptămâni</button>`:`<button class="chip locked" onclick="go('premium')">${I("lock")}${w} săptămâni</button>`).join("");
+ const filt=[4,8,12].map(w=>w===4||P?`<button class="chip" aria-pressed="${n===w}" onclick="S.anSub='${w}';save();draw()">${w} săptămâni</button>`:`<button class="chip locked" onclick="featLocked('waste_reports')">${I("lock")}${w} săptămâni</button>`).join("");
  const cats=Object.entries(D.cat).sort((a,b)=>b[1].v-a[1].v),cmax=Math.max(1,...cats.map(x=>x[1].v));
  const tops=Object.entries(D.prodW).sort((a,b)=>b[1].v-a[1].v||b[1].n-a[1].n).slice(0,5);
  const tip=cats[0]?`<div class="card panel"><h3>Ce poți face</h3><p>Cea mai mare risipă vine din categoria <b>${esc(cats[0][0])}</b>: ${num(cats[0][1].v)} MDL, în ${cats[0][1].n} ${cats[0][1].n===1?"produs":"produse"}.</p><p class="muted">${esc(TIPS[cats[0][0]]||"")}</p>${c.w>D.prev.w&&D.prev.w>0?`<p class="small">Risipa a crescut față de perioada anterioară. Pune în planificator rețetele cu ingredientele care expiră primele.</p>`:`<p class="small">Continuă așa: fiecare produs folosit la timp înseamnă bani economisiți.</p>`}</div>`:"";
@@ -2496,12 +2544,12 @@ PAGES.stats=function(){const P=prem(),D=anData(),c=D.cur,tot=c.u+c.w,rate=tot?Ma
    <div class="vizhead"><div><h3>Folosit și aruncat, pe săptămâni</h3><p class="small muted">Valoarea estimată a produselor scoase din frigider, în MDL</p></div>
     <div class="legend" role="list"><span role="listitem"><i class="sw-u"></i>Folosit</span><span role="listitem"><i class="sw-w"></i>Risipit</span></div></div>
    <div class="chartbox" id="wk" role="img" aria-label="Grafic cu coloane: valoarea folosită și aruncată pe fiecare săptămână. Datele sunt și în tabelul de mai jos."></div>
-   <details class="tview"><summary>Vezi ca tabel</summary>${weekTable(D)}</details></section>
-  <div class="anrow2">
+   <details class="tview"><summary>Vezi ca tabel</summary>${weekTable(D)}</details></section>`;
+ const details=!tot?"":`<div class="anrow2">
    <section class="card panel viz"><h3>Risipă pe categorii</h3>${cats.length?`<div class="hbars">${cats.map(([k,v])=>`<div class="hb" tabindex="0" onpointermove="hbTip(event,${jsq(k)},${v.v},${v.n})" onfocus="hbTip(event,${jsq(k)},${v.v},${v.n})" onpointerleave="tipHide()" onblur="tipHide()"><span class="hl">${esc(k)}</span><span class="ht"><i style="width:${Math.max(2,v.v/cmax*100)}%"></i></span><span class="hv">${num(v.v)} MDL</span></div>`).join("")}</div>`:`<p class="muted">Nu ai aruncat nimic în această perioadă.</p>`}</section>
    <section class="card panel"><h3>Produse aruncate cel mai des</h3>${tops.length?`<table class="mini-t"><thead><tr><th>Produs</th><th>Ori</th><th>Valoare</th></tr></thead><tbody>${tops.map(([k,v])=>`<tr><td><span class="tcell">${thumb(k,"s28")}${esc(k)}</span></td><td>${v.n}</td><td>${num(v.v)} MDL</td></tr>`).join("")}</tbody></table>`:`<p class="muted">Nimic aruncat în această perioadă.</p>`}</section></div>${tip}`;
  const lockedBlock=!tot?"":`<section class="card panel viz lockedviz"><div class="fakeviz" aria-hidden="true"><div class="chartbox" id="wkfake"></div></div>
-   <div class="lockover"><span class="ic h">${I("lock")}</span><h3>Rapoarte și tendințe, în Premium</h3><p class="muted">Grafic pe săptămâni, risipa pe categorii și produsele aruncate cel mai des, pe 4, 8 sau 12 săptămâni.</p><button class="btn honey" onclick="go('premium')">${I("crown")}Vezi Premium</button></div></section>`;
+   <div class="lockover"><span class="ic h">${I("lock")}</span><h3>Rapoarte și tendințe, în Premium Essential</h3><p class="muted">Graficul pe săptămâni și comparația pe 4, 8 sau 12 săptămâni.</p><button class="btn honey" onclick="go('premium')">${I("crown")}Vezi Premium</button></div></section>`;
  return pagehead("Anti-risipă",esc(txt("statsSub")))+
  `${demoN?`<div class="freebar tone-g">Datele de mai jos sunt un exemplu, ca să vezi cum arată raportul. Ce faci tu de acum se adaugă la ele.<button class="link" onclick="clearDemoLog()">Șterge datele demonstrative</button></div>`:""}
  <div class="filters" role="group" aria-label="Perioadă">${filt}</div>
@@ -2509,7 +2557,7 @@ PAGES.stats=function(){const P=prem(),D=anData(),c=D.cur,tot=c.u+c.w,rate=tot?Ma
  :`<div class="anrow"><section class="card herostat"><p class="eyebrow">Rata de utilizare</p><div class="bigfig">${rate}%</div><p class="muted">din valoarea produselor scoase din frigider în ultimele ${n} săptămâni a fost folosită, nu aruncată.</p>
    <div class="meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${rate}" aria-label="Rata de utilizare"><i style="width:${rate}%"></i></div></section>
   ${kpi("Valoare folosită",`${num(c.u)} MDL`,`${c.un} ${c.un===1?"produs":"produse"}`)}${kpi("Valoare aruncată",`${num(c.w)} MDL`,deltaHTML(c.w,D.prev.w,true))}${kpi("Produse aruncate",c.wn,deltaHTML(c.wn,D.prev.wn,true))}</div>`}
- ${P?charts:lockedBlock}`};
+ ${P?charts:lockedBlock}${!tot?"":DET?details:`<section class="card panel lockline"><span class="ic h">${I("lock")}</span><span style="flex:1;min-width:200px"><b>Statistici detaliate</b><br><span class="small muted">Risipa pe categorii de alimente și produsele aruncate cel mai des sunt incluse în pachetul Smart Kitchen.</span></span>${lockBtn("waste_details","Deblochează")}</section>`}`};
 function weekTable(D){const f=s=>{const d=new Date(s+"T00:00");return `${d.getDate()}.${pad2(d.getMonth()+1)}`};
  return `<div class="tablewrap"><table class="cmp"><thead><tr><th>Săptămâna</th><th>Folosit (MDL)</th><th>Risipit (MDL)</th><th>Risipă</th></tr></thead><tbody>${D.B.map(b=>{const t=b.u+b.w;return `<tr><td>${f(b.s)} – ${f(b.e)}</td><td>${num(b.u)}</td><td>${num(b.w)}</td><td>${t?Math.round(b.w/t*100)+"%":"–"}</td></tr>`}).join("")}</tbody></table></div>`}
 
@@ -2553,12 +2601,14 @@ function hbTip(e,k,v,n){const host=e.target.closest(".viz");
 
 /* ---------- Premium ---------- */
 const periodL=d=>d===30?"o lună":d===90?"3 luni":d===180?"6 luni":d===365?"un an":`${d} zile`;
-PAGES.premium=function(){const m=ME(),P=prem(),plans=S.plans.filter(p=>p.on);
- const B=[["grid","Rețete nelimitate","Acces la toate rețetele, cu filtre avansate."],["cal","Planificator de mese","Planificare automată pentru toată săptămâna."],["fridge","Frigider avansat","Notificări de expirare și sugestii de rețete."],["chart","Rapoarte anti-risipă","Vezi cât economisești și tendințele lunare."],["spark","Valori nutriționale","Calorii și macronutrienți la fiecare rețetă."]];
- const T=[["Căutare după ingrediente","Inclusă","Inclusă"],["Frigider și liste de cumpărături","Complete","Complete"],["Planificator de mese","Manual","Planificare automată"],["Valori nutriționale","Ascunse","Calorii și macronutrienți"],["Statistici anti-risipă","Sumar pe 4 săptămâni","Rapoarte pe 4, 8 și 12 săptămâni"],["Rețete deschise pe lună",`${S.limit}`,"Nelimitat"],["Liste partajate cu familia","–","În versiunea cu server"]];
- const feat=["Toate funcționalitățile gratuite","Rețete nelimitate și valori nutriționale","Planificator de mese automat","Rapoarte anti-risipă pe 4, 8 și 12 săptămâni","Liste partajate cu familia (în versiunea cu server)"];
+PAGES.premium=function(){const m=ME(),P=prem(),plans=S.plans.filter(p=>p.on),pk=(m&&m.packages)||[];
+ const B=[["grid","Premium Essential","Rețete nelimitate, valori nutriționale, planificare automată pe 7 zile, rapoarte anti-risipă și familia ta."],["fridge","Smart Kitchen","Tot din Essential, plus „ce îmi lipsește”, lipsurile direct pe listă, „Am gătit-o”, alerte de expirare, frigider comun cu familia și import cu AI."],["dumbbell","Antrenor Pro","Cabinetul de antrenor: grup, meniuri, ședințe, rețete proprii, AI pentru rețete, meniuri trimise direct în planificatorul clienților."]];
+ const FREE={unlimited_recipes:`${S.limit} pe lună`,fridge_match:"Doar numărul",expiry_alerts:"Doar eticheta",gallery_5:"2 poze"};
+ const cols=plans.slice(0,6),fs=FEAT_G.flatMap(g=>g[1]).filter(f=>FREE[f]||cols.some(p=>planAll(p).includes(f)));
+ const yes=`<span class="yes">${I("check")}<span class="sr">inclus</span></span>`,no=`<span class="no" aria-label="nu">–</span>`;
  const pl=m?premLeft(m):null;
  const status=!m?"":RANK[m.role]>=2?`<div class="freebar tone-g">${I("crown")}Ca membru al echipei ai acces Premium inclus.</div>`
+  :pk.length?`<div class="freebar tone-g">${I("crown")}<span>Pachetele tale: ${pk.map(x=>`<b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""} până la ${fmtDate(x.until)}${x.later?" (începe după cel actual)":""}`).join(" · ")}</span></div>`
   :hasPrem(m)?`<div class="freebar tone-g">${I("crown")}Premium activ${m.until?` până la ${fmtDate(m.until)}${pl!=null?` · mai sunt ${pl} zile`:""}`:""}. Poți prelungi oricând, iar zilele se adaugă la cele rămase.</div>`
   :m.plan==="premium"&&m.until?`<div class="freebar">${I("alarm")}Premium-ul tău a expirat pe ${fmtDate(m.until)}. Alege un plan ca să reactivezi accesul.</div>`:"";
  return `<section class="phero"><div class="phero-t"><p class="eyebrow">${I("crown")}${esc(txt("premEyebrow"))}</p><h1><span>${esc(txt("premT1"))}</span><span>${esc(txt("premT2"))}</span></h1>
@@ -2566,20 +2616,20 @@ PAGES.premium=function(){const m=ME(),P=prem(),plans=S.plans.filter(p=>p.on);
   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn honey" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">${esc(txt("premBtn"))}</button><button class="btn ghost" onclick="document.getElementById('cmp').scrollIntoView({behavior:'smooth'})">Află mai multe ${I("arrow")}</button></div></div>
   <div class="phero-img"><img src="${IM("photo/premium.jpg")}" alt=""></div></section>
  ${status}
- <section class="stack"><div class="sechead"><h2>Beneficiile tale Premium</h2></div>
+ <section class="stack"><div class="sechead"><h2>Trei pachete, după cum gătești</h2></div>
   <div class="benefits">${B.map(([ic,t,d])=>`<div class="benefit"><span class="ic ${ic==="spark"?"h":"g"}">${I(ic)}</span><span><b>${t}</b><span>${d}</span></span></div>`).join("")}</div></section>
  <section id="plans" class="stack"><div class="sechead"><h2>Alege planul</h2></div>
   <div class="plans"><div class="card plan"><h3>Gratuit</h3><p class="small muted">Esențial pentru început</p>
    <ul>${["Rețete de bază ("+S.limit+" pe lună)","Inventar simplu al frigiderului","Liste interactive","Planificare manuală"].map(x=>`<li>${I("check")}${x}</li>`).join("")}</ul>
    <div class="price"><span><b>0 MDL</b></span>${P?"":`<button class="btn sm" disabled>${m?"Planul tău":"Fără cont"}</button>`}</div></div>
   ${plans.map(p=>{const perM=p.days>=60?Math.round(p.price/(p.days/30)):null;return `<div class="card plan ${p.pop?"feat":""}">${p.pop?`<span class="ribbon">Popular</span>`:""}<h3>${esc(p.name)}</h3><p class="small muted">Valabil ${periodL(p.days)}${perM?` · ~${perM} MDL pe lună`:""}</p>
-   <ul>${feat.map(x=>`<li>${I("check")}${x}</li>`).join("")}${(p.features||[]).map(f=>`<li class="pfeat">${I("spark")}${esc(FEAT_L[f]||f)}</li>`).join("")}</ul>
-   <div class="price"><span><b>${num(p.price)} MDL</b></span><button class="btn ${p.pop?"primary":""} sm" onclick="choosePlan('${p.id}')">${hasPrem(m)&&m.plan==="premium"?"Prelungește":"Alege planul"}</button></div></div>`}).join("")}
+   <ul>${p.includes&&S.plans.find(x=>x.id===p.includes)?`<li class="pinc">${I("check")}<b>Tot ce include ${esc(S.plans.find(x=>x.id===p.includes).name)}</b></li>`:""}${(p.features||[]).map(f=>`<li>${I("check")}${esc(FEAT_L[f]||f)}</li>`).join("")}${(p.features||[]).includes("family_fridge")&&!planAll(S.plans.find(x=>x.id===p.includes)).includes("family")&&!(p.features||[]).includes("family")?`<li>${I("check")}${esc(FEAT_L.family)}</li>`:""}</ul>
+   <div class="price"><span><b>${num(p.price)} MDL</b></span><button class="btn ${p.pop?"primary":""} sm" onclick="choosePlan('${p.id}')">${pk.some(x=>x.name===p.name)||(!SRV&&m&&m.planId===p.id&&hasPrem(m))?"Prelungește":"Alege pachetul"}</button></div></div>`}).join("")}
   ${plans.length?"":`<div class="card plan"><h3>Premium</h3><p class="muted small">Planurile Premium nu sunt disponibile momentan.</p></div>`}
   <div class="card promo">${I("leaf")}<h3>Investește în sănătatea ta și în timpul tău.</h3><p>Cu Premium gătești mai ușor, mai inteligent și mai gustos.</p><img src="${IM("photo/hero.jpg")}" alt=""></div></div>
   <p class="small muted">Demonstrație: activarea nu implică nicio plată. În versiunea reală, plata se face prin Stripe, iar abonamentul se activează după confirmarea prin webhook, pentru perioada setată de administrator.</p></section>
- <section id="cmp" class="stack"><div class="sechead"><h2>Gratuit sau Premium</h2></div>
-  <div class="card tablewrap"><table class="cmp"><thead><tr><th>Funcționalitate</th><th>Gratuit</th><th>Premium</th></tr></thead><tbody>${T.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table></div></section>`};
+ <section id="cmp" class="stack"><div class="sechead"><h2>Ce include fiecare pachet</h2></div>
+  <div class="card tablewrap"><table class="cmp pkcmp"><thead><tr><th>Funcție</th><th>Gratuit</th>${cols.map(p=>`<th>${esc(p.name)}</th>`).join("")}</tr></thead><tbody>${fs.map(f=>`<tr><td>${esc(FEAT_L[f]||f)}</td><td>${FREE[f]?`<span class="small muted">${FREE[f]}</span>`:no}</td>${cols.map(p=>`<td>${planAll(p).includes(f)?yes:no}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`};
 function choosePlan(pid){const m=ME();if(!m){toast("Creează un cont ca să activezi Premium.");authModal("register");return}
  if(RANK[m.role]>=2){toast("Ca membru al echipei ai deja acces Premium.");return}
  if(SRV){openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("crown")} Premium</p><h2 style="font-size:24px">Plata online nu este activă încă</h2></div><div class="box honey"><p class="small">Plățile prin card se conectează în etapa următoare. Până atunci, Premium se activează de administrator, după ce confirmi plata. Scrie-i administratorului site-ului, cu emailul contului tău.</p></div><div class="rowacts"><button class="btn primary" onclick="closeModal()">Am înțeles</button></div></div>`,1);return}
@@ -2618,7 +2668,7 @@ async function authGo(e,mode){e.preventDefault();const b=$("abtn"),er=$("aerr");
 PAGES.cont=function(){const u=ME(),pl=premLeft(u),ps=perms(u),opened=Math.min(usedN(),S.limit);
  let plan;
  if(RANK[u.role]>=2)plan=`<p>Ca membru al echipei ai acces Premium inclus.</p>`;
- else if(hasPrem(u))plan=`<p><span class="tag honey">Premium activ</span></p><div class="kv"><span>Valabil până la</span><b>${u.until?fmtDate(u.until):"nelimitat"}</b></div>${pl!=null?`<div class="kv"><span>Zile rămase</span><b>${pl}</b></div>`:""}${pl!=null&&pl<=7?`<p class="freebar">${I("alarm")}Abonamentul expiră curând.</p>`:""}
+ else if(hasPrem(u))plan=`${(u.packages||[]).length?`<ul class="pklist">${u.packages.map(x=>`<li><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<span class="small muted">până la ${fmtDate(x.until)}${x.later?" · începe după cel curent":""}</span></li>`).join("")}</ul>`:`<p><span class="tag honey">Premium activ</span></p>`}<div class="kv"><span>Valabil până la</span><b>${u.until?fmtDate(u.until):"nelimitat"}</b></div>${pl!=null?`<div class="kv"><span>Zile rămase</span><b>${pl}</b></div>`:""}${pl!=null&&pl<=7?`<p class="freebar">${I("alarm")}Abonamentul expiră curând.</p>`:""}
   <div class="rowacts"><button class="btn sm primary" onclick="go('premium')">Prelungește</button>${SRV?"":`<button class="btn sm" onclick="ask('Anulezi abonamentul?','Pierzi imediat accesul Premium (valori nutriționale, rețete nelimitate, planificare automată).','Anulează abonamentul',()=>{cancelPlan();draw();toast('Abonament anulat')},true)">Anulează abonamentul</button>`}</div>`;
  else plan=`<p><span class="tag">Plan gratuit</span></p><div class="kv"><span>Rețete deschise luna aceasta</span><b>${opened} din ${S.limit}</b></div>${u.until&&u.plan==="premium"?`<p class="freebar">${I("alarm")}Premium-ul tău a expirat pe ${fmtDate(u.until)}.</p>`:""}<div class="rowacts"><button class="btn sm primary" onclick="go('premium')">${I("crown")}Vezi planurile Premium</button></div>`;
  return pagehead("Contul meu","Profilul, abonamentul și securitatea contului tău.",`<button class="btn" onclick="openProfile(S.uid)">${I("users")}Profilul meu public</button>`)+`<div class="panels">
@@ -2839,7 +2889,7 @@ ATAB_FN.usr=function(){const me=ME(),q=UQ.trim().toLowerCase();
   return `<li class="${a.blocked?"blocked":""}"><span class="avatar" style="width:38px;height:38px">${esc(initials(a.name))}</span>
   <span class="grow"><b>${esc(a.name)}</b>${self?` <span class="tag">Tu</span>`:""}${a.blocked?` <span class="tag red">Blocat</span>`:""}<br><span class="small muted">${esc(a.email)} · cont din ${fmtDate(a.created)}</span></span>
   <select class="field sm" aria-label="Rol pentru ${esc(a.name)}" ${mg?"":"disabled"} onchange="roleChange('${a.id}',this.value)">${ro.map(r=>`<option value="${r}" ${a.role===r?"selected":""} ${r===a.role||assignable().includes(r)?"":"disabled"}>${ROLE_L[r]}</option>`).join("")}</select>
-  <span class="small plancol">${a.famGrant&&RANK[a.role]<2?`<span class="tag">Familie activată manual</span> `:""}${a.role==="trainer"?`Antrenor · ${a.students!=null?a.students:studentsOf(a.id).length} studenți · `:""}${RANK[a.role]>=2?"inclus în echipă":hasPrem(a)?`Premium${a.until?` · până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}`:""}`:"Plan gratuit"}</span>
+  <span class="small plancol">${a.famGrant&&RANK[a.role]<2?`<span class="tag">Familie activată manual</span> `:""}${a.role==="trainer"?`Antrenor · ${a.students!=null?a.students:studentsOf(a.id).length} studenți · `:""}${RANK[a.role]>=2?"inclus în echipă":pkgList(a).length?`${pkgTags(a)}${a.until?` <span>până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}</span>`:""}`:hasPrem(a)?`Premium${a.until?` · până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}`:""}`:"Plan gratuit"}</span>
   ${uOptsBtn(a,mg,self)}${UOPEN===a.id?uOpts(a,mg,self):""}</li>`}).join("")}</ul></div>
  <div class="card panel"><h3>Roluri și drepturi</h3><p class="small muted">Vizitatorul și Membrul folosesc doar site-ul public. Drepturile de mai jos sunt cele implicite; un administrator poate acorda unui moderator drepturi în plus, în limita propriilor drepturi.</p>
   <div class="tablewrap"><table class="cmp perm"><thead><tr><th>Drept</th>${["moderator","admin","super"].map(r=>`<th><span class="rl">${ROLE_L[r]}</span><span class="rs" aria-hidden="true">${ROLE_S[r]}</span></th>`).join("")}</tr></thead><tbody>${Object.keys(PERM_L).map(p=>`<tr><td>${PERM_L[p]}</td>${["moderator","admin","super"].map(r=>`<td>${ROLE_DEF[r].includes(p)?`<span class="yes">${I("check")}<span class="sr">da</span></span>`:`<span class="no" aria-label="nu">–</span>`}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
@@ -2872,7 +2922,8 @@ function uOptsBtn(a,mg,self){if(!uHasOpts(a,mg,self))return self?"":`<span class
 function uOpts(a,mg,self){const me=ME(),sw=[],bt=[];
  if(mg&&RANK[a.role]<2)sw.push(tgl(!!a.famGrant,"Funcția de familie",`famGrantUI('${a.id}');draw()`,hasPrem(a)?"(are și prin Premium)":""));
  if(a.role==="trainer"&&isRecStaff()){sw.push(tgl(uFeat(a,"recipe_author"),"Poate adăuga rețete",`setUserFeature('${a.id}','recipe_author',this.checked)`));
-  sw.push(tgl(uFeat(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(și din pachet)":""))}
+  sw.push(tgl(uFeat(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(și din pachet)":""));
+  sw.push(tgl(uFeat(a,"coach_cabinet"),"Cabinet de antrenor",`setUserFeature('${a.id}','coach_cabinet',this.checked)`,uFeatPlan(a,"coach_cabinet")?"(și din pachet)":""))}
  if(me.role==="super"&&!self)bt.push(`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Pachet și funcții</button>`);
  if(mg&&RANK[a.role]<2)bt.push(`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button>`);
  if(mg&&extraTarget(a)&&(GRANT[me.role]||[]).length)bt.push(`<button class="btn sm" onclick="permModal('${a.id}')">${I("key")}Drepturi</button>`);
@@ -2893,19 +2944,23 @@ async function setUserFeature(id,f,on){const t=acct(id)||((RAUTH.list||[]).some(
   if(r.data.admin)admApply(r.data.admin);if(r.data.trainers){RAUTH.list=r.data.trainers;RAUTH.at=Date.now()}persist()}
  else{if(f==="recipe_author")t.recipeAuthor=!!on;const l=new Set(t.features||[]);on?l.add(f):l.delete(f);t.features=[...l];audit(`${on?"A activat":"A dezactivat"} „${FEAT_L[f]}” pentru ${t.name}`);save()}
  draw();toast(on?"Funcția a fost activată":"Funcția a fost dezactivată")}
-function pkgModal(id){const t=acct(id);if(!t||ME().role!=="super")return deny();const pl=S.plans||[];
- openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Pachet și funcții</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email)} · ${esc(ROLE_L[t.role])}${t.planName?` · pachet activ: ${esc(t.planName)}`:""}</p></div>
- <div class="box"><p class="h3" style="font-size:15px">Atașează un pachet Premium</p><p class="small muted">Primește Premium și funcțiile bifate în pachet, ca și cum l-ar fi cumpărat (fără plată).</p>
-  ${pl.length?`<form class="form" onsubmit="event.preventDefault();pkgGive('${id}')"><label class="lbl grow">Pachet<select id="pkgp" class="field">${pl.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.days} zile${(p.features||[]).length?" · "+p.features.map(f=>FEAT_L[f]?FEAT_L[f].split(" (")[0]:f).join(", "):""}</option>`).join("")}</select></label>
-  <label class="lbl">Zile<input id="pkgd" class="field w90" type="number" min="1" max="3650" placeholder="implicit"></label><button class="btn primary">Atașează</button></form>`:`<p class="small muted">Nu există pachete. Le creezi în fila Monetizare.</p>`}</div>
- <div class="box"><p class="h3" style="font-size:15px">Funcții activate manual</p><p class="small muted">Independent de pachet. Pentru antrenori le pot activa și moderatorii și administratorii.</p>
-  <div class="stack">${Object.entries(FEAT_L).map(([f,l])=>`<label class="switch"><input type="checkbox" ${uFeat(t,f)?"checked":""} onchange="setUserFeature('${id}','${f}',this.checked)"><span>${esc(l)}${uFeatPlan(t,f)?` <span class="small muted">(inclusă și în pachet)</span>`:""}</span></label>`).join("")}</div></div>
+const pkgList=a=>a.packages&&a.packages.length?a.packages:a.planName?[{name:a.planName,until:a.until,gift:!1}]:[];
+const pkgTags=a=>pkgList(a).map(x=>`<span class="tag pk">${esc(x.name)}</span>${x.gift?`<span class="tag gift">Oferit de admin</span>`:""}`).join(" ");
+function pkgModal(id){const t=acct(id);if(!t||ME().role!=="super")return deny();const pl=S.plans||[],cur=pkgList(t);
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Pachet și funcții</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email)} · ${esc(ROLE_L[t.role])}</p></div>
+ ${cur.length?`<div class="box"><p class="h3" style="font-size:15px">Pachete active</p><ul class="pklist">${cur.map(x=>`<li><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<span class="small muted">până la ${fmtDate(x.until)}${x.later?" · începe după cel curent":""}</span></li>`).join("")}</ul></div>`:""}
+ <div class="box"><p class="h3" style="font-size:15px">Oferă un pachet</p><p class="small muted">Utilizatorul primește toate funcțiile pachetului (și pe cele moștenite), fără plată, cu statusul „Oferit de admin”. Pachete diferite merg în paralel; același pachet se prelungește.</p>
+  ${pl.length?`<form class="form" onsubmit="event.preventDefault();pkgGive('${id}')"><label class="lbl grow">Pachet<select id="pkgp" class="field" onchange="$('pkgf').innerHTML=pkgFeatsLine(this.value)">${pl.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.days} zile${p.on?"":" · inactiv pe site"}</option>`).join("")}</select></label>
+  <label class="lbl">Zile<input id="pkgd" class="field w90" type="number" min="1" max="3650" placeholder="implicit"></label><button class="btn primary">${I("spark")}Oferă</button></form><p class="small muted" id="pkgf">${pkgFeatsLine(pl[0].id)}</p>`:`<p class="small muted">Nu există pachete. Le creezi în fila Monetizare.</p>`}</div>
+ <div class="box"><p class="h3" style="font-size:15px">Funcții activate manual</p><p class="small muted">Independent de pachet. Pentru antrenori, Moderatorii și Administratorii pot activa doar AI, rețetele proprii și cabinetul.</p>
+  ${FEAT_G.map(([g,fs])=>`<div class="pfgroup"><b class="small">${esc(g)}</b>${fs.map(f=>`<label class="switch"><input type="checkbox" ${uFeat(t,f)?"checked":""} onchange="setUserFeature('${id}','${f}',this.checked)"><span>${esc(FEAT_L[f])}${uFeatPlan(t,f)?` <span class="small muted">(inclusă și în pachet)</span>`:""}</span></label>`).join("")}</div>`).join("")}</div>
  <div class="rowacts"><button class="btn" onclick="closeModal()">Gata</button></div></div>`,1)}
+function pkgFeatsLine(pid){const p=(S.plans||[]).find(x=>x.id===pid);if(!p)return"";const a=planAll(p);return a.length?"Include: "+a.map(f=>esc((FEAT_L[f]||f).split(" (")[0])).join(", "):"Pachetul nu are încă funcții bifate."}
 async function pkgGive(id){const pid=$("pkgp").value,d=$("pkgd").value?Math.round(+$("pkgd").value):null,t=acct(id),p=S.plans.find(x=>x.id===pid);
  if(d!==null&&!(d>=1&&d<=3650))return toast("Perioada trebuie să fie între 1 și 3650 de zile.");
  if(SRV){const r=await api("/admin/users/"+encodeURIComponent(id)+"/plan",{method:"POST",body:{planId:pid,days:d}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut atașa pachetul.");admApply(r.data.admin);persist()}
- else{const base=(t.plan==="premium"&&t.until&&t.until>todayS())?t.until:todayS();t.plan="premium";t.until=addDaysS(base,d||p.days);t.planId=p.id;t.planFeatures=p.features||[];audit(`A atașat pachetul „${p.name}” lui ${t.name}`);save()}
- closeModal();draw();toast(`Pachetul „${p?p.name:""}” a fost atașat`)}
+ else{const base=(t.plan==="premium"&&t.until&&t.until>todayS())?t.until:todayS();t.plan="premium";t.until=addDaysS(base,d||p.days);t.planId=p.id;t.planFeatures=planAll(p);t.packages=[{name:p.name,until:t.until,gift:true}];audit(`A oferit pachetul „${p.name}” lui ${t.name}`);save()}
+ closeModal();draw();toast(`Pachetul „${p?p.name:""}” a fost oferit lui ${t?t.name:""}`)}
 
 /* ---------- Monetizare ---------- */
 ATAB_FN.mon=function(){
@@ -2923,12 +2978,13 @@ ATAB_FN.mon=function(){
    <label class="switch"><input type="checkbox" ${p.on?"checked":""} onchange="planSet('${p.id}','on',this.checked)">Activ</label>
    <label class="switch"><input type="radio" name="pop" ${p.pop?"checked":""} onchange="planPop('${p.id}')">Popular</label>
    <button class="iconbtn" onclick="planDel('${p.id}')" aria-label="Șterge planul ${esc(p.name)}">${I("trash")}</button>
-   <div class="planfeats"><span class="small muted">Funcții incluse${ME().role==="super"?"":" (le alege Administratorul principal)"}:</span>${Object.entries(FEAT_L).map(([f,l])=>`<label class="switch"><input type="checkbox" ${(p.features||[]).includes(f)?"checked":""} ${ME().role==="super"?"":"disabled"} onchange="planFeat('${p.id}','${f}',this.checked)"><span>${esc(l)}</span></label>`).join("")}</div></li>`).join("")}</ul>
+   ${planFeatsUI(p)}</li>`).join("")}</ul>
   <div class="rowacts"><button class="btn sm" onclick="planAdd()">${I("plus")}Adaugă plan</button></div>
   ${S.plans.some(p=>p.on)?"":`<p class="freebar">${I("alarm")}Niciun plan nu este activ: utilizatorii nu pot cumpăra Premium.</p>`}
   <p class="small muted">Plata reală (Stripe, confirmată prin webhook) se adaugă în versiunea cu server.</p></div></div>`};
 function setLimit(v){if(!need("monetization"))return;v=Math.round(+v);if(!(v>=0&&v<=999)){toast("Introdu un număr între 0 și 999.");draw();return}S.limit=v;audit(`A setat limita de rețete gratuite la ${v} pe lună`);save();toast("Limita a fost salvată")}
 function planSet(id,k,v){if(!need("monetization"))return;const p=S.plans.find(x=>x.id===id);if(!p)return;
+ if(k==="includes"){if(ME().role!=="super")return deny("Doar Administratorul principal poate lega pachetele între ele.");let c=v&&S.plans.find(x=>x.id===v),d=0;while(c&&d<6){if(c.id===id){toast("Pachetele s-ar include unul pe altul în cerc.");draw();return}c=c.includes&&S.plans.find(x=>x.id===c.includes);d++}}
  if(k==="name"){v=String(v).trim().slice(0,24);if(!v){toast("Numele planului nu poate fi gol.");draw();return}}
  else if(k==="price"){v=Math.round(+v*100)/100;if(!(v>=0&&v<=99999)){toast("Prețul trebuie să fie între 0 și 99.999 MDL.");draw();return}}
  else if(k==="days"){v=Math.round(+v);if(!(v>=1&&v<=3650)){toast("Perioada trebuie să fie între 1 și 3650 de zile.");draw();return}}
@@ -2995,6 +3051,13 @@ function showExport(){if(!need("system"))return;stash();openModal(`<div class="s
 function showImport(){if(!need("system"))return;openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Importă o copie</h2><p class="muted small">Lipește JSON-ul exportat înainte. Datele curente din acest browser sunt înlocuite.</p><textarea id="impt" class="field mono" rows="10" placeholder="{ ... }"></textarea><p class="err" id="imperr" role="alert"></p><div class="rowacts"><button class="btn primary" onclick="doImport()">Importă</button><button class="btn" onclick="closeModal()">Renunță</button></div></div>`,0,"#impt")}
 function doImport(){if(!need("system"))return;const e=importData($("impt").value);if(e){$("imperr").textContent=e;return}HASHREADY=ensureHashes();closeModal();draw();toast("Datele au fost importate")}
 
+/* funcțiile unui pachet, pe grupuri; „include pachetul” = moștenește toate funcțiile acelui pachet */
+function planFeatsUI(p){const su=ME().role==="super",inc=p.includes&&S.plans.find(x=>x.id===p.includes),inh=inc?planAll(inc):[];
+ return `<div class="planfeats"><div class="pfhead"><span class="small muted">Funcții incluse${su?"":" (le alege Administratorul principal)"} · ${planAll(p).length} în total</span>
+  <label class="lbl inl">Include pachetul<select class="field sm" ${su?"":"disabled"} onchange="planSet('${p.id}','includes',this.value||null)"><option value="">— niciunul —</option>${S.plans.filter(x=>x.id!==p.id).map(x=>`<option value="${x.id}" ${p.includes===x.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label></div>
+  ${FEAT_G.map(([g,fs])=>`<div class="pfgroup"><b class="small">${esc(g)}</b>${fs.map(f=>{const own=(p.features||[]).includes(f),from=inh.includes(f);
+   return `<label class="switch"><input type="checkbox" ${own||from?"checked":""} ${su&&!from?"":"disabled"} onchange="planFeat('${p.id}','${f}',this.checked)"><span>${esc(FEAT_L[f])}${from?` <span class="small muted">(din ${esc(inc.name)})</span>`:f==="family_fridge"&&own&&!planAll(p).includes("family")?"":""}</span></label>`}).join("")}</div>`).join("")}
+  ${(p.features||[]).includes("family_fridge")&&!inh.includes("family")&&!(p.features||[]).includes("family")?`<p class="small muted">${I("info")} Frigiderul comun are nevoie de Funcția de familie: o primește automat oricine are acest pachet.</p>`:""}</div>`}
 function planFeat(id,f,on){if(ME().role!=="super")return deny("Funcțiile incluse în pachete le alege doar Administratorul principal.");const p=S.plans.find(x=>x.id===id);if(!p)return;
  const l=new Set(p.features||[]);on?l.add(f):l.delete(f);planSet(id,"features",[...l])}
 
@@ -3100,15 +3163,15 @@ PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
  <div class="card panel"><h3>Frigiderul meu</h3>
   <div class="kv"><span>Folosesc acum</span><b>${sharing?"frigiderul comun":"frigiderul meu personal"}</b></div>
   <div class="kv"><span>Frigiderul comun</span><b>${(f.fridge||[]).length} produse · ${sharers.length} ${sharers.length===1?"membru":"membri"}</b></div>
-  <label class="switch"><input type="checkbox" ${sharing?"checked":""} onchange="famShareUI(this.checked)"><span>Folosesc frigiderul comun al familiei</span></label>
+  ${sharing||feat("family_fridge")?`<label class="switch"><input type="checkbox" ${sharing?"checked":""} onchange="famShareUI(this.checked)"><span>Folosesc frigiderul comun al familiei</span></label>`:`<p class="small muted">Frigiderul comun, sincronizat între toți membrii, este inclus în pachetul Smart Kitchen.</p><div>${lockBtn("family_fridge","Folosesc frigiderul comun")}</div>`}
   <p class="small muted">Dacă oprești, revii la frigiderul tău personal, exact cum l-ai lăsat. Produsele din frigiderul comun rămân pentru ceilalți.</p>
   <button class="btn sm" onclick="go('frigider')">${I("fridge")}Deschide frigiderul</button></div>
  <div class="card panel"><h3>Ieșire</h3><p class="small muted">Poți ieși oricând din familie. Frigiderul tău personal rămâne neatins.</p>
   <div class="rowacts"><button class="btn sm danger" onclick="famLeaveUI()">${I("logout")}Ieși din familie</button></div></div></div>`};
 async function famInviteUI(){const t=await famInvite($("finv").value);if(t){draw();toast(`Invitația a fost trimisă lui ${t.name}`)}}
 function famAcceptUI(id){const f=famAccept(id);if(!f)return;draw();
- ask(`Bine ai venit în ${f.name}!`,"Vrei să folosești frigiderul comun al familiei? Îl poți schimba oricând din această pagină.","Da, folosesc frigiderul comun",()=>famShareUI(true))}
-function famShareUI(on){const m=ME(),f=famOf(m.id);if(!f)return;
+ if(feat("family_fridge"))ask(`Bine ai venit în ${f.name}!`,"Vrei să folosești frigiderul comun al familiei? Îl poți schimba oricând din această pagină.","Da, folosesc frigiderul comun",()=>famShareUI(true))}
+function famShareUI(on){const m=ME(),f=famOf(m.id);if(!f)return;if(on&&!feat("family_fridge"))return featLocked("family_fridge");
  if(!on){famSetShare(false);draw();toast("Folosești din nou frigiderul tău personal");return}
  const mine=SRV?S.fridge.length:((S.ud[m.id]||{}).fridge||[]).length;
  if(!mine){famSetShare(true,false);draw();toast("Folosești frigiderul comun");return}
@@ -3120,7 +3183,7 @@ function famLeaveUI(){const f=famOf(S.uid);ask("Ieși din familie?",f.members.le
 /* bandă în pagina frigiderului */
 function famBanner(){const m=ME();if(!m)return"";const f=famOf(m.id);
  if(sharesFridge(m.id))return `<div class="fambar">${I("users")}<span><b>Frigider comun · ${esc(f.name)}</b> · îl vedeți și îl modificați toți cei care îl folosesc.</span><button class="link" onclick="go('familie')">Setări</button></div>`;
- if(f&&canFamily(m))return `<div class="fambar muted">${I("users")}<span>Folosești frigiderul tău personal. Familia ${esc(f.name)} are un frigider comun.</span><button class="link" onclick="famShareUI(true)">Treci pe cel comun</button></div>`;
+ if(f&&canFamily(m)&&feat("family_fridge"))return `<div class="fambar muted">${I("users")}<span>Folosești frigiderul tău personal. Familia ${esc(f.name)} are un frigider comun.</span><button class="link" onclick="famShareUI(true)">Treci pe cel comun</button></div>`;
  return""}
 
 /* ---------- Antrenor personal: cabinetul antrenorului și al studentului ---------- */
@@ -3137,7 +3200,8 @@ const dateL=k=>{const d=new Date(k+"T00:00");return `${dayName(d)}, ${d.getDate(
 const mondayOf=k=>{const d=new Date(k+"T00:00");d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d)};
 
 PAGES.antrenor=function(){
- if(isTrainer())return trainerPage();
+ if(isTrainer())return feat("coach_cabinet")?trainerPage():pagehead("Cabinet antrenor","Grupul tău, meniurile pentru studenți, ședințele și rețetele proprii.")+
+  `<div class="card gate"><span class="ic h">${I("lock")}</span><h1>Cabinetul de antrenor este în pachetul Antrenor Pro</h1><p class="muted">Cu Antrenor Pro ai grupul de studenți, meniuri pe zile, programarea ședințelor, rețete proprii, generare de rețete cu AI, iar meniurile trimise intră automat în planificatorul clienților tăi.</p><div>${lockBtn("coach_cabinet","Vezi pachetul Antrenor Pro","honey")}</div></div>`;
  if(isStudent())return studentPage();
  return pagehead("Antrenor personal","Meniuri și antrenamente stabilite împreună cu antrenorul tău.")+
   `<div class="card gate"><span class="ic g">${I("dumbbell")}</span><h1>Încă nu ai un antrenor</h1><p class="muted">Când lucrezi cu un antrenor personal de pe ${esc(S.theme.brand||"Gusto")}, el te adaugă în grupul lui după emailul contului tău (${esc(ME().email)}). Apoi vezi aici meniurile tale și orele de antrenament.</p></div>`};
@@ -3332,7 +3396,7 @@ async function profileLoad(){const id=PROF.id;if(!id)return;
 function localProfile(id){const a=acct(id);if(!a)return null;const me=S.uid;
  const sameFam=me&&famOf(me)&&famOf(me).members.includes(id),inGrp=me&&((S.coach&&S.coach.groups[id])||[]).includes(me);
  const all=S.recipes.filter(r=>r.by===id),vis=all.filter(r=>r.status!=="hid"||me===id||isRecStaff()||sameFam||inGrp);
- return{id,name:a.name,role:a.role,bio:a.bio||"",avatar:a.avatar||null,since:a.created,photos:a.photos||[],recipeTotal:all.length,recipes:vis,me:me===id,maxPhotos:5}}
+ return{id,name:a.name,role:a.role,bio:a.bio||"",avatar:a.avatar||null,since:a.created,photos:a.photos||[],recipeTotal:all.length,recipes:vis,me:me===id,maxPhotos:me===id&&!feat("gallery_5")?2:5}}
 PAGES.profil=function(){const p=PROF.data;
  if(PROF.err)return `<div class="empty">${esc(PROF.err)}</div>`;
  if(!p)return `<div class="empty">${PROF.loading||SRV?"Se încarcă profilul…":"Profilul nu există."}</div>`;
@@ -3346,6 +3410,7 @@ PAGES.profil=function(){const p=PROF.data;
    <button class="profcount" onclick="PROF.showRec=!PROF.showRec;draw();PROF.showRec&&setTimeout(()=>$('profrec')&&$('profrec').scrollIntoView({behavior:'smooth',block:'start'}))" aria-expanded="${PROF.showRec}"><b>${p.recipeTotal}</b><span>${p.recipeTotal===1?"rețetă adăugată":"rețete adăugate"}</span>${I("arrow")}</button></div></div>
  <div class="card panel"><div class="sechead"><h3>Galerie</h3><span class="small muted">${ph.length} / ${max}</span></div>
   ${ph.length?`<div class="profgal">${ph.map((x,i)=>`<div class="pgitem"><button class="pgimg" onclick="lightbox(${i})" aria-label="Deschide poza ${i+1}"><img src="${esc(IM(x.url))}" alt="Poza ${i+1}" loading="lazy"></button>${own?`<button class="pgdel" onclick="profPhotoDel('${esc(x.id)}')" aria-label="Șterge poza ${i+1}">${I("x")}</button>`:""}</div>`).join("")}
+   ${own&&ph.length>=max&&max<5?`<button class="pgadd" onclick="featLocked('gallery_5')">${I("lock")}<span>Până la 5 poze cu Smart Kitchen</span></button>`:""}
    ${own&&ph.length<max?`<label class="pgadd">${I("plus")}<span>Adaugă poză</span><input type="file" accept="image/*" hidden onchange="profPhotoAdd(this)"></label>`:""}</div>`
   :`<p class="muted small">${own?"":"Nicio poză în galerie."}</p>${own?`<label class="btn sm">${I("plus")}Adaugă prima poză<input type="file" accept="image/*" hidden onchange="profPhotoAdd(this)"></label>`:""}`}</div>
  ${PROF.showRec?`<div id="profrec" class="stack"><div class="sechead"><h2>Rețetele lui ${esc(p.name.split(" ")[0])}</h2><span class="small muted">${p.recipes.length===p.recipeTotal?"":`${p.recipes.length} din ${p.recipeTotal} vizibile pentru tine`}</span></div>
@@ -3359,7 +3424,7 @@ function lightbox(i){const ph=(PROF.data&&PROF.data.photos)||[];if(!ph.length)re
  const s=document.querySelector("#modal .sheet");if(s)s.classList.add("lbsheet")}
 addEventListener("keydown",e=>{if(PROF.lb>=0&&document.querySelector("#modal .lightbox")){if(e.key==="ArrowRight")lightbox(PROF.lb+1);else if(e.key==="ArrowLeft")lightbox(PROF.lb-1)}});
 /* editarea propriului profil */
-function profSet(pr){if(!PROF.data)return;Object.assign(PROF.data,{bio:pr.bio,avatar:pr.avatar,photos:pr.photos});const m=ME();if(m)m.avatar=pr.avatar;persist();draw()}
+function profSet(pr){if(!PROF.data)return;Object.assign(PROF.data,{bio:pr.bio,avatar:pr.avatar,photos:pr.photos},pr.maxPhotos?{maxPhotos:pr.maxPhotos}:{});const m=ME();if(m)m.avatar=pr.avatar;persist();draw()}
 async function profBio(){const v=$("pbio").value.trim().slice(0,600);
  if(SRV){const r=await api("/me/profile",{method:"PUT",body:{bio:v}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");PROF.editBio=false;profSet(r.data.profile)}
  else{ME().bio=v;save();PROF.editBio=false;PROF.data=localProfile(S.uid);draw()}
@@ -3374,12 +3439,14 @@ function profAvatarDel(){ask("Ștergi poza de profil?","În locul ei vor apărea
  toast("Poza de profil a fost ștearsă")},true)}
 function profPhotoAdd(inp){optimizeImg(inp.files[0],1600,async u=>{
  if(SRV){toast("Se încarcă poza…");const r=await api("/me/photos",{method:"POST",body:{data:u}});if(!r.ok)return toast((r.data&&r.data.error)||"Poza nu a putut fi încărcată.");profSet(r.data.profile)}
- else{const m=ME();m.photos=m.photos||[];if(m.photos.length>=5)return toast("Poți avea cel mult 5 poze în galerie.");m.photos.push({id:"ph"+uid8(),url:u});save();PROF.data=localProfile(S.uid);draw()}
+ else{const m=ME();m.photos=m.photos||[];const mx=feat("gallery_5")?5:2;if(m.photos.length>=mx)return mx<5?featLocked("gallery_5"):toast("Poți avea cel mult 5 poze în galerie.");m.photos.push({id:"ph"+uid8(),url:u});save();PROF.data=localProfile(S.uid);draw()}
  toast("Poza a fost adăugată în galerie")})}
 function profPhotoDel(id){ask("Ștergi poza din galerie?","Poza se șterge definitiv.","Șterge poza",async()=>{
  if(SRV){const r=await api("/me/photos/"+encodeURIComponent(id),{method:"DELETE"});if(!r.ok)return toast("Poza nu a putut fi ștearsă.");profSet(r.data.profile)}
  else{const m=ME();m.photos=(m.photos||[]).filter(x=>x.id!==id);save();PROF.data=localProfile(S.uid);draw()}
  toast("Poza a fost ștearsă")},true)}
+
+setTimeout(()=>{try{autoMenus()}catch(e){}},1500);
 
 /* ---------- Pornire ---------- */
 load();
