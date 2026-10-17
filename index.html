@@ -1291,8 +1291,8 @@ let ED=null;          // ciorna editorului vizual
 let POP=null;         // popover deschis
 let HASHREADY=Promise.resolve();
 const PERSIST=["v","uid","page","accounts","ud","recipes","products","home","theme","txt","plans","limit","blocked","settings","audit","rcat","sort","fcat","detail","addOpen","hideDemo","myIp","atab","anSub","families","invites","coach","srv","srvUsed"];
-const UK=["rev","pend","fridge","shop","home","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
-const freshUD=()=>({rev:0,pend:0,fridge:[],shop:[],home:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
+const UK=["rev","pend","fridge","shop","house","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
+const freshUD=()=>({rev:0,pend:0,fridge:[],shop:[],house:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
 
 function demoLog(){let s=7;const rnd=()=>(s=(s*9301+49297)%233280)/233280;const out=[];
  const N=[["roșii","Legume",35],["lapte","Lactate",22],["pâine","Cereale",10],["salată verde","Legume",18],["iaurt","Lactate",20],["piept de pui","Carne",60],["spanac","Legume",18],["banane","Fructe",15],["cașcaval","Lactate",34],["ouă","Lactate",12]];
@@ -1304,15 +1304,15 @@ function demoUD(){const m=monday(),plan={};
   ["lapte",1,"l",1],["ouă",10,"buc",4],["cașcaval",250,"g",6],["iaurt",500,"g",8],["unt",200,"g",10],["piept de pui",600,"g",2],["somon",400,"g",4],["carne tocată",500,"g",6],["crenvurști",300,"g",8],
   ["mere",4,"buc",9],["lămâie",2,"buc",14],["suc de portocale",1,"l",7],["pâine",1,"buc",2],["paste",500,"g",5],["ulei de măsline",250,"ml",12]].map(([n,q,u,d])=>({n,q,u,x:inDays(d),s:false})),
   shop:[{n:"avocado",q:2,u:"buc",d:false},{n:"fructe de pădure",q:200,u:"g",d:false},{n:"făină",q:1,u:"kg",d:false},{n:"detergent de vase",q:1,u:"sticlă",d:false,k:"house"},{n:"pastă de dinți",q:1,u:"tub",d:false,k:"hyg"}],
-  home:[{n:"hârtie igienică",q:4,u:"rolă",k:"house"},{n:"detergent de rufe",q:1,u:"pachet",k:"house"},{n:"șampon",q:1,u:"sticlă",k:"hyg"},{n:"săpun",q:2,u:"buc",k:"hyg"}],
+  house:[{n:"hârtie igienică",q:4,u:"rolă",k:"house"},{n:"detergent de rufe",q:1,u:"pachet",k:"house"},{n:"șampon",q:1,u:"sticlă",k:"hyg"},{n:"săpun",q:2,u:"buc",k:"hyg"}],
   fav:["shakshuka","supa-rosii"],plan,pdays:demoPdays(plan),viewed:[],viewedMonth:"",sel:[],demo:true,log:demoLog()}}
 const initUD=uid=>(ACC_SEED.some(a=>a.id===uid)&&uid!=="u-vlad")?demoUD():freshUD();
 const udKey=()=>S.uid||"_v";
 let FAMLINK=null;   // id-ul familiei al cărei frigider comun e afișat acum
 function stash(){if(!S.ud)return;const d=S.ud[udKey()]||(S.ud[udKey()]={});const f=!SRV&&FAMLINK&&(S.families||[]).find(x=>x.id===FAMLINK);
- UK.forEach(k=>{if(k==="fridge"&&f){f.fridge=S.fridge;return}if(k==="home"&&f){f.home=S.home;return}d[k]=S[k]})}
+ UK.forEach(k=>{if(k==="fridge"&&f){f.fridge=S.fridge;return}if(k==="house"&&f){f.house=S.house;return}d[k]=S[k]})}
 function unstash(uid){const key=uid||"_v",d=S.ud[key]||(S.ud[key]=uid?initUD(uid):freshUD()),f=freshUD();UK.forEach(k=>{S[k]=d[k]!==undefined?d[k]:f[k]});
- FAMLINK=null;const fam=!SRV&&uid&&sharesFridge(uid)?famOf(uid):null;if(fam){fam.fridge=fam.fridge||[];S.fridge=fam.fridge;fam.home=fam.home||[];S.home=fam.home;FAMLINK=fam.id}}
+ FAMLINK=null;const fam=!SRV&&uid&&sharesFridge(uid)?famOf(uid):null;if(fam){fam.fridge=fam.fridge||[];S.fridge=fam.fridge;fam.house=fam.house||[];S.house=fam.house;FAMLINK=fam.id}}
 
 function seedState(){
  const prods={};PROD_SEED.forEach(([n,c,i,p,u])=>{prods[n]={cat:c,img:i,p,u}});
@@ -1568,7 +1568,7 @@ function famSetShare(on,copyMine){const m=famNeed();if(!m)return false;const f=f
  famRelink(()=>{m.famShare=!!on;
   if(on&&copyMine){const mine=(S.ud[m.id]||{}).fridge||[];f.fridge=f.fridge||[];
    mine.forEach(it=>{const ex=f.fridge.find(x=>x.n===it.n&&x.u===it.u);if(ex){ex.q=+ex.q+(+it.q||0);if(it.x&&(!ex.x||it.x<ex.x))ex.x=it.x}else f.fridge.push({...it,s:false})});
-   const mh=(S.ud[m.id]||{}).home||[];f.home=f.home||[];mh.forEach(it=>{const ex=f.home.find(x=>x.n===it.n&&x.u===it.u&&x.k===it.k);if(ex)ex.q=+ex.q+(+it.q||0);else f.home.push({...it})})}});
+   const mh=(S.ud[m.id]||{}).house||[];f.house=f.house||[];mh.forEach(it=>{const ex=f.house.find(x=>x.n===it.n&&x.u===it.u&&x.k===it.k);if(ex)ex.q=+ex.q+(+it.q||0);else f.house.push({...it})})}});
  save();return true}
 function famSetOff(off){const m=ME();if(!m)return false;
  famRelink(()=>{if(off){famDetach(m.id);S.invites=S.invites.filter(i=>i.to!==m.id)}m.famOff=!!off});save();return true}
@@ -1732,19 +1732,19 @@ const usedN=()=>SRV&&S.srvUsed!=null?S.srvUsed:S.viewed.length;
 /* ---------- Sincronizarea datelor personale (frigider, liste, favorite, planificator, anti-risipă) ---------- */
 const SYNC={timer:null,busy:false,dirty:false,pulling:false,ready:false,sig:"",fails:0};
 const syncOn=()=>SRV&&!!getTok()&&!!ME();
-const syncSig=()=>JSON.stringify([S.fridge,S.shop,S.home||[],S.fav,S.plan,S.pdays,S.log.filter(e=>!e.s&&!e.demo).length]);
+const syncSig=()=>JSON.stringify([S.fridge,S.shop,S.house||[],S.fav,S.plan,S.pdays,S.log.filter(e=>!e.s&&!e.demo).length]);
 function srvDirty(){if(!syncOn()||SYNC.pulling||!SYNC.ready)return;
  if(syncSig()===SYNC.sig)return;                 // s-a schimbat doar aspectul/pagina, nu datele
  SYNC.dirty=true;if(!S.pend){S.pend=1;persist()}clearTimeout(SYNC.timer);SYNC.timer=setTimeout(srvPush,1200)}
 function applySnap(d){
- S.fridge=d.fridge||[];S.shop=d.shop||[];S.home=d.home||[];S.fav=d.fav||[];S.plan=d.plan||{};S.pdays=d.pdays||{};
+ S.fridge=d.fridge||[];S.shop=d.shop||[];S.house=d.home||[];S.fav=d.fav||[];S.plan=d.plan||{};S.pdays=d.pdays||{};
  S.log=[...(d.log||[]),...S.log.filter(e=>!e.s&&!e.demo)];S.rev=d.rev||0;
  SYNC.sig=syncSig()}
 async function srvPush(){
  if(!syncOn()||SYNC.busy||!SYNC.dirty)return;
  SYNC.busy=true;SYNC.dirty=false;
  const sent=S.log.filter(e=>!e.s&&!e.demo).slice(-500);
- const body={rev:S.rev||0,fridge:S.fridge,shop:S.shop,home:S.home||[],fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:sent};
+ const body={rev:S.rev||0,fridge:S.fridge,shop:S.shop,home:S.house||[],fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:sent};
  const r=await api("/me/data",{method:"PUT",body});
  SYNC.busy=false;
  if(r.ok){SYNC.fails=0;S.rev=r.data.rev;sent.forEach(e=>e.s=1);SYNC.sig=syncSig();if(!SYNC.dirty)S.pend=0;persist();if(SYNC.dirty)srvDirty();return}
@@ -1759,7 +1759,7 @@ async function srvPull(force){
  SYNC.pulling=true;const r=await api("/me/data"+(force?"":"?rev="+(S.rev||0)));SYNC.pulling=false;
  if(!r.ok)return false;
  if(r.data.unchanged){SYNC.ready=true;if(S.pend){SYNC.dirty=true;srvPush()}return false}
- const local=(S.fridge.length+S.shop.length+(S.home||[]).length+S.fav.length+Object.keys(S.plan).length)>0;
+ const local=(S.fridge.length+S.shop.length+(S.house||[]).length+S.fav.length+Object.keys(S.plan).length)>0;
  if((r.data.rev||0)===0&&local){SYNC.ready=true;S.rev=0;SYNC.sig="";srvDirty();return false}   // prima sincronizare: urcă ce există deja local
  if(S.pend){SYNC.ready=true;SYNC.dirty=true;srvPush();return false}   // modificări rămase nesalvate dintr-o sesiune anterioară (offline): încearcă să le urce
  applySnap(r.data);S.pend=0;SYNC.ready=true;persist();return true}
@@ -1768,7 +1768,7 @@ async function srvRefresh(){if(!syncOn()||editing())return;const a=await srvPull
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)srvRefresh()});
 window.addEventListener("online",()=>{if(SYNC.dirty)srvPush();else srvRefresh()});
 setInterval(()=>{if(!document.hidden)srvRefresh()},60000);
-window.addEventListener("pagehide",()=>{if(SYNC.dirty&&syncOn()){try{fetch(API_URL+"/api/me/data",{method:"PUT",keepalive:true,headers:{"Content-Type":"application/json",Authorization:"Bearer "+getTok()},body:JSON.stringify({rev:S.rev||0,fridge:S.fridge,shop:S.shop,home:S.home||[],fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:S.log.filter(e=>!e.s&&!e.demo).slice(-500)})})}catch(e){}}});
+window.addEventListener("pagehide",()=>{if(SYNC.dirty&&syncOn()){try{fetch(API_URL+"/api/me/data",{method:"PUT",keepalive:true,headers:{"Content-Type":"application/json",Authorization:"Bearer "+getTok()},body:JSON.stringify({rev:S.rev||0,fridge:S.fridge,shop:S.shop,home:S.house||[],fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:S.log.filter(e=>!e.s&&!e.demo).slice(-500)})})}catch(e){}}});
 
 
 /* ---------- Familie, antrenor, meniuri, calendar: datele sunt pe server ---------- */
@@ -3197,7 +3197,7 @@ function famAcceptUI(id){const f=famAccept(id);if(!f)return;draw();
  if(feat("family_fridge"))ask(`Bine ai venit în ${f.name}!`,"Vrei să folosești frigiderul comun al familiei? Îl poți schimba oricând din această pagină.","Da, folosesc frigiderul comun",()=>famShareUI(true))}
 function famShareUI(on){const m=ME(),f=famOf(m.id);if(!f)return;if(on&&!feat("family_fridge"))return featLocked("family_fridge");
  if(!on){famSetShare(false);draw();toast("Folosești din nou frigiderul tău personal");return}
- const ud=S.ud[m.id]||{},mine=SRV?S.fridge.length+(S.home||[]).length:(ud.fridge||[]).length+(ud.home||[]).length;
+ const ud=S.ud[m.id]||{},mine=SRV?S.fridge.length+(S.house||[]).length:(ud.fridge||[]).length+(ud.house||[]).length;
  if(!mine){famSetShare(true,false);draw();toast("Folosești frigiderul comun");return}
  openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Folosești frigiderul comun</h2><p class="muted">Ai ${mine} produse în frigiderul tău personal și în Casă și igienă. Le adaug și în cele comune ale familiei?</p><p class="small muted">Frigiderul, produsele pentru casă și cele de igienă personală devin comune cu toți cei care folosesc frigiderul familiei.</p>
   <div class="rowacts"><button class="btn primary" onclick="famSetShare(true,true);closeModal();toast('Produsele tale au fost adăugate în frigiderul comun')">Da, adaugă-le</button><button class="btn" onclick="famSetShare(true,false);closeModal();toast('Folosești frigiderul comun')">Nu, doar treci pe cel comun</button></div></div>`,1)}
@@ -3492,7 +3492,7 @@ const HYG_SUG=["șampon","gel de duș","săpun","pastă de dinți","periuță de
 
 /* ---------- bifat în listă = procurat: produsul pleacă singur în locul lui ---------- */
 let LASTBUY=[];   // ultimele mutări, ca să le poți anula
-function homeAdd(k,n,q,u){S.home=S.home||[];q=+q||1;u=u||"buc";const h=S.home.find(x=>x.k===k&&x.n===n&&x.u===u);if(h){h.q=Math.round((+h.q+q)*100)/100;return{merged:1,q}}S.home.push({n,q,u,k});return{merged:0,q}}
+function homeAdd(k,n,q,u){S.house=S.house||[];q=+q||1;u=u||"buc";const h=S.house.find(x=>x.k===k&&x.n===n&&x.u===u);if(h){h.q=Math.round((+h.q+q)*100)/100;return{merged:1,q}}S.house.push({n,q,u,k});return{merged:0,q}}
 function routeItem(s){const k=itemKind(s),q=s.q===""||s.q==null?1:+s.q;
  if(k==="food"){const u=s.u||"buc",f=S.fridge.find(x=>x.n===s.n&&x.u===u);
   if(f){f.q=Math.round((+f.q+q)*100)/100;return{s,k,merged:1,q}}S.fridge.push({n:s.n,q,u,x:inDays(7),s:false});return{s,k,merged:0,q}}
@@ -3506,7 +3506,7 @@ function routeDone(){const d=S.shop.filter(s=>s.d);if(!d.length)return;const cnt
  LASTBUY=LASTBUY.slice(0,20);S.shop=S.shop.filter(s=>!s.d);S.demo=false;save();draw();
  toast(Object.keys(cnt).map(k=>`${cnt[k]} în ${KIND_DEST[k]}`).join(", "))}
 function undoBuy(){const r=LASTBUY.shift();if(!r)return;const s=r.s,u=s.u||"buc";
- const list=r.k==="food"?S.fridge:(S.home||[]),i=list.findIndex(x=>x.n===s.n&&(x.u||"buc")===(r.k==="food"?u:(s.u||"buc"))&&(r.k==="food"||x.k===r.k));
+ const list=r.k==="food"?S.fridge:(S.house||[]),i=list.findIndex(x=>x.n===s.n&&(x.u||"buc")===(r.k==="food"?u:(s.u||"buc"))&&(r.k==="food"||x.k===r.k));
  if(i>=0){if(r.merged){list[i].q=Math.max(0,Math.round((+list[i].q-r.q)*100)/100)}else list.splice(i,1)}
  S.shop.push({...s,d:false});save();draw();toast(`${s.n} a revenit în lista de cumpărături`)}
 function lastBuyBar(){if(!LASTBUY.length)return"";const r=LASTBUY.slice(0,4);
@@ -3516,7 +3516,7 @@ function shopKindHint(){const n=$("sn"),t=$("sk"),h=$("skh");if(!n||!t||!h)retur
 
 /* ---------- pagina „Casă și igienă” ---------- */
 let HQ="";
-PAGES.casa=function(){const H=S.home||[],fq=HQ.trim().toLowerCase();
+PAGES.casa=function(){const H=S.house||[],fq=HQ.trim().toLowerCase();
  const box=(k,sug)=>{const it=H.map((h,i)=>({...h,i})).filter(h=>h.k===k&&(!fq||h.n.includes(fq)));
   return `<section class="card fcol hcol"><div class="fcol-h">${I(KIND_IC[k])}${KIND_L[k]}<span class="badge">${H.filter(h=>h.k===k).length}</span></div>
   ${it.length?it.map(h=>`<div class="frow"><span class="tph k-${k}">${I(KIND_IC[k])}</span><span class="n"><b>${esc(h.n)}</b><span>${fmtQ(h.q,h.u)}</span></span>
@@ -3534,9 +3534,9 @@ PAGES.casa=function(){const H=S.home||[],fq=HQ.trim().toLowerCase();
  <div class="toolbar"><label class="search" style="max-width:260px">${I("search")}<input id="hsearch" type="search" placeholder="Caută produs…" value="${esc(HQ)}" oninput="HQ=this.value;draw();const e=$('hsearch');e.focus();e.setSelectionRange(e.value.length,e.value.length)" aria-label="Caută în casă și igienă"></label></div>
  <div class="fcols hcols">${box("house",HOUSE_SUG)}${box("hyg",HYG_SUG)}</div>`};
 function homeNew(e){e.preventDefault();const n=$("hn").value.trim().toLowerCase();if(!n)return;homeAdd($("hk").value,n,+$("hq").value||1,$("hu").value);save();$("hn").value="";draw();toast(`${n} a fost adăugat în ${KIND_L[$("hk")?$("hk").value:"house"]||"listă"}`);setTimeout(()=>$("hn")&&$("hn").focus())}
-function homeQty(i,d){const h=(S.home||[])[i];if(!h)return;h.q=Math.max(0,Math.round((+h.q+d)*100)/100);save();draw()}
-function homeDel(i){const h=(S.home||[])[i];if(!h)return;S.home.splice(i,1);save();draw();toast(`${h.n} a fost șters`)}
-function homeToShop(i){const h=(S.home||[])[i];if(!h)return;if(S.shop.some(s=>s.n===h.n&&!s.d))return toast(`${h.n} e deja pe listă`);S.shop.push({n:h.n,q:1,u:h.u,d:false,k:h.k});save();draw();toast(`${h.n} a fost pus pe lista de cumpărături`)}
+function homeQty(i,d){const h=(S.house||[])[i];if(!h)return;h.q=Math.max(0,Math.round((+h.q+d)*100)/100);save();draw()}
+function homeDel(i){const h=(S.house||[])[i];if(!h)return;S.house.splice(i,1);save();draw();toast(`${h.n} a fost șters`)}
+function homeToShop(i){const h=(S.house||[])[i];if(!h)return;if(S.shop.some(s=>s.n===h.n&&!s.d))return toast(`${h.n} e deja pe listă`);S.shop.push({n:h.n,q:1,u:h.u,d:false,k:h.k});save();draw();toast(`${h.n} a fost pus pe lista de cumpărături`)}
 
 // casă și igienă sunt comune cu familia exact când folosești frigiderul comun
 function homeBanner(){const m=ME(),f=m&&famOf(m.id);if(!f)return"";
@@ -3545,6 +3545,8 @@ function homeBanner(){const m=ME(),f=m&&famOf(m.id);if(!f)return"";
 
 /* ---------- Pornire ---------- */
 load();
+// reparație: o versiune anterioară a putut pune produse de casă în locul blocurilor paginii principale
+if(!Array.isArray(S.home)||S.home.some(b=>!b||!b.type)){S.home=clone(DEF_HOME);try{save()}catch(e){}}
 if(SRV)srvMigrate();
 applyTheme(S.theme);
 HASHREADY=ensureHashes();
