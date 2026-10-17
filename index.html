@@ -1520,11 +1520,11 @@ async function api(path,o={}){
  const headers={"X-Visitor":visitorId()},t=getTok();
  if(t)headers.Authorization="Bearer "+t;
  if(o.body!==undefined)headers["Content-Type"]="application/json";
- const ac=new AbortController(),to=setTimeout(()=>ac.abort(),25000);
+ const ac=new AbortController(),to=setTimeout(()=>ac.abort(),o.timeout||25000);
  try{const r=await fetch(API_URL+"/api"+path,{method:o.method||"GET",headers,body:o.body!==undefined?JSON.stringify(o.body):undefined,signal:ac.signal});
   let data=null;try{data=await r.json()}catch(e){}
   return{status:r.status,ok:r.ok,data}}
- catch(e){return{status:0,ok:false,data:{error:"Nu mă pot conecta la server. Verifică internetul și încearcă din nou."}}}
+ catch(e){return{status:0,ok:false,timeout:e&&e.name==="AbortError",data:{error:e&&e.name==="AbortError"?"Serverul răspunde prea greu. Încearcă din nou.":"Nu mă pot conecta la server. Verifică internetul și încearcă din nou."}}}
  finally{clearTimeout(to)}}
 
 // Contul primit de la server se oglindește în lista locală de conturi (restul site-ului lucrează cu ME()).
@@ -2863,12 +2863,13 @@ async function aiGo(){
  if(!/^https?:\/\/\S+$/i.test(v)&&v.length<40){AIX.err="Textul este prea scurt pentru o rețetă.";return aiDraw()}
  AIX.busy=true;AIX.err=null;AIX.res=null;AIX.step=0;aiDraw();
  clearInterval(AIX.timer);AIX.timer=setInterval(()=>{if(AIX.step<AI_STEPS.length-1){AIX.step++;aiDraw()}},2600);
- const r=await api("/ai/recipe",{method:"POST",body:{input:v}});
+ const r=await api("/ai/recipe",{method:"POST",body:{input:v},timeout:180000});   // AI-ul poate lucra și un minut
  clearInterval(AIX.timer);AIX.busy=false;
  if(r.ok&&r.data&&r.data.import){AIX.res=r.data.import;AIX.input="";recSet(r.data.import.recipe);persist();toast("Rețeta a fost importată și salvată (ascunsă)")}
+ else if(r.timeout)AIX.err="Analiza durează mai mult decât de obicei. Rețeta poate apărea totuși în „Importuri recente” în câteva momente — verifică acolo înainte să încerci din nou.";
  else AIX.err=(r.data&&r.data.error)||"Importul nu a reușit. Încearcă din nou.";
  if(AIX.status&&r.status!==400&&r.status!==429)AIX.status.usedToday++;
- aiDraw();aiHist();if(S.page==="admin")draw()}
+ aiDraw();aiHist();if(r.timeout)setTimeout(aiHist,30000);if(S.page==="admin")draw()}
 async function aiOpen(id){const r=await api("/ai/imports/"+encodeURIComponent(id));if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut deschide importul.");
  AIX.res=r.data.import;AIX.err=null;aiDraw();const b=$("aibox");if(b)b.scrollIntoView({block:"start"})}
 function aiAgain(){AIX.res=null;AIX.err=null;aiDraw();setTimeout(()=>$("aitx")&&$("aitx").focus())}
