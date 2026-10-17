@@ -954,6 +954,25 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .lbcount{position:absolute;bottom:8px;left:0;right:0;text-align:center;color:#ddd;font-size:13px;margin:0}
 @media (max-width:640px){.profhead{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;padding:20px}.profinfo{align-items:center}.profcount{align-self:center}.avatar.xl{width:108px;height:108px}}
 
+/* ---------- Utilizatori: buton „Opțiuni” și întrerupătoare ON/OFF ---------- */
+.users .optbtn{margin-left:auto}
+.users .optbtn .i:last-child{width:14px;height:14px;margin:0 0 0 2px;transition:transform .2s}
+.users .optbtn[aria-expanded="true"]{background:var(--green-soft);border-color:var(--green)}
+.users .optbtn[aria-expanded="true"] .i:last-child{transform:rotate(180deg)}
+.uopts{flex-basis:100%;display:flex;flex-direction:column;gap:12px;margin:4px 0 4px 48px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.tgls{display:flex;flex-wrap:wrap;gap:10px 28px}
+.tgl{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;position:relative}
+.tgl input{position:absolute;opacity:0;width:1px;height:1px}
+.tgl .tr{width:44px;height:24px;border-radius:12px;background:#c9c4b8;position:relative;flex:none;transition:background .2s}
+.tgl .kn{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.tgl input:checked+.tr{background:var(--green)}
+.tgl input:checked+.tr .kn{transform:translateX(20px)}
+.tgl input:focus-visible+.tr{outline:3px solid var(--honey);outline-offset:2px}
+.tgl .st{font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--muted);min-width:26px}
+.tgl input:checked~.st{color:var(--green-dk)}
+.tgl.dis{opacity:.5;cursor:not-allowed}
+@media (max-width:640px){.uopts{margin-left:0}.users .optbtn{margin-left:0}}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -2821,10 +2840,7 @@ ATAB_FN.usr=function(){const me=ME(),q=UQ.trim().toLowerCase();
   <span class="grow"><b>${esc(a.name)}</b>${self?` <span class="tag">Tu</span>`:""}${a.blocked?` <span class="tag red">Blocat</span>`:""}<br><span class="small muted">${esc(a.email)} · cont din ${fmtDate(a.created)}</span></span>
   <select class="field sm" aria-label="Rol pentru ${esc(a.name)}" ${mg?"":"disabled"} onchange="roleChange('${a.id}',this.value)">${ro.map(r=>`<option value="${r}" ${a.role===r?"selected":""} ${r===a.role||assignable().includes(r)?"":"disabled"}>${ROLE_L[r]}</option>`).join("")}</select>
   <span class="small plancol">${a.famGrant&&RANK[a.role]<2?`<span class="tag">Familie activată manual</span> `:""}${a.role==="trainer"?`Antrenor · ${a.students!=null?a.students:studentsOf(a.id).length} studenți · `:""}${RANK[a.role]>=2?"inclus în echipă":hasPrem(a)?`Premium${a.until?` · până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}`:""}`:"Plan gratuit"}</span>
-  ${a.role==="trainer"&&isRecStaff()?`<span class="featsw"><label class="switch"><input type="checkbox" ${uFeat(a,"ai_recipes")?"checked":""} onchange="setUserFeature('${a.id}','ai_recipes',this.checked)"><span>AI${uFeatPlan(a,"ai_recipes")?" (și din pachet)":""}</span></label><label class="switch"><input type="checkbox" ${uFeat(a,"recipe_author")?"checked":""} onchange="setUserFeature('${a.id}','recipe_author',this.checked)"><span>Rețete</span></label></span>`:""}
-  <span class="rowacts">${me.role==="super"&&!self?`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Pachet și funcții</button>`:""}${mg&&RANK[a.role]<2?`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button><button class="btn sm" aria-pressed="${!!a.famGrant}" onclick="famGrantUI('${a.id}')">${I("users")}${a.famGrant?"Oprește familia":"Activează familia"}</button>`:""}${mg&&extraTarget(a)&&(GRANT[me.role]||[]).length?`<button class="btn sm" onclick="permModal('${a.id}')">${I("key")}Drepturi</button>`:""}
-  ${canBlock(a)?`<button class="btn sm" onclick="blockUser('${a.id}',${!a.blocked})">${I("ban")}${a.blocked?"Deblochează":"Blochează"}</button>`:""}${mg?`<button class="iconbtn" onclick="delUser('${a.id}')" aria-label="Șterge contul ${esc(a.name)}">${I("trash")}</button>`:""}
-  ${!mg&&!self?`<span class="small muted" title="Doar un administrator principal poate modifica acest cont">acces limitat</span>`:""}</span></li>`}).join("")}</ul></div>
+  ${uOptsBtn(a,mg,self)}${UOPEN===a.id?uOpts(a,mg,self):""}</li>`}).join("")}</ul></div>
  <div class="card panel"><h3>Roluri și drepturi</h3><p class="small muted">Vizitatorul și Membrul folosesc doar site-ul public. Drepturile de mai jos sunt cele implicite; un administrator poate acorda unui moderator drepturi în plus, în limita propriilor drepturi.</p>
   <div class="tablewrap"><table class="cmp perm"><thead><tr><th>Drept</th>${["moderator","admin","super"].map(r=>`<th><span class="rl">${ROLE_L[r]}</span><span class="rs" aria-hidden="true">${ROLE_S[r]}</span></th>`).join("")}</tr></thead><tbody>${Object.keys(PERM_L).map(p=>`<tr><td>${PERM_L[p]}</td>${["moderator","admin","super"].map(r=>`<td>${ROLE_DEF[r].includes(p)?`<span class="yes">${I("check")}<span class="sr">da</span></span>`:`<span class="no" aria-label="nu">–</span>`}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
   <p class="small muted">Antrenorul personal este un cont de membru cu grup propriu de studenți, meniuri și calendar; nu are acces la administrare. Funcția de familie este pentru Premium, dar un administrator o poate activa manual pentru orice membru, fără să-i dea Premium.</p>
@@ -2847,6 +2863,22 @@ function permModal(id){const t=acct(id),me=ME();if(!t||!canManage(t)||!extraTarg
  <div class="rowacts"><button class="btn primary" onclick="closeModal()">Gata</button></div></div>`,1)}
 function extraSet(id,p){toggleExtra(id,p);permModal(id)}
 
+/* ---------- Opțiunile unui utilizator (buton care deschide panoul) ---------- */
+let UOPEN=null;
+const tgl=(on,label,cb,note,dis)=>`<label class="tgl${dis?" dis":""}"><input type="checkbox" role="switch" ${on?"checked":""} ${dis?"disabled":""} onchange="${cb}"><span class="tr" aria-hidden="true"><span class="kn"></span></span><span class="tl">${label}${note?` <span class="small muted">${note}</span>`:""}</span><span class="st" aria-hidden="true">${on?"ON":"OFF"}</span></label>`;
+function uHasOpts(a,mg,self){const me=ME();return (me.role==="super"&&!self)||(mg&&RANK[a.role]<2)||(a.role==="trainer"&&isRecStaff())||(mg&&extraTarget(a)&&(GRANT[me.role]||[]).length)||canBlock(a)||mg}
+function uOptsBtn(a,mg,self){if(!uHasOpts(a,mg,self))return self?"":`<span class="small muted" title="Doar un administrator principal poate modifica acest cont">acces limitat</span>`;const o=UOPEN===a.id;
+ return `<button class="btn sm optbtn" aria-expanded="${o}" aria-controls="uo-${a.id}" onclick="UOPEN=UOPEN==='${a.id}'?null:'${a.id}';draw()">${I("settings")}Opțiuni${I("down")}</button>`}
+function uOpts(a,mg,self){const me=ME(),sw=[],bt=[];
+ if(mg&&RANK[a.role]<2)sw.push(tgl(!!a.famGrant,"Funcția de familie",`famGrantUI('${a.id}');draw()`,hasPrem(a)?"(are și prin Premium)":""));
+ if(a.role==="trainer"&&isRecStaff()){sw.push(tgl(uFeat(a,"recipe_author"),"Poate adăuga rețete",`setUserFeature('${a.id}','recipe_author',this.checked)`));
+  sw.push(tgl(uFeat(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(și din pachet)":""))}
+ if(me.role==="super"&&!self)bt.push(`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Pachet și funcții</button>`);
+ if(mg&&RANK[a.role]<2)bt.push(`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button>`);
+ if(mg&&extraTarget(a)&&(GRANT[me.role]||[]).length)bt.push(`<button class="btn sm" onclick="permModal('${a.id}')">${I("key")}Drepturi</button>`);
+ if(canBlock(a))bt.push(`<button class="btn sm" onclick="blockUser('${a.id}',${!a.blocked})">${I("ban")}${a.blocked?"Deblochează":"Blochează"}</button>`);
+ if(mg)bt.push(`<button class="btn sm danger" onclick="delUser('${a.id}')">${I("trash")}Șterge contul</button>`);
+ return `<div class="uopts" id="uo-${a.id}">${sw.length?`<div class="tgls">${sw.join("")}</div>`:""}${bt.length?`<div class="rowacts">${bt.join("")}</div>`:""}</div>`}
 function famGrantUI(id){const t=acct(id);if(!t)return;const on=!t.famGrant;
  if(on){if(setFamGrant(id,true)){draw();toast(`Funcția de familie a fost activată pentru ${t.name}`)}return}
  ask("Oprești funcția de familie?",`${esc(t.name)} ${hasPrem(t)?"o păstrează prin Premium.":"nu o mai poate folosi până nu are Premium (rămâne în familie, dar folosește frigiderul personal)."}`,"Oprește",()=>{if(setFamGrant(id,false)){draw();toast("Funcția de familie a fost oprită")}},true)}
