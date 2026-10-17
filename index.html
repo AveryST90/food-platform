@@ -1066,6 +1066,21 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .rct td:nth-child(5){white-space:nowrap;padding-top:14px}
 @media (max-width:640px){.donutwrap{grid-template-columns:minmax(0,1fr);justify-items:center}.donut{max-width:190px}.legend2{width:100%}}
 
+/* ---------- Bon fiscal: revizuire ---------- */
+.rcsheet .aisteps{margin-top:4px}
+.aispin{width:14px;height:14px;border-radius:50%;border:2px solid var(--green-soft);border-top-color:var(--green);display:inline-block;animation:spin .9s linear infinite;vertical-align:-2px;margin-right:6px}
+.rclist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rcrow{display:grid;grid-template-columns:minmax(180px,1fr) 90px 100px 160px 100px 40px;gap:10px;align-items:end;padding:12px;border:1px solid var(--line);border-left:5px solid var(--green);border-radius:14px;background:#fff}
+.rcrow.k-house{border-left-color:#2f5f93}.rcrow.k-hyg{border-left-color:#8a3c6b}
+.rcrow .lbl{font-size:12px}.rcrow .field{height:38px;font-size:14px;width:100%;min-width:0}
+.rcmain{display:flex;flex-direction:column;gap:4px;min-width:0}
+.rcraw{font-size:11px;overflow-wrap:anywhere}
+.rcdel{align-self:end;margin-bottom:2px}
+.rcfoot{display:flex;flex-direction:column;gap:8px;padding-top:6px}
+@media (max-width:760px){.rcrow{grid-template-columns:1fr 1fr;align-items:end}.rcmain{grid-column:1/-1}.rcdel{justify-self:end}}
+.rcrow{position:relative}
+@media (max-width:760px){.rcdel{position:absolute;top:6px;right:6px;margin:0}.rcmain{padding-right:38px}}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -2543,7 +2558,7 @@ PAGES.lista=function(){
   <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&k==="food"&&inFridge(s.n)?" · ai deja în frigider":""}${s.d?"":` · <span class="dest">→ ${KIND_DEST[k]}</span>`}</span></label>
   <button class="iconbtn" onclick="S.shop.splice(${i},1);save();draw()" aria-label="Șterge ${esc(s.n)}">${I("x")}</button></div>`};
  return pagehead("Lista de cumpărături",`${esc(txt("shopSub"))} · ${todo.length} de cumpărat, aproximativ ${Math.round(est)} MDL`,
-  `<label class="btn honey">${I("camera")}Fă poză la bon<input type="file" accept="image/*" capture="environment" hidden onchange="scanReceipt(this)"></label><button class="btn" onclick="shareList()">${I("share")}Partajează</button>${feat("auto_shopping")?`<button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`:lockBtn("auto_shopping","Importă din rețetă","")}`)+
+  `${rcBtn("Fă poză la bon","honey")}<button class="btn" onclick="shareList()">${I("share")}Partajează</button>${feat("auto_shopping")?`<button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`:lockBtn("auto_shopping","Importă din rețetă","")}`)+
  `<form class="card addpanel" onsubmit="addShop(event)"><div class="form"><label class="lbl grow">Produs<input id="sn" class="field" list="dlp4" required maxlength="80" placeholder="ex. lapte, detergent de vase, șampon" oninput="shopKindHint()"><datalist id="dlp4">${[...allProducts(),...HOUSE_SUG,...HYG_SUG].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
   <label class="lbl">Cantitate<input id="sq" class="field w90" type="number" min="0" step="any" placeholder="1"></label>
   <label class="lbl">Unitate<select id="su" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label>
@@ -3694,7 +3709,7 @@ PAGES.bani=function(){
  const canDel=e=>e.by===me||(fam&&fam.owner===me&&e.shared);
  const delta=prevT?Math.round((tot-prevT)/prevT*100):null;
  return pagehead("Cheltuieli",fam?`Contabilitate comună · ${esc(fam.name)} · ${fam.members.length} ${fam.members.length===1?"membru":"membri"}`:"Cheltuielile tale lunare, pe categorii.",
-   `<label class="btn">${I("camera")}Scanează un bon<input type="file" accept="image/*" capture="environment" hidden onchange="scanReceipt(this)"></label>`)+
+   rcBtn("Scanează un bon"))+
  `${fam?`<div class="fambar">${I("users")}<span><b>Comun cu familia · ${esc(fam.name)}</b> · vedeți toți cheltuielile adăugate de fiecare (${esc(fam.members.join(", "))}).</span></div>`
    :`<div class="fambar muted">${I("users")}<span>Cheltuielile sunt doar ale tale. Într-o familie, vedeți împreună toate cheltuielile.</span><button class="link" onclick="go('familie')">Familia ${I("arrow")}</button></div>`}
  <form class="card addpanel expform" onsubmit="expSubmit(event)"><p class="h3">Adaugă o cheltuială</p><div class="form">
@@ -3737,44 +3752,72 @@ async function cartPaySave(){const it=LASTBUY.filter(x=>!x.paid);
  if(!await expAdd({amount:$("cpa").value,date:$("cpd").value||todayS(),categoryCode:"products",source:"cart",note:`Cumpărături · ${it.length} produse`}))return;
  LASTBUY.forEach(x=>x.paid=1);closeModal();draw();toast("Plata a fost înregistrată la Cheltuieli · Produse")}
 
-/* ---------- bon fiscal scanat cu AI ---------- */
-let RC=null;
-function scanReceipt(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;
- if(!SRV)return toast("Scanarea bonurilor funcționează pe site, cu serverul conectat.");
- if(!ME())return authModal("login");
- optimizeImg(f,1800,async u=>{
-  openModal(`<div class="sheet-b rcwait"><span class="spin" aria-hidden="true"></span><h2 style="font-size:20px">Citesc bonul…</h2><p class="muted small">Inteligența artificială extrage produsele, cantitățile și prețurile. Durează câteva secunde.</p></div>`,1);
-  const r=await api("/receipts/scan",{method:"POST",body:{image:u},timeout:120000});
-  if(!r.ok){closeModal();return toast((r.data&&r.data.error)||(r.timeout?"Citirea a durat prea mult. Încearcă din nou.":"Bonul nu a putut fi citit."))}
-  RC=r.data.receipt;RC.items.forEach(x=>{x.on=true;if(x.kind==="food"&&!x.productId){const k=kindOf(x.name);if(k!=="food")x.kind=k}});rcModal()})}
-function rcRead(){if(!RC)return;RC.items.forEach((x,i)=>{const g=k=>$(`rc${k}${i}`);if(!g("n"))return;
- x.on=g("o").checked;x.name=g("n").value.trim().toLowerCase();x.qty=+String(g("q").value).replace(",",".")||1;x.unit=g("u").value;x.total=g("t").value===""?null:Math.round(+String(g("t").value).replace(",",".")*100)/100;x.kind=g("k").value});
- RC.store=$("rcs").value.trim();RC.date=$("rcd").value;RC.total=+String($("rct").value).replace(",",".")||null}
-function rcSum(){rcRead();const s=RC.items.filter(x=>x.on).reduce((a,x)=>a+(x.total||0),0);$("rcsum").textContent=lei(s)}
-function rcModal(){const R=RC,mt=x=>x.productId?`<span class="mtag ok" title="Potrivire ${Math.round(x.score*100)}%">${I("check")}${esc(x.productName)}</span>`:`<span class="mtag">produs nou</span>`;
- openModal(`<div class="sheet-b rcbox"><div style="padding-right:36px"><p class="eyebrow">${I("camera")} Bon scanat</p><h2 style="font-size:22px">Verifică produsele</h2>
-  <p class="small muted">Corectează ce a citit greșit, debifează ce nu vrei, apoi confirmă. Tipul decide unde ajunge produsul: Frigider, Pentru casă sau Igienă personală.</p></div>
- <div class="form"><label class="lbl grow">Magazin<input id="rcs" class="field" maxlength="80" value="${esc(R.store||"")}"></label><label class="lbl">Data<input id="rcd" class="field" type="date" value="${R.date||todayS()}" max="${todayS()}"></label>
-  <label class="lbl">Total plătit (${esc(R.currency||"MDL")})<input id="rct" class="field w120" inputmode="decimal" value="${R.total??""}"></label></div>
- <div class="tablewrap"><table class="rct"><thead><tr><th><span class="sr">Include</span></th><th>Produs</th><th>Cant.</th><th>Unitate</th><th>Preț unitar</th><th>Total</th><th>Tip</th></tr></thead><tbody>
- ${R.items.map((x,i)=>`<tr class="${x.on?"":"off"}"><td><input type="checkbox" id="rco${i}" ${x.on?"checked":""} onchange="this.closest('tr').classList.toggle('off',!this.checked);rcSum()" aria-label="Include ${esc(x.name)}"></td>
-  <td><input id="rcn${i}" class="field sm" value="${esc(x.name)}" maxlength="80" aria-label="Denumire"><span class="small muted rcraw">${esc(x.raw)}</span> ${mt(x)}</td>
-  <td><input id="rcq${i}" class="field sm w70" inputmode="decimal" value="${String(x.qty).replace(".",",")}" aria-label="Cantitate"></td>
-  <td><select id="rcu${i}" class="field sm" aria-label="Unitate">${UNITS.map(u=>`<option ${u===x.unit?"selected":""}>${u}</option>`).join("")}</select></td>
-  <td class="small">${x.unitPrice!=null?num(x.unitPrice):"—"}</td>
-  <td><input id="rct${i}" class="field sm w90" inputmode="decimal" value="${x.total??""}" oninput="rcSum()" aria-label="Valoare totală"></td>
-  <td><select id="rck${i}" class="field sm" aria-label="Tip">${Object.entries(KIND_L).map(([k,l])=>`<option value="${k}" ${k===x.kind?"selected":""}>${l}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table></div>
- <p class="small">Suma produselor bifate: <b id="rcsum">${lei(R.items.reduce((a,x)=>a+(x.total||0),0))}</b></p>
- <label class="switch"><input type="checkbox" id="rcrec" checked><span>Înregistrează la Cheltuieli · 🛒 Produse${expData().family?" (comun cu familia)":""}</span></label>
- <div class="rowacts"><button class="btn primary" onclick="rcConfirm('bought')">${I("check")}Confirmă: sunt procurate</button><button class="btn" onclick="rcConfirm('list')">${I("cart")}Pune-le doar în coș</button><button class="btn ghost" onclick="RC=null;closeModal()">Renunță</button></div></div>`)
+/* ---------- bon fiscal scanat cu AI (Google Gemini) ---------- */
+// câmpul de fișier stă în afara paginii: pe telefon pagina se redesenează când revii din cameră,
+// iar un câmp din pagină ar fi înlocuit înainte să primească poza
+let RC=null;const RCX={busy:false,step:0,err:null,timer:null};
+const RC_STEPS=["Pregătesc imaginea","Google Gemini analizează bonul…","Potrivesc produsele cu cele din Gusto"];
+const RC_DEST=[["food","Frigider"],["house","Pentru casă"],["hyg","Igienă personală"]];
+(function(){const i=document.createElement("input");i.type="file";i.accept="image/*";i.id="rcfile";i.hidden=true;i.setAttribute("aria-hidden","true");
+ i.addEventListener("change",()=>{const f=i.files&&i.files[0];i.value="";if(f)rcStart(f)});document.body.appendChild(i)})();
+const rcBtn=(label,cls)=>`<button type="button" class="btn ${cls||""}" onclick="rcPick()">${I("camera")}${label}</button>`;
+function rcPick(){if(!SRV)return toast("Scanarea bonurilor funcționează pe site, cu serverul conectat.");if(!ME())return authModal("login");$("rcfile").click()}
+function scanReceipt(inp){const f=inp&&inp.files&&inp.files[0];if(inp)inp.value="";if(f)rcStart(f)}
+function rcOpen(){openModal(`<div class="sheet-b aisheet rcsheet"><div style="padding-right:36px"><p class="eyebrow">${I("camera")} Bon fiscal · AI</p><h2 style="font-size:24px" id="rch">Citesc bonul</h2>
+ <p class="muted small" id="rcp">Google Gemini citește produsele de pe bon, le scrie clar și propune unde le pui: Frigider, Pentru casă sau Igienă personală. Le verifici înainte să intre în inventar.</p></div><div id="rcbox"></div></div>`,0);
  const s=document.querySelector("#modal .sheet");if(s)s.classList.add("wide")}
-async function rcConfirm(mode){rcRead();const R=RC,it=R.items.filter(x=>x.on&&x.name);if(!it.length)return toast("Bifează cel puțin un produs.");
- const r=await api("/receipts/"+encodeURIComponent(R.id)+"/confirm",{method:"POST",body:{items:it,date:R.date,total:R.total,store:R.store,record:$("rcrec").checked}});
- if(!r.ok)return toast((r.data&&r.data.error)||"Bonul nu a putut fi confirmat.");
+function rcDraw(){const b=$("rcbox");if(!b)return;
+ if(RCX.busy){b.innerHTML=`<ol class="aisteps" aria-live="polite">${RC_STEPS.map((t,i)=>`<li class="${i<RCX.step?"done":i===RCX.step?"now":""}"><span class="aidot">${i<RCX.step?I("check"):i===RCX.step?`<span class="aispin"></span>`:""}</span>${t}</li>`).join("")}</ol>
+  <p class="small muted">De obicei durează 5–20 de secunde. Nu închide fereastra.</p>`;return}
+ if(RCX.err){b.innerHTML=`<div class="box aierr" role="alert">${I("alarm")}<span>${esc(RCX.err)}</span></div><div class="rowacts">${rcBtn("Alege altă poză","primary")}<button class="btn" onclick="closeModal()">Închide</button></div>`;return}
+ if(RC)b.innerHTML=rcReview()}
+function rcStart(file){RC=null;RCX.err=null;RCX.busy=true;RCX.step=0;rcOpen();rcDraw();
+ rcImage(file,1800,async u=>{RCX.step=1;rcDraw();clearInterval(RCX.timer);RCX.timer=setInterval(()=>{if(RCX.step<RC_STEPS.length-1){RCX.step++;rcDraw()}},7000);
+  const r=await api("/receipts/scan",{method:"POST",body:{image:u},timeout:120000});clearInterval(RCX.timer);RCX.busy=false;
+  if(!$("rcbox"))return;   // fereastra a fost închisă între timp
+  if(!r.ok){RCX.err=(r.data&&r.data.error)||(r.timeout?"Citirea a durat prea mult. Încearcă din nou, eventual cu o poză mai mică.":r.status===0?"Nu mă pot conecta la server. Verifică internetul și încearcă din nou.":"Bonul nu a putut fi citit. Încearcă din nou.");return rcDraw()}
+  RC=r.data.receipt;RC.items.forEach(x=>{if(x.kind==="food"&&!x.productId){const k=kindOf(x.name);if(k!=="food")x.kind=k}});
+  $("rch").textContent="Verifică produsele";$("rcp").textContent="Corectează ce a citit greșit, schimbă unde merge fiecare produs și șterge ce nu vrei în inventar. Apoi apasă „Acceptă și adaugă”.";
+  rcDraw()},e=>{RCX.busy=false;clearInterval(RCX.timer);RCX.err=e;rcDraw()})}
+// micșorează poza în browser (bonul rămâne lizibil la ~1800 px), cu mesaj de eroare în fereastră
+function rcImage(file,max,cb,onErr){
+ if(file.type&&!/^image\//.test(file.type))return onErr("Alege o fotografie (JPEG, PNG sau WebP).");
+ if(/heic|heif/i.test(file.type+file.name)&&!/jpe?g|png|webp/i.test(file.type))return onErr("Poza este în format HEIC (iPhone), pe care browserul nu îl poate citi. În Setări → Cameră → Formate alege „Cel mai compatibil”, sau trimite poza ca JPEG.");
+ const fr=new FileReader();fr.onerror=()=>onErr("Fișierul nu a putut fi citit.");
+ fr.onload=()=>{const im=new Image();im.onerror=()=>onErr("Imaginea nu a putut fi deschisă. Încearcă o poză JPEG sau PNG.");
+  im.onload=()=>{try{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));
+   const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+   let q=.85,u=c.toDataURL("image/jpeg",q);while(u.length>1.4e6&&q>.4){q-=.1;u=c.toDataURL("image/jpeg",q)}cb(u)}catch(e){onErr("Imaginea nu a putut fi pregătită.")}};im.src=fr.result};
+ fr.readAsDataURL(file)}
+function rcReview(){const R=RC,n=R.items.length;
+ return `<div class="form"><label class="lbl grow">Magazin<input id="rcs" class="field" maxlength="80" value="${esc(R.store||"")}"></label><label class="lbl">Data<input id="rcd" class="field" type="date" value="${R.date||todayS()}" max="${todayS()}"></label>
+  <label class="lbl">Total plătit (${esc(R.currency||"MDL")})<input id="rct" class="field w120" inputmode="decimal" value="${R.total??""}"></label></div>
+ ${n?`<ul class="rclist">${R.items.map((x,i)=>`<li class="rcrow k-${x.kind}">
+  <div class="rcmain"><label class="lbl">Produs<input id="rcn${i}" class="field" value="${esc(x.name)}" maxlength="80" oninput="RC.items[${i}].name=this.value"></label>
+   <span class="small muted rcraw" title="Textul de pe bon">${esc(x.raw)}${x.productId?` · <span class="mtag ok">${I("check")}în catalog: ${esc(x.productName)}</span>`:""}</span></div>
+  <label class="lbl">Cantitate<input id="rcq${i}" class="field" inputmode="decimal" value="${String(x.qty).replace(".",",")}" oninput="RC.items[${i}].qty=+this.value.replace(',','.')||1"></label>
+  <label class="lbl">Unitate<select id="rcu${i}" class="field" onchange="RC.items[${i}].unit=this.value">${UNITS.map(u=>`<option ${u===x.unit?"selected":""}>${u}</option>`).join("")}</select></label>
+  <label class="lbl">Unde merge<select id="rck${i}" class="field" onchange="RC.items[${i}].kind=this.value;this.closest('li').className='rcrow k-'+this.value;rcSum()">${RC_DEST.map(([k,l])=>`<option value="${k}" ${k===x.kind?"selected":""}>${l}</option>`).join("")}</select></label>
+  <label class="lbl">Total<input id="rct${i}" class="field" inputmode="decimal" value="${x.total??""}" oninput="RC.items[${i}].total=this.value===''?null:Math.round(+this.value.replace(',','.')*100)/100;rcSum()"></label>
+  <button type="button" class="iconbtn rcdel" onclick="rcRemove(${i})" aria-label="Șterge ${esc(x.name)} din listă" title="Șterge din listă">${I("trash")}</button></li>`).join("")}</ul>`
+ :`<div class="box">Nu a mai rămas niciun produs. ${rcBtn("Alege altă poză","sm")}</div>`}
+ <div class="rcfoot"><p class="small" id="rcsum" aria-live="polite">${rcSumTxt()}</p>
+  <label class="switch"><input type="checkbox" id="rcrec" checked><span>Înregistrează și la Cheltuieli · 🛒 Produse${expData().family?" (comun cu familia)":""}</span></label></div>
+ <div class="rowacts"><button class="btn primary" id="rcok" onclick="rcConfirm()" ${n?"":"disabled"}>${I("check")}Acceptă și adaugă</button>${rcBtn("Altă poză","ghost")}<button class="btn ghost" onclick="RC=null;closeModal()">Renunță</button></div>`}
+function rcRead(){if(!RC)return;RC.store=$("rcs")?$("rcs").value.trim():RC.store;RC.date=$("rcd")?$("rcd").value:RC.date;RC.total=$("rct")?(+String($("rct").value).replace(",",".")||null):RC.total;
+ RC.items.forEach(x=>{x.name=String(x.name||"").trim().toLowerCase()})}
+function rcSumTxt(){const R=RC,n=R.items.length;return `<b>${n}</b> ${n===1?"produs":"produse"} · ${RC_DEST.map(([k,l])=>{const c=R.items.filter(x=>x.kind===k).length;return c?`${c} în ${l}`:""}).filter(Boolean).join(" · ")||"—"} · suma: <b>${lei(R.items.reduce((a,x)=>a+(x.total||0),0))}</b>`}
+function rcSum(){const e=$("rcsum");if(e&&RC)e.innerHTML=rcSumTxt()}
+function rcRemove(i){rcRead();const x=RC.items.splice(i,1)[0];rcDraw();toast(`„${x.name}” a fost scos din listă`)}
+async function rcConfirm(){rcRead();const R=RC,it=R.items.filter(x=>x.name);if(!it.length)return toast("Nu ai niciun produs de adăugat.");
+ const b=$("rcok");if(b){b.disabled=true;b.innerHTML=`<span class="aispin"></span>Se salvează…`}
+ const r=await api("/receipts/"+encodeURIComponent(R.id)+"/confirm",{method:"POST",body:{items:it,date:R.date,total:R.total,store:R.store,record:!!($("rcrec")&&$("rcrec").checked)}});
+ if(!r.ok){if(b){b.disabled=false;b.innerHTML=`${I("check")}Acceptă și adaugă`}return toast((r.data&&r.data.error)||"Bonul nu a putut fi confirmat.")}
  expSet(r.data);
- if(mode==="bought"){const cnt={};it.forEach(x=>{const res=routeItem({n:x.name,q:x.qty,u:x.unit,k:x.kind,d:false});res.paid=1;LASTBUY.unshift(res);cnt[res.k]=(cnt[res.k]||0)+1});LASTBUY=LASTBUY.slice(0,20);S.demo=false;
-  save();RC=null;closeModal();draw();toast(Object.keys(cnt).map(k=>`${cnt[k]} în ${KIND_DEST[k]}`).join(", ")+($("rcrec")?"":""))}
- else{it.forEach(x=>{if(!S.shop.some(s=>s.n===x.name&&!s.d))S.shop.push({n:x.name,q:x.qty,u:x.unit,d:false,k:x.kind})});save();RC=null;closeModal();draw();toast(`${it.length} produse au fost puse în coș`)}}
+ const cnt={};it.forEach(x=>{const res=routeItem({n:x.name,q:x.qty,u:x.unit,k:x.kind,d:false});res.paid=1;LASTBUY.unshift(res);cnt[res.k]=(cnt[res.k]||0)+1});
+ LASTBUY=LASTBUY.slice(0,30);S.demo=false;save();
+ try{SYNC.dirty=true;await srvFlush()}catch(e){}   // inventarul ajunge imediat în baza de date
+ RC=null;closeModal();draw();toast(`Am adăugat ${it.length} produse: `+Object.keys(cnt).map(k=>`${cnt[k]} în ${KIND_DEST[k]}`).join(", "))}
 
 /* ---------- Pornire ---------- */
 load();
