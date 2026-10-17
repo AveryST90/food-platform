@@ -822,6 +822,43 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .missbox{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:14px;background:var(--danger-soft);border:1px solid color-mix(in srgb,var(--danger) 25%,transparent)}
 .missbox p{margin:0}
 
+/* ---------- Import cu AI ---------- */
+.aisheet code{font-size:13px;background:var(--soft);padding:1px 5px;border-radius:6px}
+.aiform textarea{min-height:170px;resize:vertical;font-size:15px;line-height:1.5}
+.aibar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aibar .btn{margin-left:auto}
+.aisteps{list-style:none;margin:6px 0;padding:16px 18px;display:flex;flex-direction:column;gap:12px;border-radius:16px;background:var(--green-soft)}
+.aisteps li{display:flex;align-items:center;gap:12px;color:var(--muted);font-weight:600}
+.aisteps li.now{color:var(--ink)}
+.aisteps li.done{color:var(--green-dk)}
+.aidot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid var(--line);flex:none}
+.aisteps li.done .aidot{background:var(--green);border-color:var(--green);color:#fff}
+.aisteps li.done .aidot .i{width:14px;height:14px}
+.aisteps li.now .aidot{border-color:var(--green)}
+.aispin{width:12px;height:12px;border-radius:50%;border:2px solid var(--green);border-right-color:transparent;animation:aispin .8s linear infinite}
+@keyframes aispin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.aispin{animation-duration:2.4s}}
+.aierr{display:flex;gap:10px;align-items:flex-start;background:var(--danger-soft);color:var(--danger);border-color:transparent}
+.aierr .i{flex:none;margin-top:2px}
+.aicard{display:flex;flex-direction:column;gap:20px;padding:20px;border-radius:22px;border:1px solid var(--line);background:linear-gradient(180deg,var(--green-soft),#fff 180px);margin-top:4px}
+.aihead{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:20px;align-items:start}
+.aimedia .rtile{border-radius:16px;overflow:hidden;aspect-ratio:4/3}
+.aiinfo{display:flex;flex-direction:column;gap:10px;min-width:0}
+.aiinfo h3{font-size:clamp(22px,3vw,28px);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0}
+.aiinfo p{margin:0}
+.aiinfo a{color:var(--green-dk);font-weight:600;word-break:break-word}
+.aicols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:24px}
+.aicols .h3{margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ilist .n small.ainote{color:var(--muted)}
+.ainut .cells{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ainut .cells div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center;display:flex;flex-direction:column}
+.ainut .cells b{font-size:18px}
+.ainut .cells span{font-size:12px;color:var(--muted)}
+.ainut p{margin:6px 0 0}
+.aiwarn ul{margin:4px 0 0;padding-left:18px}
+.aihist{margin-top:8px}
+@media (max-width:720px){.aihead,.aicols{grid-template-columns:minmax(0,1fr)}.aimedia{max-width:260px}.ainut .cells{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -2522,7 +2559,7 @@ ATAB_FN.rec=function(){const q=AQ.trim().toLowerCase();
  const l=S.recipes.filter(r=>(AST==="all"||(AST==="hid")===(r.status==="hid"))&&(!q||r.n.toLowerCase().includes(q)||r.i.some(x=>x[0].includes(q))));
  return `<div class="toolbar"><label class="search" style="max-width:280px">${I("search")}<input type="search" id="aq" placeholder="Caută în rețete…" value="${esc(AQ)}" oninput="AQ=this.value;draw();const e=$('aq');e.focus();e.setSelectionRange(e.value.length,e.value.length)" aria-label="Caută în rețete"></label>
   <div class="chips">${[["all","Toate"],["pub","Publicate"],["hid","Ascunse"]].map(([v,t])=>`<button class="chip" aria-pressed="${AST===v}" onclick="AST='${v}';draw()">${t}</button>`).join("")}</div>
-  <button class="btn primary" style="margin-left:auto" onclick="recEdit(null)">${I("plus")}Rețetă nouă</button></div>
+  <span class="rowacts" style="margin-left:auto"><button class="btn" onclick="aiImport()">${I("spark")}Import cu AI</button><button class="btn primary" onclick="recEdit(null)">${I("plus")}Rețetă nouă</button></span></div>
  <p class="small muted">${l.length} din ${S.recipes.length} rețete</p>
  ${l.length?`<div class="card tablewrap"><ul class="alist big">${l.map(r=>`<li><span class="thumb imgw">${tile(r)}${imgRepBtn("recipe",r.id,true)}</span>
   <span class="grow"><b>${esc(r.n)}</b>${r.status==="hid"?` <span class="tag">Ascunsă</span>`:""}<br><span class="small muted">${(r.cat||[]).join(", ")||"fără categorie"} · ${r.t} min · ${r.i.length} ingrediente</span></span>
@@ -2732,6 +2769,79 @@ function setMaint(v){if(!need("system")){draw();return}S.settings.maint=!!v;audi
 function showExport(){if(!need("system"))return;stash();openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Copie de siguranță</h2><p class="muted small">Include conturile (cu parolele criptate), rețetele, produsele, planurile și setările.</p><textarea id="expt" class="field mono" rows="12" readonly>${esc(exportData())}</textarea><div class="rowacts"><button class="btn sm" onclick="copyTxt('expt')">${I("copy")}Copiază</button></div></div>`,0)}
 function showImport(){if(!need("system"))return;openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Importă o copie</h2><p class="muted small">Lipește JSON-ul exportat înainte. Datele curente din acest browser sunt înlocuite.</p><textarea id="impt" class="field mono" rows="10" placeholder="{ ... }"></textarea><p class="err" id="imperr" role="alert"></p><div class="rowacts"><button class="btn primary" onclick="doImport()">Importă</button><button class="btn" onclick="closeModal()">Renunță</button></div></div>`,0,"#impt")}
 function doImport(){if(!need("system"))return;const e=importData($("impt").value);if(e){$("imperr").textContent=e;return}HASHREADY=ensureHashes();closeModal();draw();toast("Datele au fost importate")}
+
+/* =====================================================================
+   Import cu AI: textul sau linkul unei rețete -> server -> Claude -> JSON
+   -> rețetă salvată (ascunsă) în baza de date -> afișată aici
+   ===================================================================== */
+const AIX={busy:false,step:0,res:null,err:null,input:"",hist:null,status:null,timer:null};
+const AI_STEPS=["Citesc textul sau pagina","AI-ul extrage ingredientele, cantitățile și pașii","Verific datele și salvez rețeta în baza de date"];
+function aiImport(){if(!need("recipes"))return;AIX.err=null;
+ openModal(`<div class="sheet-b aisheet"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Import cu AI</p><h2 style="font-size:24px">Transformă orice text într-o rețetă</h2>
+  <p class="muted small">Lipește textul unei rețete (dintr-un mesaj, o carte, un document) sau linkul unei pagini. AI-ul o structurează: nume, ingrediente cu cantități, pași, porții, timp și valori nutriționale estimate. Rețeta se salvează ascunsă, ca s-o verifici înainte s-o publici.</p></div>
+  <div id="aibox">${aiInner()}</div></div>`,0,"#aitx");
+ if(SRV){aiHist();api("/ai/status").then(r=>{if(r.ok){AIX.status=r.data;aiDraw()}})}}
+function aiDraw(){const b=$("aibox");if(!b)return;const f=document.activeElement&&document.activeElement.id==="aitx";b.innerHTML=aiInner();if(f&&$("aitx")){const t=$("aitx");t.focus();t.setSelectionRange(t.value.length,t.value.length)}}
+function aiInner(){
+ if(!SRV)return `<div class="box honey"><p class="small"><b>Importul cu AI funcționează doar pe site-ul conectat la server</b> (GitHub Pages + Railway), pentru că textul se trimite la serviciul AI din server, unde stă cheia API. În această demonstrație nu este disponibil.</p></div>`;
+ const st=AIX.status,off=st&&!st.enabled,left=st?Math.max(0,st.dailyLimit-st.usedToday):null;
+ const form=`<form class="stack aiform" onsubmit="event.preventDefault();aiGo()">
+  <label class="lbl">Textul rețetei sau linkul<textarea id="aitx" class="field" rows="8" maxlength="40000" placeholder="ex. Ciorbă de perișoare&#10;500 g carne tocată, 80 g orez, 2 morcovi…&#10;&#10;sau un link: https://exemplu.md/reteta" oninput="AIX.input=this.value;$('aicnt').textContent=this.value.length.toLocaleString('ro-RO')+' / 40.000'" ${AIX.busy?"disabled":""}>${esc(AIX.input)}</textarea></label>
+  <div class="aibar"><span class="small muted" id="aicnt">${AIX.input.length.toLocaleString("ro-RO")} / 40.000</span>${left!=null?`<span class="small muted">· ${left} importuri rămase azi</span>`:""}${st&&st.enabled?`<span class="small muted">· ${st.provider==="gemini"?"Google Gemini":"Claude"}</span>`:""}
+   <button class="btn primary" ${AIX.busy||off?"disabled":""}>${I("spark")}${AIX.busy?"Se analizează…":"Analizează cu AI"}</button></div></form>`;
+ const offBox=off?`<div class="box honey"><p class="small"><b>Importul AI nu este configurat încă.</b> Administratorul trebuie să adauge variabila <code>GEMINI_API_KEY</code> (cheie gratuită din Google AI Studio) la serviciul <b>gusto-api</b> din Railway.</p></div>`:"";
+ const busy=AIX.busy?`<ol class="aisteps" aria-live="polite">${AI_STEPS.map((s,i)=>`<li class="${i<AIX.step?"done":i===AIX.step?"now":""}"><span class="aidot">${i<AIX.step?I("check"):i===AIX.step?`<span class="aispin"></span>`:""}</span>${s}</li>`).join("")}</ol>`:"";
+ const err=AIX.err?`<div class="box aierr" role="alert">${I("alarm")}<span>${esc(AIX.err)}</span></div>`:"";
+ const res=AIX.res?aiCard(AIX.res):"";
+ const hist=AIX.hist&&AIX.hist.length?`<div class="aihist"><p class="h3" style="font-size:15px">Importuri recente</p><ul class="alist flat">${AIX.hist.map(h=>`<li>
+   <span class="ic ${h.status==="ok"?"g":h.status==="not_recipe"?"h":"r"}">${I(h.kind==="url"?"share":"edit")}</span>
+   <span class="grow"><b>${esc(h.name||h.ainame||h.title||(h.status==="ok"?"Rețetă":"Fără rețetă"))}</b><br><span class="small muted">${esc(h.at)} · ${h.status==="ok"?(h.rstatus==="published"?"publicată":h.slug?"ascunsă":"ștearsă"):h.status==="not_recipe"?"nu era o rețetă":esc(h.error||"eroare")}${h.url?` · ${esc(h.url.replace(/^https?:\/\//,"").slice(0,40))}`:""}</span></span>
+   ${h.status==="ok"&&h.slug?`<button class="btn sm" onclick="aiOpen('${h.id}')">Vezi</button>`:""}</li>`).join("")}</ul></div>`:"";
+ return offBox+(AIX.res&&!AIX.busy?"":form)+busy+err+res+(AIX.busy?"":hist)}
+async function aiHist(){const r=await api("/ai/imports");if(r.ok){AIX.hist=r.data.imports;aiDraw()}}
+async function aiGo(){
+ const v=($("aitx")?$("aitx").value:AIX.input).trim();AIX.input=v;
+ if(!v){AIX.err="Lipește textul rețetei sau un link.";return aiDraw()}
+ if(!/^https?:\/\/\S+$/i.test(v)&&v.length<40){AIX.err="Textul este prea scurt pentru o rețetă.";return aiDraw()}
+ AIX.busy=true;AIX.err=null;AIX.res=null;AIX.step=0;aiDraw();
+ clearInterval(AIX.timer);AIX.timer=setInterval(()=>{if(AIX.step<AI_STEPS.length-1){AIX.step++;aiDraw()}},2600);
+ const r=await api("/ai/recipe",{method:"POST",body:{input:v}});
+ clearInterval(AIX.timer);AIX.busy=false;
+ if(r.ok&&r.data&&r.data.import){AIX.res=r.data.import;AIX.input="";recSet(r.data.import.recipe);persist();toast("Rețeta a fost importată și salvată (ascunsă)")}
+ else AIX.err=(r.data&&r.data.error)||"Importul nu a reușit. Încearcă din nou.";
+ if(AIX.status&&r.status!==400&&r.status!==429)AIX.status.usedToday++;
+ aiDraw();aiHist();if(S.page==="admin")draw()}
+async function aiOpen(id){const r=await api("/ai/imports/"+encodeURIComponent(id));if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut deschide importul.");
+ AIX.res=r.data.import;AIX.err=null;aiDraw();const b=$("aibox");if(b)b.scrollIntoView({block:"start"})}
+function aiAgain(){AIX.res=null;AIX.err=null;aiDraw();setTimeout(()=>$("aitx")&&$("aitx").focus())}
+function aiCard(im){const r=im.recipe,j=im.result||{};if(!r)return `<div class="box">Rețeta din acest import a fost ștearsă.</div>`;
+ const byName=Object.fromEntries((j.ingredients||[]).map(x=>[x.name,x]));
+ const pub=r.status!=="hid",src=im.source||{};
+ return `<article class="aicard">
+ <div class="aihead"><div class="aimedia">${tile(r)}</div>
+  <div class="aiinfo"><p class="eyebrow">${I("spark")} Importat cu AI · ${pub?"publicată":"ascunsă până o publici"}</p>
+   <h3>${esc(r.n)}</h3>${r.d?`<p class="muted">${esc(r.d)}</p>`:""}
+   <div class="facts"><span class="fact">${I("clock")}${r.t} min</span><span class="fact">${I("level")}${esc(r.dif)}</span><span class="fact">${I("users")}${r.por} porții</span>${r.veg?`<span class="fact">${I("leaf")}Vegetariană</span>`:""}</div>
+   ${(r.cat||[]).length?`<div class="chips">${r.cat.map(c=>`<span class="tag">${esc(c)}</span>`).join("")}</div>`:""}
+   <p class="small muted">${src.kind==="url"&&src.url?`Sursa: <a href="${esc(src.url)}" target="_blank" rel="noopener noreferrer">${esc(src.title||src.url)}</a>`:"Sursa: text lipit"}${j.source_language&&!/^ro/i.test(j.source_language)?` · tradusă din ${esc(j.source_language)}`:""}</p></div></div>
+ <div class="aicols">
+  <div><p class="h3">Ingrediente <span class="badge">${r.i.length}</span></p><ul class="ilist">${r.i.map(([n,q,u])=>{const x=byName[n];return `<li>${thumb(n)}<span class="n">${esc(n)}${x&&x.note?`<small class="ainote">${esc(x.note)}</small>`:""}</span><span class="q">${fmtQ(q,u)}</span></li>`}).join("")}</ul></div>
+  <div><p class="h3">Preparare</p><ol class="steps">${r.s.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ol></div></div>
+ <div class="ainut"><div class="cells"><div><b>${r.k}</b><span>kcal</span></div><div><b>${r.p} g</b><span>proteine</span></div><div><b>${r.c} g</b><span>carbohidrați</span></div><div><b>${r.f} g</b><span>grăsimi</span></div></div>
+  <p class="small muted">Pe porție${j.nutrition_estimated!==false?" · valori estimate de AI":""}</p></div>
+ ${(j.warnings||[]).length?`<div class="box honey aiwarn"><p class="small"><b>De verificat:</b></p><ul>${j.warnings.map(w=>`<li class="small">${esc(w)}</li>`).join("")}</ul></div>`:""}
+ <div class="rowacts">${pub?`<button class="btn primary" onclick="closeModal();openRecipe('${r.id}')">${I("arrow")}Deschide rețeta</button>`:`<button class="btn primary" onclick="aiPublish('${r.id}')">${I("check")}Publică rețeta</button>`}
+  <button class="btn" onclick="closeModal();recEdit('${r.id}')">${I("edit")}Editează</button>
+  <button class="btn" onclick="aiAgain()">${I("spark")}Importă alta</button>
+  <button class="btn danger" onclick="aiDel('${r.id}')">${I("trash")}Șterge</button></div></article>`}
+function aiPublish(id){if(!need("recipes"))return;let r=byId(id);if(!r&&AIX.res){recSet(AIX.res.recipe);r=byId(id)}if(!r)return;
+ r.status="pub";save();recPut(r);if(AIX.res&&AIX.res.recipe.id===id)AIX.res.recipe.status="pub";aiDraw();toast("Rețeta a fost publicată");setTimeout(aiHist,1200)}
+function aiDel(id){if(!need("recipes"))return;
+ if(!confirmAi(id))return}
+function confirmAi(id){const r=byId(id)||(AIX.res&&AIX.res.recipe);if(!r)return false;
+ const b=$("aibox");if(!b)return false;
+ b.querySelector(".aicard .rowacts").innerHTML=`<span class="small"><b>Ștergi „${esc(r.n)}”?</b> Se șterge definitiv.</span><button class="btn danger sm" onclick="aiDelGo('${r.id}')">Da, șterge</button><button class="btn sm" onclick="aiDraw()">Renunță</button>`;return true}
+function aiDelGo(id){S.recipes=S.recipes.filter(x=>x.id!==id);save();socOp("DELETE","/recipes/"+encodeURIComponent(id));AIX.res=null;aiDraw();toast("Rețeta a fost ștearsă");setTimeout(aiHist,1200);if(S.page==="admin")draw()}
 
 /* ---------- Pagina Familie ---------- */
 PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
