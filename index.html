@@ -991,6 +991,23 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .pkcmp td:not(:first-child),.pkcmp th:not(:first-child){text-align:center}
 .plan li.pinc{color:var(--green-dk)}
 
+/* ---------- Coș pentru orice produs, Casă și igienă ---------- */
+.buybar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:var(--green-soft);color:var(--ink);font-size:14px}
+.buybar>.i{color:var(--green)}
+.buybar>span{flex:1;min-width:200px}
+.buybar .link{display:inline-flex;align-items:center;gap:4px}
+.skh{margin:6px 0 0;display:flex;align-items:center;gap:6px;min-height:18px}
+.skh .i{width:16px;height:16px;color:var(--green)}
+.srow .dest{color:var(--green-dk);font-weight:600}
+.tph.k-house,.tph.k-hyg{display:grid;place-items:center}
+.tph.k-house{background:#e6eef8;color:#2f5f93}
+.tph.k-hyg{background:#f6e8f1;color:#8a3c6b}
+.tph.k-house .i,.tph.k-hyg .i{width:20px;height:20px}
+.slist.k-house .fcol-h .i{color:#2f5f93}.slist.k-hyg .fcol-h .i{color:#8a3c6b}
+.fcol-h .i{width:18px;height:18px;margin-right:6px;vertical-align:-3px}
+.hcols{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.hcol .frow .iconbtn{width:34px;height:34px}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -1058,7 +1075,7 @@ const I=(n,cls="")=>`<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true
 
 
 /* ---------- Pictograme suplimentare ---------- */
-Object.assign(PATHS,{
+Object.assign(PATHS,{spray:'<path d="M9 7h5l1 3v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10z"/><path d="M10 7V4h3v3M13 4h3l2 1.5M19 8h.01M21 6h.01M21 10h.01"/>',drop:'<path d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/>',
 user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6"/>',
 login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>',
 logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
@@ -1092,7 +1109,7 @@ const ICON_LIST=["avocado", "bacon", "bagel", "baguette_bread", "banana", "beans
 /* ---------- Date inițiale ---------- */
 const CATS=["Legume","Fructe","Lactate","Carne","Cereale","Condimente","Băuturi","Altele"];
 const CATT={"Legume":"Legume și verdețuri","Fructe":"Fructe","Lactate":"Lactate și ouă","Carne":"Carne și pește","Cereale":"Cereale și panificație","Condimente":"Condimente și uleiuri","Băuturi":"Băuturi","Altele":"Altele"};
-const UNITS=["buc","g","kg","ml","l","cap","legătură","conservă","felii","linguri","căței"];
+const UNITS=["buc","g","kg","ml","l","cap","legătură","conservă","felii","linguri","căței","pachet","sticlă","rolă","tub","cutie"];
 const MEALS=["Mic dejun","Prânz","Cină"];
 const RCATS_ALL=["Mic dejun","Prânz","Cină","Desert"];
 // Produs: [nume, categorie, pictogramă, preț estimat (MDL), unitatea prețului]
@@ -1274,8 +1291,8 @@ let ED=null;          // ciorna editorului vizual
 let POP=null;         // popover deschis
 let HASHREADY=Promise.resolve();
 const PERSIST=["v","uid","page","accounts","ud","recipes","products","home","theme","txt","plans","limit","blocked","settings","audit","rcat","sort","fcat","detail","addOpen","hideDemo","myIp","atab","anSub","families","invites","coach","srv","srvUsed"];
-const UK=["rev","pend","fridge","shop","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
-const freshUD=()=>({rev:0,pend:0,fridge:[],shop:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
+const UK=["rev","pend","fridge","shop","home","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
+const freshUD=()=>({rev:0,pend:0,fridge:[],shop:[],home:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
 
 function demoLog(){let s=7;const rnd=()=>(s=(s*9301+49297)%233280)/233280;const out=[];
  const N=[["roșii","Legume",35],["lapte","Lactate",22],["pâine","Cereale",10],["salată verde","Legume",18],["iaurt","Lactate",20],["piept de pui","Carne",60],["spanac","Legume",18],["banane","Fructe",15],["cașcaval","Lactate",34],["ouă","Lactate",12]];
@@ -1286,15 +1303,16 @@ function demoUD(){const m=monday(),plan={};
  return{fridge:[["roșii",500,"g",1],["salată verde",1,"buc",3],["spanac",200,"g",4],["ardei gras",3,"buc",5],["morcovi",400,"g",7],["ceapă",4,"buc",20],["usturoi",1,"cap",25],
   ["lapte",1,"l",1],["ouă",10,"buc",4],["cașcaval",250,"g",6],["iaurt",500,"g",8],["unt",200,"g",10],["piept de pui",600,"g",2],["somon",400,"g",4],["carne tocată",500,"g",6],["crenvurști",300,"g",8],
   ["mere",4,"buc",9],["lămâie",2,"buc",14],["suc de portocale",1,"l",7],["pâine",1,"buc",2],["paste",500,"g",5],["ulei de măsline",250,"ml",12]].map(([n,q,u,d])=>({n,q,u,x:inDays(d),s:false})),
-  shop:[{n:"avocado",q:2,u:"buc",d:false},{n:"fructe de pădure",q:200,u:"g",d:false},{n:"făină",q:1,u:"kg",d:false},{n:"busuioc",q:1,u:"legătură",d:true}],
+  shop:[{n:"avocado",q:2,u:"buc",d:false},{n:"fructe de pădure",q:200,u:"g",d:false},{n:"făină",q:1,u:"kg",d:false},{n:"detergent de vase",q:1,u:"sticlă",d:false,k:"house"},{n:"pastă de dinți",q:1,u:"tub",d:false,k:"hyg"}],
+  home:[{n:"hârtie igienică",q:4,u:"rolă",k:"house"},{n:"detergent de rufe",q:1,u:"pachet",k:"house"},{n:"șampon",q:1,u:"sticlă",k:"hyg"},{n:"săpun",q:2,u:"buc",k:"hyg"}],
   fav:["shakshuka","supa-rosii"],plan,pdays:demoPdays(plan),viewed:[],viewedMonth:"",sel:[],demo:true,log:demoLog()}}
 const initUD=uid=>(ACC_SEED.some(a=>a.id===uid)&&uid!=="u-vlad")?demoUD():freshUD();
 const udKey=()=>S.uid||"_v";
 let FAMLINK=null;   // id-ul familiei al cărei frigider comun e afișat acum
 function stash(){if(!S.ud)return;const d=S.ud[udKey()]||(S.ud[udKey()]={});const f=!SRV&&FAMLINK&&(S.families||[]).find(x=>x.id===FAMLINK);
- UK.forEach(k=>{if(k==="fridge"&&f){f.fridge=S.fridge;return}d[k]=S[k]})}
+ UK.forEach(k=>{if(k==="fridge"&&f){f.fridge=S.fridge;return}if(k==="home"&&f){f.home=S.home;return}d[k]=S[k]})}
 function unstash(uid){const key=uid||"_v",d=S.ud[key]||(S.ud[key]=uid?initUD(uid):freshUD()),f=freshUD();UK.forEach(k=>{S[k]=d[k]!==undefined?d[k]:f[k]});
- FAMLINK=null;const fam=!SRV&&uid&&sharesFridge(uid)?famOf(uid):null;if(fam){fam.fridge=fam.fridge||[];S.fridge=fam.fridge;FAMLINK=fam.id}}
+ FAMLINK=null;const fam=!SRV&&uid&&sharesFridge(uid)?famOf(uid):null;if(fam){fam.fridge=fam.fridge||[];S.fridge=fam.fridge;fam.home=fam.home||[];S.home=fam.home;FAMLINK=fam.id}}
 
 function seedState(){
  const prods={};PROD_SEED.forEach(([n,c,i,p,u])=>{prods[n]={cat:c,img:i,p,u}});
@@ -1549,7 +1567,8 @@ function famRename(name){const m=ME(),f=m&&famOf(m.id);name=String(name||"").tri
 function famSetShare(on,copyMine){const m=famNeed();if(!m)return false;const f=famOf(m.id);if(!f)return deny("Nu faci parte dintr-o familie.");
  famRelink(()=>{m.famShare=!!on;
   if(on&&copyMine){const mine=(S.ud[m.id]||{}).fridge||[];f.fridge=f.fridge||[];
-   mine.forEach(it=>{const ex=f.fridge.find(x=>x.n===it.n&&x.u===it.u);if(ex){ex.q=+ex.q+(+it.q||0);if(it.x&&(!ex.x||it.x<ex.x))ex.x=it.x}else f.fridge.push({...it,s:false})})}});
+   mine.forEach(it=>{const ex=f.fridge.find(x=>x.n===it.n&&x.u===it.u);if(ex){ex.q=+ex.q+(+it.q||0);if(it.x&&(!ex.x||it.x<ex.x))ex.x=it.x}else f.fridge.push({...it,s:false})});
+   const mh=(S.ud[m.id]||{}).home||[];f.home=f.home||[];mh.forEach(it=>{const ex=f.home.find(x=>x.n===it.n&&x.u===it.u&&x.k===it.k);if(ex)ex.q=+ex.q+(+it.q||0);else f.home.push({...it})})}});
  save();return true}
 function famSetOff(off){const m=ME();if(!m)return false;
  famRelink(()=>{if(off){famDetach(m.id);S.invites=S.invites.filter(i=>i.to!==m.id)}m.famOff=!!off});save();return true}
@@ -1713,19 +1732,19 @@ const usedN=()=>SRV&&S.srvUsed!=null?S.srvUsed:S.viewed.length;
 /* ---------- Sincronizarea datelor personale (frigider, liste, favorite, planificator, anti-risipă) ---------- */
 const SYNC={timer:null,busy:false,dirty:false,pulling:false,ready:false,sig:"",fails:0};
 const syncOn=()=>SRV&&!!getTok()&&!!ME();
-const syncSig=()=>JSON.stringify([S.fridge,S.shop,S.fav,S.plan,S.pdays,S.log.filter(e=>!e.s&&!e.demo).length]);
+const syncSig=()=>JSON.stringify([S.fridge,S.shop,S.home||[],S.fav,S.plan,S.pdays,S.log.filter(e=>!e.s&&!e.demo).length]);
 function srvDirty(){if(!syncOn()||SYNC.pulling||!SYNC.ready)return;
  if(syncSig()===SYNC.sig)return;                 // s-a schimbat doar aspectul/pagina, nu datele
  SYNC.dirty=true;if(!S.pend){S.pend=1;persist()}clearTimeout(SYNC.timer);SYNC.timer=setTimeout(srvPush,1200)}
 function applySnap(d){
- S.fridge=d.fridge||[];S.shop=d.shop||[];S.fav=d.fav||[];S.plan=d.plan||{};S.pdays=d.pdays||{};
+ S.fridge=d.fridge||[];S.shop=d.shop||[];S.home=d.home||[];S.fav=d.fav||[];S.plan=d.plan||{};S.pdays=d.pdays||{};
  S.log=[...(d.log||[]),...S.log.filter(e=>!e.s&&!e.demo)];S.rev=d.rev||0;
  SYNC.sig=syncSig()}
 async function srvPush(){
  if(!syncOn()||SYNC.busy||!SYNC.dirty)return;
  SYNC.busy=true;SYNC.dirty=false;
  const sent=S.log.filter(e=>!e.s&&!e.demo).slice(-500);
- const body={rev:S.rev||0,fridge:S.fridge,shop:S.shop,fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:sent};
+ const body={rev:S.rev||0,fridge:S.fridge,shop:S.shop,home:S.home||[],fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:sent};
  const r=await api("/me/data",{method:"PUT",body});
  SYNC.busy=false;
  if(r.ok){SYNC.fails=0;S.rev=r.data.rev;sent.forEach(e=>e.s=1);SYNC.sig=syncSig();if(!SYNC.dirty)S.pend=0;persist();if(SYNC.dirty)srvDirty();return}
@@ -1740,7 +1759,7 @@ async function srvPull(force){
  SYNC.pulling=true;const r=await api("/me/data"+(force?"":"?rev="+(S.rev||0)));SYNC.pulling=false;
  if(!r.ok)return false;
  if(r.data.unchanged){SYNC.ready=true;if(S.pend){SYNC.dirty=true;srvPush()}return false}
- const local=(S.fridge.length+S.shop.length+S.fav.length+Object.keys(S.plan).length)>0;
+ const local=(S.fridge.length+S.shop.length+(S.home||[]).length+S.fav.length+Object.keys(S.plan).length)>0;
  if((r.data.rev||0)===0&&local){SYNC.ready=true;S.rev=0;SYNC.sig="";srvDirty();return false}   // prima sincronizare: urcă ce există deja local
  if(S.pend){SYNC.ready=true;SYNC.dirty=true;srvPush();return false}   // modificări rămase nesalvate dintr-o sesiune anterioară (offline): încearcă să le urce
  applySnap(r.data);S.pend=0;SYNC.ready=true;persist();return true}
@@ -1749,7 +1768,7 @@ async function srvRefresh(){if(!syncOn()||editing())return;const a=await srvPull
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)srvRefresh()});
 window.addEventListener("online",()=>{if(SYNC.dirty)srvPush();else srvRefresh()});
 setInterval(()=>{if(!document.hidden)srvRefresh()},60000);
-window.addEventListener("pagehide",()=>{if(SYNC.dirty&&syncOn()){try{fetch(API_URL+"/api/me/data",{method:"PUT",keepalive:true,headers:{"Content-Type":"application/json",Authorization:"Bearer "+getTok()},body:JSON.stringify({rev:S.rev||0,fridge:S.fridge,shop:S.shop,fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:S.log.filter(e=>!e.s&&!e.demo).slice(-500)})})}catch(e){}}});
+window.addEventListener("pagehide",()=>{if(SYNC.dirty&&syncOn()){try{fetch(API_URL+"/api/me/data",{method:"PUT",keepalive:true,headers:{"Content-Type":"application/json",Authorization:"Bearer "+getTok()},body:JSON.stringify({rev:S.rev||0,fridge:S.fridge,shop:S.shop,home:S.home||[],fav:S.fav,plan:S.plan,pdays:S.pdays,logAdd:S.log.filter(e=>!e.s&&!e.demo).slice(-500)})})}catch(e){}}});
 
 
 /* ---------- Familie, antrenor, meniuri, calendar: datele sunt pe server ---------- */
@@ -1910,7 +1929,8 @@ const planL=u=>RANK[u.role]>=2?ROLE_L[u.role]:u.role==="trainer"?"Antrenor"+(has
 function thumb(n,cls=""){const p=prod(n);return p.img?`<img class="${cls}" src="${IM("img/"+p.img+".png")}" alt="" loading="lazy" width="40" height="40">`:`<span class="tph ${cls}">${esc((n||"?")[0].toUpperCase())}</span>`}
 function rsrc(r){if(r.photo)return{u:r.photo,photo:true};if(r.ph)return{u:IM(`photo/${r.ph}.jpg`),photo:true};if(r.img)return{u:IM(`img/${r.img}.png`),photo:false};return null}
 function tile(r){const s=rsrc(r);return `<div class="rtile">${!s?`<span class="ph">${esc((r.n||"?")[0])}</span>`:s.photo?`<img class="photo" src="${s.u}" alt="${esc(r.n)}" loading="lazy">`:`<img class="ill" src="${s.u}" alt="${esc(r.n)}" loading="lazy">`}</div>`}
-const fmtQ=(q,u)=>q===""||q==null?esc(u||""):`${num(q)} ${esc(u||"")}`;
+const UPL={pachet:"pachete",sticlă:"sticle",rolă:"role",tub:"tuburi",cutie:"cutii",conservă:"conserve"};
+const fmtQ=(q,u)=>q===""||q==null?esc(u||""):`${num(q)} ${esc(+q!==1&&UPL[u]?UPL[u]:u||"")}`;
 function expLabel(x){const d=daysLeft(x);if(d==null)return"";const c=d<=2?"d":d<=5?"w":"o";
  const t=d<0?"Expirat":d==0?"Expiră azi":d==1?"Expiră mâine":`Expiră în ${d} zile`;return `<span class="exp ${c}">${t}</span>`}
 function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
@@ -1928,11 +1948,11 @@ function togFav(id){if(!ME()){toast("Autentifică-te ca să salvezi rețete la f
 function togSel(n){const k=S.sel.indexOf(n);k<0?S.sel.push(n):S.sel.splice(k,1);save();draw()}
 
 /* ---------- Navigare ---------- */
-const NAV=[["acasa","Acasă","home"],["retete","Rețete","grid"],["frigider","Frigider","fridge"],["lista","Cumpărături","cart"],["plan","Planificator","cal"],["fav","Favorite","heart"],["stats","Anti-risipă","chart"],["premium","Premium","crown"]];
+const NAV=[["acasa","Acasă","home"],["retete","Rețete","grid"],["frigider","Frigider","fridge"],["casa","Casă și igienă","spray"],["lista","Cumpărături","cart"],["plan","Planificator","cal"],["fav","Favorite","heart"],["stats","Anti-risipă","chart"],["premium","Premium","crown"]];
 const BNAV=[["acasa","Acasă","home"],["retete","Rețete","grid"],["frigider","Frigider","fridge"],["lista","Listă","cart"],["plan","Plan","cal"]];
-const NEEDLOGIN=["frigider","lista","plan","fav","stats","cont","familie","antrenor"];
+const NEEDLOGIN=["frigider","casa","lista","plan","fav","stats","cont","familie","antrenor"];
 const PAGES={};
-const GATE={frigider:["fridge","Frigiderul tău, mereu la îndemână","Adaugă ingredientele, urmărește datele de expirare și vezi imediat ce poți găti. Ai nevoie de un cont gratuit."],
+const GATE={casa:["spray","Casă și igienă","Detergenții, hârtia igienică, șamponul și pasta de dinți, ținute la zi. Le bifezi în lista de cumpărături și ajung singure aici. Ai nevoie de un cont gratuit."],frigider:["fridge","Frigiderul tău, mereu la îndemână","Adaugă ingredientele, urmărește datele de expirare și vezi imediat ce poți găti. Ai nevoie de un cont gratuit."],
  lista:["cart","Liste de cumpărături inteligente","Adaugă ce îți lipsește direct din rețete și mută cumpărăturile în frigider. Ai nevoie de un cont gratuit."],
  plan:["cal","Planificator de mese","Organizează mesele săptămânii după ce ai în frigider. Ai nevoie de un cont gratuit."],
  fav:["heart","Rețetele tale favorite","Salvează rețetele preferate și le găsești oricând aici. Ai nevoie de un cont gratuit."],
@@ -1998,7 +2018,7 @@ function drawPop(){const p=$("pop");if(!POP){p.hidden=true;p.innerHTML="";return
  const pl=premLeft(me);
  p.innerHTML=`<div class="pop"><div class="row"><span class="avatar">${esc(initials(me.name))}</span><span><b>${esc(me.name)}</b><br><span class="muted small">${esc(me.email)}</span></span></div>
   <div class="chips"><span class="tag">${esc(ROLE_L[me.role])}</span>${hasPrem(me)&&RANK[me.role]<2?`<span class="tag honey">Premium${pl!=null?` · ${pl} zile`:""}</span>`:""}</div><hr>
-  <button class="menu" onclick="go('cont')">${I("user")}Contul meu</button><button class="menu" onclick="POP=null;openProfile(S.uid)">${I("users")}Profilul meu public</button><button class="menu" onclick="go('fav')">${I("heart")}Favorite</button><button class="menu" onclick="go('stats')">${I("chart")}Anti-risipă</button><button class="menu" onclick="go('familie')">${I("users")}Familie</button>${(isTrainer()||isStudent())?`<button class="menu" onclick="go('antrenor')">${I("dumbbell")}${isTrainer()?"Cabinet antrenor":"Antrenorul meu"}</button>`:""}<button class="menu" onclick="go('premium')">${I("crown")}Abonament Premium</button>
+  <button class="menu" onclick="go('cont')">${I("user")}Contul meu</button><button class="menu" onclick="POP=null;openProfile(S.uid)">${I("users")}Profilul meu public</button><button class="menu" onclick="go('fav')">${I("heart")}Favorite</button><button class="menu" onclick="go('casa')">${I("spray")}Casă și igienă</button><button class="menu" onclick="go('stats')">${I("chart")}Anti-risipă</button><button class="menu" onclick="go('familie')">${I("users")}Familie</button>${(isTrainer()||isStudent())?`<button class="menu" onclick="go('antrenor')">${I("dumbbell")}${isTrainer()?"Cabinet antrenor":"Antrenorul meu"}</button>`:""}<button class="menu" onclick="go('premium')">${I("crown")}Abonament Premium</button>
   ${isStaff()?`<button class="menu" onclick="go('admin')">${I("shield")}Administrare</button>`:""}${can("frontend")?`<button class="menu" onclick="POP=null;edStart()">${I("layout")}Editează pagina principală</button>`:""}<hr>
   <button class="menu" onclick="doLogout()">${I("logout")}Ieșire din cont</button>
   ${SRV?"":`<button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button>`}</div>`}
@@ -2390,7 +2410,7 @@ function addMissing(id){if(!ME()){authModal("register");return 0}if(!feat("auto_
  lacks(r).forEach(x=>{const q=x.miss!=null?x.miss:"",u=x.miss!=null?(x.u||""):"";
   const ex=S.shop.find(s=>s.n===x.n&&!s.d);
   if(ex){if(q!==""&&(ex.u||"")===u&&(+ex.q||0)<q){ex.q=q;k++;cats[prod(x.n).cat]=(cats[prod(x.n).cat]||0)+1}return}
-  S.shop.push({n:x.n,q,u,d:false});k++;const c=prod(x.n).cat||"Altele";cats[c]=(cats[c]||0)+1});
+  S.shop.push({n:x.n,q,u,d:false,k:"food"});k++;const c=prod(x.n).cat||"Altele";cats[c]=(cats[c]||0)+1});
  save();
  const sum=CATS.filter(c=>cats[c]).map(c=>`${c} ${cats[c]}`).join(", ");
  const b=$("missBtn");if(b){b.innerHTML=I("check")+(k?`Am adăugat ${k} pe listă`:"Sunt deja pe listă");b.disabled=true}
@@ -2460,22 +2480,26 @@ function tossExpired(){const ex=S.fridge.filter(f=>f.x&&daysLeft(f.x)<0);ex.forE
 /* ---------- Cumpărături ---------- */
 PAGES.lista=function(){
  const todo=S.shop.filter(s=>!s.d),done=S.shop.filter(s=>s.d),est=todo.reduce((a,s)=>a+value(s),0);
- const inF=S.shop.filter(s=>!s.d&&inFridge(s.n)).length;
- const row=s=>{const i=S.shop.indexOf(s);return `<div class="srow ${s.d?"done":""}"><input type="checkbox" id="sh${i}" ${s.d?"checked":""} onchange="S.shop[${i}].d=this.checked;save();draw()">${thumb(s.n)}
-  <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&inFridge(s.n)?" · ai deja în frigider":""}</span></label>
+ const inF=S.shop.filter(s=>!s.d&&itemKind(s)==="food"&&inFridge(s.n)).length;
+ const row=s=>{const i=S.shop.indexOf(s),k=itemKind(s);return `<div class="srow ${s.d?"done":""}"><input type="checkbox" id="sh${i}" ${s.d?"checked":""} onchange="buyItem(${i},this.checked)" aria-label="Procurat: ${esc(s.n)} (merge în ${KIND_DEST[k]})">${k==="food"?thumb(s.n):`<span class="tph k-${k}">${I(KIND_IC[k])}</span>`}
+  <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&k==="food"&&inFridge(s.n)?" · ai deja în frigider":""}${s.d?"":` · <span class="dest">→ ${KIND_DEST[k]}</span>`}</span></label>
   <button class="iconbtn" onclick="S.shop.splice(${i},1);save();draw()" aria-label="Șterge ${esc(s.n)}">${I("x")}</button></div>`};
  return pagehead("Lista de cumpărături",`${esc(txt("shopSub"))} · ${todo.length} de cumpărat, aproximativ ${Math.round(est)} MDL`,
   `<button class="btn" onclick="shareList()">${I("share")}Partajează</button>${feat("auto_shopping")?`<button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`:lockBtn("auto_shopping","Importă din rețetă","")}`)+
- `<form class="card addpanel" onsubmit="addShop(event)"><div class="form"><label class="lbl grow">Produs<input id="sn" class="field" list="dlp4" required placeholder="ex. lapte"><datalist id="dlp4">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
+ `<form class="card addpanel" onsubmit="addShop(event)"><div class="form"><label class="lbl grow">Produs<input id="sn" class="field" list="dlp4" required maxlength="80" placeholder="ex. lapte, detergent de vase, șampon" oninput="shopKindHint()"><datalist id="dlp4">${[...allProducts(),...HOUSE_SUG,...HYG_SUG].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
   <label class="lbl">Cantitate<input id="sq" class="field w90" type="number" min="0" step="any" placeholder="1"></label>
-  <label class="lbl">Unitate<select id="su" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label><button class="btn primary">${I("plus")}Adaugă</button></div></form>
+  <label class="lbl">Unitate<select id="su" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label>
+  <label class="lbl">Tip<select id="sk" class="field" onchange="shopKindHint()"><option value="">Automat</option>${Object.entries(KIND_L).map(([k,l])=>`<option value="${k}">${l}</option>`).join("")}</select></label><button class="btn primary">${I("plus")}Adaugă</button></div><p class="small muted skh" id="skh" aria-live="polite"></p></form>
+ ${lastBuyBar()}
  ${inF?`<div class="suggest">${I("fridge")}<span><b>${inF} ${inF===1?"produs e":"produse sunt"} deja în frigider.</b></span><button class="btn sm" onclick="S.shop=S.shop.filter(s=>s.d||!inFridge(s.n));save();draw();toast('Am eliminat produsele pe care le ai')">Elimină-le din listă</button></div>`:""}
- ${S.shop.length?`<div class="scols">${CATS.map(c=>{const it=todo.filter(s=>prod(s.n).cat===c);return it.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">${CATT[c]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
+ ${S.shop.length?`<p class="small muted">Bifează un produs când l-ai cumpărat: alimentele merg în Frigider, curățenia în Pentru casă, igiena în Igienă personală.</p><div class="scols">${CATS.map(c=>{const it=todo.filter(s=>itemKind(s)==="food"&&prod(s.n).cat===c);return it.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">${CATT[c]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
+  ${["house","hyg"].map(k=>{const it=todo.filter(s=>itemKind(s)===k);return it.length?`<div class="card slist k-${k}"><div class="fcol-h" style="padding-top:12px">${I(KIND_IC[k])}${KIND_L[k]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
   ${done.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">În coș<span class="badge">${done.length}</span></div>${done.map(row).join("")}
-   <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 0"><button class="btn primary sm" onclick="toFridge()">${I("fridge")}Mută în frigider</button><button class="btn sm" onclick="S.shop=S.shop.filter(s=>!s.d);save();draw()">Șterge din listă</button></div></div>`:""}</div>`
+   <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 0"><button class="btn primary sm" onclick="routeDone()">${I("checkc")}Distribuie în locurile lor</button><button class="btn sm" onclick="S.shop=S.shop.filter(s=>!s.d);save();draw()">Șterge din listă</button></div></div>`:""}</div>`
  :`<div class="empty"><img src="${IM("img/red_apple.png")}" alt="">Lista e goală. Adaugă produse sau importă ingredientele lipsă dintr-o rețetă.</div>`}
  ${prem()?"":`<div class="card hint"><span class="ic g">${I("users")}</span><span style="flex:1;min-width:200px"><b>Liste partajate cu familia</b><br><span class="small muted">În versiunea cu server, Premium va sincroniza lista pentru toți membrii familiei.</span></span><button class="btn sm" onclick="go('premium')">${I("crown")}Află mai mult</button></div>`}`};
-function addShop(e){e.preventDefault();const n=$("sn").value.trim().toLowerCase();if(!n)return;S.shop.push({n,q:$("sq").value?+$("sq").value:"",u:$("sq").value?$("su").value:"",d:false});save();draw();setTimeout(()=>$("sn")&&$("sn").focus())}
+function addShop(e){e.preventDefault();const n=$("sn").value.trim().toLowerCase().slice(0,80);if(!n)return;const k=$("sk").value||kindOf(n);
+ const it={n,q:$("sq").value?+$("sq").value:"",u:$("sq").value?$("su").value:"",d:false};if(k!=="food")it.k=k;S.shop.push(it);save();draw();toast(`${n} · la bifare merge în ${KIND_DEST[k]}`);setTimeout(()=>$("sn")&&$("sn").focus())}
 function toFridge(){const d=S.shop.filter(s=>s.d);d.forEach(s=>{const f=S.fridge.find(x=>x.n===s.n&&x.u===s.u);if(f&&s.q)f.q=+f.q+(+s.q);else if(!f)S.fridge.push({n:s.n,q:s.q||1,u:s.u||"buc",x:inDays(7),s:false})});
  S.shop=S.shop.filter(s=>!s.d);S.demo=false;save();draw();toast(`${d.length} produse mutate în frigider`)}
 function shareList(){const t=`Lista de cumpărături ${String(S.theme.brand||"Gusto")}:\n`+S.shop.filter(s=>!s.d).map(s=>`- ${s.n}${s.q?` (${num(s.q)} ${s.u})`:""}`).join("\n");
@@ -2509,7 +2533,7 @@ function autoPlan(){if(!feat("auto_plan"))return featLocked("auto_plan");
   if(c[0]){S.plan[k+"|"+m]=c[0].id;used.add(c[0].id);n++}}));
  save();draw();toast(n?`Am completat ${n} mese, după ce ai în frigider`:"Săptămâna e deja planificată")}
 function planShop(){if(!feat("auto_shopping"))return featLocked("auto_shopping");const A=avail(),need={};Object.entries(S.plan).forEach(([k,id])=>{const d=new Date(k.split("|")[0]+"T00:00");if(d<monday()||d>addD(monday(),6))return;const r=rec(id);r&&r.i.forEach(([n,q,u])=>{if(!A.has(n)){need[n]=need[n]||{q:0,u};if(need[n].u===u&&typeof q==="number")need[n].q+=q}})});
- let k=0;Object.entries(need).forEach(([n,v])=>{if(!S.shop.some(s=>s.n===n&&!s.d)){S.shop.push({n,q:v.q||"",u:v.q?v.u:"",d:false});k++}});save();draw();toast(k?`Am adăugat ${k} produse pe listă`:"Ai deja tot ce trebuie")}
+ let k=0;Object.entries(need).forEach(([n,v])=>{if(!S.shop.some(s=>s.n===n&&!s.d)){S.shop.push({n,q:v.q||"",u:v.q?v.u:"",d:false,k:"food"});k++}});save();draw();toast(k?`Am adăugat ${k} produse pe listă`:"Ai deja tot ce trebuie")}
 
 /* ---------- Favorite ---------- */
 PAGES.fav=function(){const l=recipes().filter(r=>S.fav.includes(r.id));
@@ -3163,7 +3187,7 @@ PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
  <div class="card panel"><h3>Frigiderul meu</h3>
   <div class="kv"><span>Folosesc acum</span><b>${sharing?"frigiderul comun":"frigiderul meu personal"}</b></div>
   <div class="kv"><span>Frigiderul comun</span><b>${(f.fridge||[]).length} produse · ${sharers.length} ${sharers.length===1?"membru":"membri"}</b></div>
-  ${sharing||feat("family_fridge")?`<label class="switch"><input type="checkbox" ${sharing?"checked":""} onchange="famShareUI(this.checked)"><span>Folosesc frigiderul comun al familiei</span></label>`:`<p class="small muted">Frigiderul comun, sincronizat între toți membrii, este inclus în pachetul Smart Kitchen.</p><div>${lockBtn("family_fridge","Folosesc frigiderul comun")}</div>`}
+  ${sharing||feat("family_fridge")?`<label class="switch"><input type="checkbox" ${sharing?"checked":""} onchange="famShareUI(this.checked)"><span>Folosesc frigiderul comun al familiei <span class="small muted">(și produsele din Casă și igienă)</span></span></label>`:`<p class="small muted">Frigiderul comun, sincronizat între toți membrii, este inclus în pachetul Smart Kitchen.</p><div>${lockBtn("family_fridge","Folosesc frigiderul comun")}</div>`}
   <p class="small muted">Dacă oprești, revii la frigiderul tău personal, exact cum l-ai lăsat. Produsele din frigiderul comun rămân pentru ceilalți.</p>
   <button class="btn sm" onclick="go('frigider')">${I("fridge")}Deschide frigiderul</button></div>
  <div class="card panel"><h3>Ieșire</h3><p class="small muted">Poți ieși oricând din familie. Frigiderul tău personal rămâne neatins.</p>
@@ -3173,9 +3197,9 @@ function famAcceptUI(id){const f=famAccept(id);if(!f)return;draw();
  if(feat("family_fridge"))ask(`Bine ai venit în ${f.name}!`,"Vrei să folosești frigiderul comun al familiei? Îl poți schimba oricând din această pagină.","Da, folosesc frigiderul comun",()=>famShareUI(true))}
 function famShareUI(on){const m=ME(),f=famOf(m.id);if(!f)return;if(on&&!feat("family_fridge"))return featLocked("family_fridge");
  if(!on){famSetShare(false);draw();toast("Folosești din nou frigiderul tău personal");return}
- const mine=SRV?S.fridge.length:((S.ud[m.id]||{}).fridge||[]).length;
+ const ud=S.ud[m.id]||{},mine=SRV?S.fridge.length+(S.home||[]).length:(ud.fridge||[]).length+(ud.home||[]).length;
  if(!mine){famSetShare(true,false);draw();toast("Folosești frigiderul comun");return}
- openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Folosești frigiderul comun</h2><p class="muted">Ai ${mine} produse în frigiderul tău personal. Le adaug și în frigiderul comun?</p>
+ openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Folosești frigiderul comun</h2><p class="muted">Ai ${mine} produse în frigiderul tău personal și în Casă și igienă. Le adaug și în cele comune ale familiei?</p><p class="small muted">Frigiderul, produsele pentru casă și cele de igienă personală devin comune cu toți cei care folosesc frigiderul familiei.</p>
   <div class="rowacts"><button class="btn primary" onclick="famSetShare(true,true);closeModal();toast('Produsele tale au fost adăugate în frigiderul comun')">Da, adaugă-le</button><button class="btn" onclick="famSetShare(true,false);closeModal();toast('Folosești frigiderul comun')">Nu, doar treci pe cel comun</button></div></div>`,1)}
 function famRenameUI(){const f=famOf(S.uid);openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Numele familiei</h2><form class="form" onsubmit="event.preventDefault();if(famRename($('frn').value)){closeModal();toast('Numele a fost schimbat')}"><label class="lbl grow">Nume<input id="frn" class="field" maxlength="40" value="${esc(f.name)}"></label><button class="btn primary">Salvează</button></form></div>`,1,"#frn")}
 function famRemoveUI(uid){const u=acct(uid);ask("Elimini membrul?",`${esc(u.name)} iese din familie și revine la frigiderul lui personal.`,"Elimină",()=>{if(famRemove(uid)){draw();toast(`${u.name} a fost eliminat din familie`)}},true)}
@@ -3447,6 +3471,77 @@ function profPhotoDel(id){ask("Ștergi poza din galerie?","Poza se șterge defin
  toast("Poza a fost ștearsă")},true)}
 
 setTimeout(()=>{try{autoMenus()}catch(e){}},1500);
+
+/* =====================================================================
+   Coșul pentru orice produs + rutarea la bifare:
+   alimente → Frigider · curățenie și sanitare → Pentru casă · igienă corporală → Igienă personală
+   ===================================================================== */
+const KIND_L={food:"Alimentar",house:"Pentru casă",hyg:"Igienă personală"};
+const KIND_DEST={food:"Frigider",house:"Pentru casă",hyg:"Igienă personală"};
+const KIND_IC={food:"fridge",house:"spray",hyg:"drop"};
+const deacc=s=>String(s||"").toLowerCase().replace(/[șş]/g,"s").replace(/[țţ]/g,"t").replace(/[ăâ]/g,"a").replace(/î/g,"i");
+// ordinea contează: întâi expresiile precise (ex. „săpun de vase” e pentru casă, „săpun” simplu e igienă)
+const KIND_RULES=[
+ ["hyg",/servetele umede|lichid de mana|sapun lichid|sapun de mana|gel antibacterian|dezinfectant de maini/],
+ ["house",/\bde vase\b|pentru vase|masina de spalat|de rufe|pentru rufe|detergent|balsam de rufe|inalbitor|clor|\bwc\b|toalet|vas de closet|anticalcar|dezinfectant|degresant|geam|parchet|podea|faianta|mobila|odorizant|\bspray\b|burete|laveta|lavete|mop|matur|faras|saci de gunoi|saci menajeri|pungi|folie alimentara|folie de aluminiu|hartie de copt|hartie igienica|prosoape de hartie|servetele|capsule|tablete pentru|sare pentru masina|solutie de curatat|solutie pentru|manusi de menaj|perie|bureti|baterii|bec|lumanar|insecticid|naftalina|domestos|fairy|ariel|persil|vanish|cif|mr\.? proper|bref|silan|lenor|finish|calgon|duck|pronto/],
+ ["hyg",/sampon|gel de dus|spuma de baie|\bsapun\b|pasta de dinti|periuta|ata dentara|apa de gura|deodorant|antiperspirant|crema|lotiune|balsam de par|masca de par|lac de par|spuma de par|vopsea de par|absorbant|tampoane|scutece|lame|aparat de ras|spuma de ras|gel de ras|after ?shave|demachiant|apa micelara|betisoare|dischete|vata|parfum|ruj|fond de ten|rimel|lac de unghii|pila|tampoane demachiante|ulei de corp|protectie solara|colgate|nivea|dove|gillette|head ?& ?shoulders|always|pampers|oral-?b|rexona/]];
+function kindOf(n){n=String(n||"").trim().toLowerCase();if(S.products[n])return"food";const d=deacc(n);for(const [k,re] of KIND_RULES)if(re.test(d))return k;return"food"}
+const itemKind=s=>s.k&&KIND_L[s.k]?s.k:kindOf(s.n);
+const HOUSE_SUG=["detergent de vase","detergent de rufe","balsam de rufe","hârtie igienică","prosoape de hârtie","șervețele","saci de gunoi","burete de vase","soluție de geamuri","dezinfectant","folie alimentară","tablete pentru mașina de vase"];
+const HYG_SUG=["șampon","gel de duș","săpun","pastă de dinți","periuță de dinți","ață dentară","deodorant","cremă de mâini","balsam de păr","apă de gură","absorbante","șervețele umede","lame de ras","dischete demachiante"];
+
+/* ---------- bifat în listă = procurat: produsul pleacă singur în locul lui ---------- */
+let LASTBUY=[];   // ultimele mutări, ca să le poți anula
+function homeAdd(k,n,q,u){S.home=S.home||[];q=+q||1;u=u||"buc";const h=S.home.find(x=>x.k===k&&x.n===n&&x.u===u);if(h){h.q=Math.round((+h.q+q)*100)/100;return{merged:1,q}}S.home.push({n,q,u,k});return{merged:0,q}}
+function routeItem(s){const k=itemKind(s),q=s.q===""||s.q==null?1:+s.q;
+ if(k==="food"){const u=s.u||"buc",f=S.fridge.find(x=>x.n===s.n&&x.u===u);
+  if(f){f.q=Math.round((+f.q+q)*100)/100;return{s,k,merged:1,q}}S.fridge.push({n:s.n,q,u,x:inDays(7),s:false});return{s,k,merged:0,q}}
+ return{s,k,...homeAdd(k,s.n,q,s.u)}}
+function buyItem(i,on){const s=S.shop[i];if(!s)return;
+ if(!on){s.d=false;save();draw();return}
+ const r=routeItem(s);S.shop.splice(i,1);S.demo=false;LASTBUY.unshift(r);LASTBUY=LASTBUY.slice(0,8);save();draw();
+ toast(`${s.n} → ${KIND_DEST[r.k]}`)}
+// produsele bifate înainte de această versiune („În coș”) se distribuie la fel
+function routeDone(){const d=S.shop.filter(s=>s.d);if(!d.length)return;const cnt={};d.forEach(s=>{const r=routeItem(s);LASTBUY.unshift(r);cnt[r.k]=(cnt[r.k]||0)+1});
+ LASTBUY=LASTBUY.slice(0,20);S.shop=S.shop.filter(s=>!s.d);S.demo=false;save();draw();
+ toast(Object.keys(cnt).map(k=>`${cnt[k]} în ${KIND_DEST[k]}`).join(", "))}
+function undoBuy(){const r=LASTBUY.shift();if(!r)return;const s=r.s,u=s.u||"buc";
+ const list=r.k==="food"?S.fridge:(S.home||[]),i=list.findIndex(x=>x.n===s.n&&(x.u||"buc")===(r.k==="food"?u:(s.u||"buc"))&&(r.k==="food"||x.k===r.k));
+ if(i>=0){if(r.merged){list[i].q=Math.max(0,Math.round((+list[i].q-r.q)*100)/100)}else list.splice(i,1)}
+ S.shop.push({...s,d:false});save();draw();toast(`${s.n} a revenit în lista de cumpărături`)}
+function lastBuyBar(){if(!LASTBUY.length)return"";const r=LASTBUY.slice(0,4);
+ return `<div class="buybar" role="status">${I("checkc")}<span><b>Procurate:</b> ${r.map(x=>`${esc(x.s.n)} <span class="muted">→ ${KIND_DEST[x.k]}</span>`).join(" · ")}${LASTBUY.length>4?` · și încă ${LASTBUY.length-4}`:""}</span>
+  <button class="link" onclick="undoBuy()">${I("reset")}Anulează ultimul</button></div>`}
+function shopKindHint(){const n=$("sn"),t=$("sk"),h=$("skh");if(!n||!t||!h)return;const k=t.value||kindOf(n.value);h.innerHTML=n.value.trim()?`${I(KIND_IC[k])}La bifare merge în <b>${KIND_DEST[k]}</b>`:""}
+
+/* ---------- pagina „Casă și igienă” ---------- */
+let HQ="";
+PAGES.casa=function(){const H=S.home||[],fq=HQ.trim().toLowerCase();
+ const box=(k,sug)=>{const it=H.map((h,i)=>({...h,i})).filter(h=>h.k===k&&(!fq||h.n.includes(fq)));
+  return `<section class="card fcol hcol"><div class="fcol-h">${I(KIND_IC[k])}${KIND_L[k]}<span class="badge">${H.filter(h=>h.k===k).length}</span></div>
+  ${it.length?it.map(h=>`<div class="frow"><span class="tph k-${k}">${I(KIND_IC[k])}</span><span class="n"><b>${esc(h.n)}</b><span>${fmtQ(h.q,h.u)}</span></span>
+   <span class="qty"><button onclick="homeQty(${h.i},-1)" aria-label="Mai puțin ${esc(h.n)}">${I("minus")}</button><button onclick="homeQty(${h.i},1)" aria-label="Mai mult ${esc(h.n)}">${I("plus")}</button></span>
+   <button class="iconbtn" onclick="homeToShop(${h.i})" aria-label="Pune ${esc(h.n)} pe lista de cumpărături" title="Pune pe listă">${I("cart")}</button>
+   <button class="del" onclick="homeDel(${h.i})" aria-label="Șterge ${esc(h.n)}">${I("trash")}</button></div>`).join("")
+  :`<p class="small muted" style="padding:10px 0">${fq?"Nimic găsit.":`Gol. Când bifezi în lista de cumpărături produse ca ${esc(sug.slice(0,2).join(" sau "))}, apar aici.`}</p>`}</section>`};
+ return pagehead("Casă și igienă","Produsele de curățenie și de igienă personală. Ajung aici singure când le bifezi ca procurate în lista de cumpărături.",`<button class="btn primary" onclick="S.hAdd=!S.hAdd;save();draw();setTimeout(()=>$('hn')&&$('hn').focus())">${I("plus")}Adaugă produs</button>`)+
+ `${S.hAdd?`<form class="card addpanel" onsubmit="homeNew(event)"><div class="form"><label class="lbl grow">Produs<input id="hn" class="field" list="dlh" required maxlength="80" placeholder="ex. detergent de vase" oninput="const k=kindOf(this.value);if(k!=='food')$('hk').value=k"><datalist id="dlh">${[...HOUSE_SUG,...HYG_SUG].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
+  <label class="lbl">Cantitate<input id="hq" class="field w90" type="number" min="0" step="any" value="1"></label>
+  <label class="lbl">Unitate<select id="hu" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label>
+  <label class="lbl">Unde<select id="hk" class="field"><option value="house">Pentru casă</option><option value="hyg">Igienă personală</option></select></label>
+  <button class="btn primary">Adaugă</button></div></form>`:""}
+ ${homeBanner()}
+ <div class="toolbar"><label class="search" style="max-width:260px">${I("search")}<input id="hsearch" type="search" placeholder="Caută produs…" value="${esc(HQ)}" oninput="HQ=this.value;draw();const e=$('hsearch');e.focus();e.setSelectionRange(e.value.length,e.value.length)" aria-label="Caută în casă și igienă"></label></div>
+ <div class="fcols hcols">${box("house",HOUSE_SUG)}${box("hyg",HYG_SUG)}</div>`};
+function homeNew(e){e.preventDefault();const n=$("hn").value.trim().toLowerCase();if(!n)return;homeAdd($("hk").value,n,+$("hq").value||1,$("hu").value);save();$("hn").value="";draw();toast(`${n} a fost adăugat în ${KIND_L[$("hk")?$("hk").value:"house"]||"listă"}`);setTimeout(()=>$("hn")&&$("hn").focus())}
+function homeQty(i,d){const h=(S.home||[])[i];if(!h)return;h.q=Math.max(0,Math.round((+h.q+d)*100)/100);save();draw()}
+function homeDel(i){const h=(S.home||[])[i];if(!h)return;S.home.splice(i,1);save();draw();toast(`${h.n} a fost șters`)}
+function homeToShop(i){const h=(S.home||[])[i];if(!h)return;if(S.shop.some(s=>s.n===h.n&&!s.d))return toast(`${h.n} e deja pe listă`);S.shop.push({n:h.n,q:1,u:h.u,d:false,k:h.k});save();draw();toast(`${h.n} a fost pus pe lista de cumpărături`)}
+
+// casă și igienă sunt comune cu familia exact când folosești frigiderul comun
+function homeBanner(){const m=ME(),f=m&&famOf(m.id);if(!f)return"";
+ if(sharesFridge(m.id))return `<div class="fambar">${I("users")}<span><b>Comun cu familia · ${esc(f.name)}</b> · produsele de casă și igienă le vedeți și le modificați toți cei care folosesc frigiderul comun.</span><button class="link" onclick="go('familie')">Familia ${I("arrow")}</button></div>`;
+ return `<div class="fambar muted">${I("users")}<span>Lista ta personală. Când folosești frigiderul comun al familiei ${esc(f.name)}, și produsele de casă și igienă devin comune.</span><button class="link" onclick="go('familie')">Familia ${I("arrow")}</button></div>`}
 
 /* ---------- Pornire ---------- */
 load();
