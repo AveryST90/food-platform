@@ -3510,7 +3510,7 @@ async function rateRec(id,n){const r=byId(id);if(!r||!ME())return;const cur=recR
  const b=$("ratebox");if(b)b.innerHTML=rateBox(r);toast(v?`Ai dat nota ${v} din 5`:"Nota a fost ștearsă")}
 
 /* ---------- profilul public ---------- */
-function openProfile(id){if(!id)return;if($("modal")&&!$("modal").hidden)closeModal();PROF.id=id;PROF.data=null;PROF.err=null;PROF.showRec=false;S.page="profil";draw();scrollTo({top:0});profileLoad()}
+function openProfile(id){if(!id)return;if($("modal")&&!$("modal").hidden)closeModal();PROF.id=id;PROF.admTry=0;PROF.data=null;PROF.err=null;PROF.showRec=false;S.page="profil";draw();scrollTo({top:0});profileLoad()}
 async function profileLoad(){const id=PROF.id;if(!id)return;
  if(!SRV){PROF.data=localProfile(id);draw();return}
  PROF.loading=true;const r=await api("/users/"+encodeURIComponent(id)+"/profile");PROF.loading=false;if(PROF.id!==id)return;
@@ -3576,11 +3576,14 @@ setTimeout(()=>{try{autoMenus()}catch(e){}},1500);
 /* ---------- administrarea utilizatorului din profil (moderator în sus) ---------- */
 function profAdmin(){const p=PROF.data;if(!p||!ME()||RANK[ME().role]<2)return;
  if(SRV&&p.role==="trainer"&&isRecStaff()&&!RAUTH.list){authorsLoad().then(()=>profAdmin());return}
+ const sup=ME().role==="super",ua=sup?acct(p.id):null;
+ if(SRV&&sup&&!ua&&!PROF.admTry){PROF.admTry=1;admLoad().then(()=>profAdmin());return}
  const t=p.role==="trainer"?(SRV?(RAUTH.list||[]).find(x=>x.id===p.id):(()=>{const a=acct(p.id);return a&&{author:!!a.recipeAuthor,ai:(a.features||[]).includes("ai_recipes"),cabinet:feat("coach_cabinet",a)}})()):null;
  const pend=(p.recipes||[]).filter(r=>r.status==="hid").length;
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("settings")} Administrare</p><h2 style="font-size:22px">${esc(p.name)}</h2>
   <p class="small muted">${esc(ROLE_L[p.role]||"Membru")}${p.since?` · cont din ${fmtDate(p.since)}`:""} · ${p.recipeTotal} ${p.recipeTotal===1?"rețetă":"rețete"}${pend?` · ${pend} de aprobat`:""}</p></div>
  ${can("users")?`<div class="box"><p class="h3" style="font-size:15px">Contul</p><p class="small muted">Rol, Premium și pachete, familie, drepturi, blocare sau ștergere.</p><button class="btn primary sm" onclick="profAdminUsers('${p.id}')">${I("users")}Deschide în Administrare → Utilizatori</button></div>`:""}
+ ${sup&&ua?`<div class="box"><p class="h3" style="font-size:15px">Funcții</p><div class="tgls">${tgl(uFeat(ua,"receipt_scan"),"Scanare bon cu AI",`profAdmSet('${p.id}','receipt_scan',this.checked)`)}</div>${uFeatPlan(ua,"receipt_scan")?`<p class="small muted">O are deja din pachetul ${esc(pkgOf("receipt_scan"))}.</p>`:""}</div>`:""}
  ${t&&isRecStaff()?`<div class="box"><p class="h3" style="font-size:15px">Antrenor</p><div class="tgls">${tgl(!!t.author,"Poate adăuga rețete",`profAdmSet('${p.id}','recipe_author',this.checked)`)}${tgl(!!t.ai,"Generare rețete cu AI",`profAdmSet('${p.id}','ai_recipes',this.checked)`)}${tgl(!!t.cabinet,"Cabinet de antrenor",`profAdmSet('${p.id}','coach_cabinet',this.checked)`)}</div></div>`:""}
  ${isRecStaff()&&p.recipeTotal?`<div class="box"><p class="h3" style="font-size:15px">Rețetele lui</p><div class="rowacts"><button class="btn sm" onclick="closeModal();PROF.showRec=true;draw();setTimeout(()=>$('profrec')&&$('profrec').scrollIntoView({behavior:'smooth'}))">${I("grid")}Vezi rețetele (${p.recipeTotal})</button>${pend?`<button class="btn sm" onclick="closeModal();S.atab='rec';go('admin')">${I("check")}Aprobă în Administrare → Rețete</button>`:""}</div></div>`:""}
  ${!can("users")?`<p class="small muted">Rolul, pachetele, blocarea și ștergerea contului le schimbă un Administrator.</p>`:""}
