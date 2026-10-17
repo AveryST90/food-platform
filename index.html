@@ -1088,6 +1088,19 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .profadm{align-self:flex-start}
 @media (max-width:640px){.profadm{align-self:center}}
 
+/* fereastra Premium: plan + valabilitate */
+.pmform{display:flex;flex-direction:column;gap:12px}
+.pmval{border:1px solid var(--line);border-radius:14px;padding:6px 14px 10px;margin:0}
+.pmval legend{padding:0 6px}
+.pmopt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:7px 0;font-size:14.5px;cursor:pointer}
+.pmopt input[type=radio]{width:18px;height:18px;accent-color:var(--green);margin:0}
+.pmopt>span{flex:1 1 140px}
+.pmopt .field{margin:0}
+.w160{width:160px}
+.form.pmform{flex-direction:column;align-items:stretch;justify-content:flex-start}
+.pmform .lbl,.pmform .pmval{width:100%;box-sizing:border-box}
+.pmform .rowacts{justify-content:flex-start}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -1338,6 +1351,7 @@ const R_SEED=[
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const jsq=s=>esc(JSON.stringify(String(s)));
+const untilTxt=d=>!d?"":String(d).slice(0,4)>="2900"?"permanent":"până la "+fmtDate(String(d).slice(0,10));
 const num=v=>(+v).toLocaleString("ro-RO",{maximumFractionDigits:1});
 const iso=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10)};
 const inDays=n=>{const x=new Date();x.setDate(x.getDate()+n);return iso(x)};
@@ -1773,7 +1787,7 @@ async function api(path,o={}){
 function srvMirror(u){
  const old=S.accounts.find(a=>a.id===u.id)||{};
  const staff=RANK[u.role]>=2;
- const a={id:u.id,name:u.name,email:u.email,role:u.role,avatar:u.avatar||null,recipeAuthor:!!u.recipeAuthor,aiRecipes:!!u.aiRecipes,features:u.features||[],featureSources:u.featureSources||{},packages:u.packages||[],
+ const a={id:u.id,name:u.name,email:u.email,role:u.role,avatar:u.avatar||null,recipeAuthor:!!u.recipeAuthor,grantPlans:!!u.grantPlans,aiRecipes:!!u.aiRecipes,features:u.features||[],featureSources:u.featureSources||{},packages:u.packages||[],
   extra:(u.permissions||[]).filter(p=>!(ROLE_DEF[u.role]||[]).includes(p)),
   plan:u.premium&&!staff?"premium":"free",until:u.premiumUntil?String(u.premiumUntil).slice(0,10):null,
   blocked:false,salt:"",hash:"",created:String(u.createdAt||"").slice(0,10)||todayS(),last:todayS(),
@@ -2712,8 +2726,8 @@ PAGES.premium=function(){const m=ME(),P=prem(),plans=S.plans.filter(p=>p.on),pk=
  const yes=`<span class="yes">${I("check")}<span class="sr">inclus</span></span>`,no=`<span class="no" aria-label="nu">–</span>`;
  const pl=m?premLeft(m):null;
  const status=!m?"":RANK[m.role]>=2?`<div class="freebar tone-g">${I("crown")}Ca membru al echipei ai acces Premium inclus.</div>`
-  :pk.length?`<div class="freebar tone-g">${I("crown")}<span>Pachetele tale: ${pk.map(x=>`<b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""} până la ${fmtDate(x.until)}${x.later?" (începe după cel actual)":""}`).join(" · ")}</span></div>`
-  :hasPrem(m)?`<div class="freebar tone-g">${I("crown")}Premium activ${m.until?` până la ${fmtDate(m.until)}${pl!=null?` · mai sunt ${pl} zile`:""}`:""}. Poți prelungi oricând, iar zilele se adaugă la cele rămase.</div>`
+  :pk.length?`<div class="freebar tone-g">${I("crown")}<span>Pachetele tale: ${pk.map(x=>`<b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""} ${untilTxt(x.until)}${x.later?" (începe după cel actual)":""}`).join(" · ")}</span></div>`
+  :hasPrem(m)?`<div class="freebar tone-g">${I("crown")}Premium activ${m.until?` ${untilTxt(m.until)}${pl!=null&&pl<30000?` · mai sunt ${pl} zile`:""}`:""}. Poți prelungi oricând, iar zilele se adaugă la cele rămase.</div>`
   :m.plan==="premium"&&m.until?`<div class="freebar">${I("alarm")}Premium-ul tău a expirat pe ${fmtDate(m.until)}. Alege un plan ca să reactivezi accesul.</div>`:"";
  return `<section class="phero"><div class="phero-t"><p class="eyebrow">${I("crown")}${esc(txt("premEyebrow"))}</p><h1><span>${esc(txt("premT1"))}</span><span>${esc(txt("premT2"))}</span></h1>
   <p>${esc(txt("premP"))}</p>
@@ -2772,7 +2786,7 @@ async function authGo(e,mode){e.preventDefault();const b=$("abtn"),er=$("aerr");
 PAGES.cont=function(){const u=ME(),pl=premLeft(u),ps=perms(u),opened=Math.min(usedN(),S.limit);
  let plan;
  if(RANK[u.role]>=2)plan=`<p>Ca membru al echipei ai acces Premium inclus.</p>`;
- else if(hasPrem(u))plan=`${(u.packages||[]).length?`<ul class="pklist">${u.packages.map(x=>`<li><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<span class="small muted">până la ${fmtDate(x.until)}${x.later?" · începe după cel curent":""}</span></li>`).join("")}</ul>`:`<p><span class="tag honey">Premium activ</span></p>`}<div class="kv"><span>Valabil până la</span><b>${u.until?fmtDate(u.until):"nelimitat"}</b></div>${pl!=null?`<div class="kv"><span>Zile rămase</span><b>${pl}</b></div>`:""}${pl!=null&&pl<=7?`<p class="freebar">${I("alarm")}Abonamentul expiră curând.</p>`:""}
+ else if(hasPrem(u))plan=`${(u.packages||[]).length?`<ul class="pklist">${u.packages.map(x=>`<li><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<span class="small muted">${untilTxt(x.until)}${x.later?" · începe după cel curent":""}</span></li>`).join("")}</ul>`:`<p><span class="tag honey">Premium activ</span></p>`}<div class="kv"><span>Valabil până la</span><b>${u.until?fmtDate(u.until):"nelimitat"}</b></div>${pl!=null?`<div class="kv"><span>Zile rămase</span><b>${pl}</b></div>`:""}${pl!=null&&pl<=7?`<p class="freebar">${I("alarm")}Abonamentul expiră curând.</p>`:""}
   <div class="rowacts"><button class="btn sm primary" onclick="go('premium')">Prelungește</button>${SRV?"":`<button class="btn sm" onclick="ask('Anulezi abonamentul?','Pierzi imediat accesul Premium (valori nutriționale, rețete nelimitate, planificare automată).','Anulează abonamentul',()=>{cancelPlan();draw();toast('Abonament anulat')},true)">Anulează abonamentul</button>`}</div>`;
  else plan=`<p><span class="tag">Plan gratuit</span></p><div class="kv"><span>Rețete deschise luna aceasta</span><b>${opened} din ${S.limit}</b></div>${u.until&&u.plan==="premium"?`<p class="freebar">${I("alarm")}Premium-ul tău a expirat pe ${fmtDate(u.until)}.</p>`:""}<div class="rowacts"><button class="btn sm primary" onclick="go('premium')">${I("crown")}Vezi planurile Premium</button></div>`;
  return pagehead("Contul meu","Profilul, abonamentul și securitatea contului tău.",`<button class="btn" onclick="openProfile(S.uid)">${I("users")}Profilul meu public</button>`)+`<div class="panels">
@@ -2809,7 +2823,7 @@ function exportMine(){const o=myData(),c=o.cont;
  const fr=l=>tbl(l,[["Produs",r=>r.produs],["Cantitate",r=>`${num(r.cantitate)} ${r.unitate}`],["Expiră",r=>r.expira?fmtDate(r.expira):"–"]]);
  openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Datele mele</h2><p class="muted small">Tot ce este salvat despre tine. Parola nu apare aici: ea este păstrată doar criptat.</p>
  <div class="box"><div class="kv"><span>Nume</span><b>${esc(c.nume)}</b></div><div class="kv"><span>Email</span><b>${esc(c.email)}</b></div><div class="kv"><span>Rol</span><b>${esc(c.rol)}</b></div>
-  <div class="kv"><span>Plan</span><b>${c.plan}${c.valabilPanaLa&&c.plan==="Premium"?`, până la ${fmtDate(c.valabilPanaLa)}`:""}</b></div><div class="kv"><span>Cont creat</span><b>${fmtDate(c.creat)}</b></div>${o.familie?`<div class="kv"><span>Familie</span><b>${esc(o.familie.nume)} (${o.familie.membri.length} membri)</b></div>`:""}</div>
+  <div class="kv"><span>Plan</span><b>${c.plan}${c.valabilPanaLa&&c.plan==="Premium"?`, ${untilTxt(c.valabilPanaLa)}`:""}</b></div><div class="kv"><span>Cont creat</span><b>${fmtDate(c.creat)}</b></div>${o.familie?`<div class="kv"><span>Familie</span><b>${esc(o.familie.nume)} (${o.familie.membri.length} membri)</b></div>`:""}</div>
  ${sec("Frigiderul meu personal",o.frigider.length,fr(o.frigider))}
  ${o.frigiderComun?sec("Frigiderul comun al familiei",o.frigiderComun.length,fr(o.frigiderComun)):""}
  ${sec("Lista de cumpărături",o.listaCumparaturi.length,tbl(o.listaCumparaturi,[["Produs",r=>r.produs],["Cantitate",r=>r.cantitate?`${num(r.cantitate)} ${r.unitate}`:"–"],["Cumpărat",r=>r.cumparat?"da":"nu"]]))}
@@ -2993,7 +3007,7 @@ ATAB_FN.usr=function(){const me=ME(),q=UQ.trim().toLowerCase();
   return `<li id="u-${a.id}" class="${a.blocked?"blocked":""}${UFOCUS===a.id?" ufocus":""}"><span class="avatar" style="width:38px;height:38px">${esc(initials(a.name))}</span>
   <span class="grow"><button type="button" class="ulink" onclick="openProfile('${a.id}')" title="Deschide profilul lui ${esc(a.name)}"><b>${esc(a.name)}</b></button>${self?` <span class="tag">Tu</span>`:""}${a.blocked?` <span class="tag red">Blocat</span>`:""}<br><span class="small muted">${esc(a.email)} · cont din ${fmtDate(a.created)}</span></span>
   <select class="field sm" aria-label="Rol pentru ${esc(a.name)}" ${mg?"":"disabled"} onchange="roleChange('${a.id}',this.value)">${ro.map(r=>`<option value="${r}" ${a.role===r?"selected":""} ${r===a.role||assignable().includes(r)?"":"disabled"}>${ROLE_L[r]}</option>`).join("")}</select>
-  <span class="small plancol">${a.famGrant&&RANK[a.role]<2?`<span class="tag">Familie activată manual</span> `:""}${a.role==="trainer"?`Antrenor · ${a.students!=null?a.students:studentsOf(a.id).length} studenți · `:""}${RANK[a.role]>=2?"inclus în echipă":pkgList(a).length?`${pkgTags(a)}${a.until?` <span>până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}</span>`:""}`:hasPrem(a)?`Premium${a.until?` · până la ${fmtDate(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}`:""}`:"Plan gratuit"}</span>
+  <span class="small plancol">${a.famGrant&&RANK[a.role]<2?`<span class="tag">Familie activată manual</span> `:""}${a.role==="trainer"?`Antrenor · ${a.students!=null?a.students:studentsOf(a.id).length} studenți · `:""}${RANK[a.role]>=2?"inclus în echipă":pkgList(a).length?`${pkgTags(a)}${a.until?` <span>${untilTxt(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}</span>`:""}`:hasPrem(a)?`Premium${a.until?` · ${untilTxt(a.until)}${pl!=null&&pl<=7?" (expiră curând)":""}`:""}`:"Plan gratuit"}</span>
   ${uOptsBtn(a,mg,self)}${UOPEN===a.id?uOpts(a,mg,self):""}</li>`}).join("")}</ul></div>
  <div class="card panel"><h3>Roluri și drepturi</h3><p class="small muted">Vizitatorul și Membrul folosesc doar site-ul public. Drepturile de mai jos sunt cele implicite; un administrator poate acorda unui moderator drepturi în plus, în limita propriilor drepturi.</p>
   <div class="tablewrap"><table class="cmp perm"><thead><tr><th>Drept</th>${["moderator","admin","super"].map(r=>`<th><span class="rl">${ROLE_L[r]}</span><span class="rs" aria-hidden="true">${ROLE_S[r]}</span></th>`).join("")}</tr></thead><tbody>${Object.keys(PERM_L).map(p=>`<tr><td>${PERM_L[p]}</td>${["moderator","admin","super"].map(r=>`<td>${ROLE_DEF[r].includes(p)?`<span class="yes">${I("check")}<span class="sr">da</span></span>`:`<span class="no" aria-label="nu">–</span>`}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
@@ -3002,14 +3016,45 @@ ATAB_FN.usr=function(){const me=ME(),q=UQ.trim().toLowerCase();
 function roleChange(id,r){const ok=setRoleOf(id,r);draw();if(ok===true)toast("Rolul a fost schimbat")}
 function blockUser(id,b){if(setBlocked(id,b)){draw();toast(b?"Contul a fost blocat":"Contul a fost deblocat")}}
 function delUser(id){const t=acct(id);if(!t)return;ask("Ștergi contul?",`Contul lui ${esc(t.name)} și toate datele lui (frigider, liste, planificări) se șterg definitiv.`,"Șterge contul",()=>{if(removeUser(id)){draw();toast("Contul a fost șters")}},true)}
-function premModal(id){const t=acct(id),me=ME();if(!t||!can("users")||!canManage(t))return deny();const pl=premLeft(t);
- openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("crown")} Premium</p><h2 style="font-size:22px">${esc(t.name)}</h2></div>
- <div class="box"><div class="kv"><span>Stare</span><b>${hasPrem(t)&&RANK[t.role]<2?`Premium${t.until?`, până la ${fmtDate(t.until)}`:""}`:"Plan gratuit"}</b></div>${pl!=null?`<div class="kv"><span>Zile rămase</span><b>${pl}</b></div>`:""}</div>
- <p class="small muted">Zilele se adaugă la cele rămase.</p>
- <div class="rowacts">${[30,90,365].map(d=>`<button class="btn sm" onclick="premGive('${id}',${d})">+${d} zile</button>`).join("")}</div>
- <form class="form" onsubmit="event.preventDefault();premGive('${id}',+$('pdays').value)"><label class="lbl">Altă perioadă (zile)<input id="pdays" class="field w120" type="number" min="1" max="3650" value="30"></label><button class="btn primary">Acordă</button></form>
- ${t.plan==="premium"?`<button class="btn danger" onclick="premGive('${id}',0)">Retrage Premium</button>`:""}</div>`,1)}
-function premGive(id,d){d=Math.round(+d);if(d<0||d>3650||isNaN(d))return toast("Perioada trebuie să fie între 1 și 3650 de zile.");if(grantPremium(id,d)){closeModal();draw();toast(d>0?`Premium acordat: +${d} zile`:"Premium retras")}}
+const canPlans=(m=ME())=>!!m&&(m.role==="super"||(m.role==="admin"&&!!m.grantPlans));
+function premModal(id){const t=acct(id);if(!t||!canPlans()||!canManage(t))return deny();const pl=S.plans||[],cur=pkgList(t),tom=addDaysS(todayS(),1);
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("crown")} Premium</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email||"")} · ${esc(ROLE_L[t.role]||"")}</p></div>
+ <div class="box"><div class="kv"><span>Stare</span><b>${cur.length||hasPrem(t)?"Premium":"Plan gratuit"}</b></div>${cur.map(x=>`<div class="kv"><span>${esc(x.name)}${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}</span><b>${esc(untilTxt(x.until))}</b></div>`).join("")}</div>
+ ${pl.length?`<form class="form pmform" onsubmit="event.preventDefault();premAsk('${id}')">
+  <label class="lbl">Plan Premium<select id="pmplan" class="field" onchange="premInfo()">${pl.map(p=>`<option value="${p.id}">${esc(p.name)} · ${num(p.price)} MDL · ${p.days} zile${p.on?"":" · inactiv pe site"}</option>`).join("")}</select></label>
+  <p class="small muted" id="pminfo"></p>
+  <fieldset class="pmval"><legend class="lbl">Valabilitate</legend>
+   <label class="pmopt"><input type="radio" name="pmv" value="plan" checked onchange="premInfo()"><span>Durata planului <span class="muted" id="pmdef"></span></span></label>
+   <label class="pmopt"><input type="radio" name="pmv" value="days" onchange="premInfo()"><span>Număr de zile</span><input id="pmdays" class="field w90" type="number" min="1" max="3650" value="30" onfocus="premPick('days')"></label>
+   <label class="pmopt"><input type="radio" name="pmv" value="until" onchange="premInfo()"><span>Până la data</span><input id="pmuntil" class="field w160" type="date" min="${tom}" max="2999-12-30" value="${addDaysS(todayS(),30)}" onfocus="premPick('until')"></label>
+   <label class="pmopt"><input type="radio" name="pmv" value="perm" onchange="premInfo()"><span>Permanent <span class="muted">(fără dată de expirare)</span></span></label>
+  </fieldset>
+  <div class="rowacts"><button class="btn primary">${I("crown")}Acordă</button>${cur.length||hasPrem(t)?`<button type="button" class="btn danger" onclick="premGive('${id}',0)">Retrage Premium</button>`:""}<button type="button" class="btn ghost" onclick="closeModal()">Închide</button></div></form>`
+  :`<p class="small muted">Nu există planuri Premium. Le creezi în Administrare → Monetizare.</p><div class="rowacts"><button class="btn" onclick="closeModal()">Închide</button></div>`}</div>`,1);premInfo()}
+function premPick(v){const r=document.querySelector(`input[name=pmv][value=${v}]`);if(r)r.checked=true}
+function premInfo(){const p=(S.plans||[]).find(x=>x.id===($("pmplan")||{}).value);if(!p)return;
+ if($("pmdef"))$("pmdef").textContent=`(${p.days} zile)`;if($("pminfo"))$("pminfo").innerHTML=pkgFeatsLine(p.id)}
+function premAsk(id){const t=acct(id),p=(S.plans||[]).find(x=>x.id===$("pmplan").value);if(!t||!p)return;
+ const v=(document.querySelector("input[name=pmv]:checked")||{}).value||"plan",body={planId:p.id};let when;
+ if(v==="days"){const d=Math.round(+$("pmdays").value);if(!(d>=1&&d<=3650))return toast("Numărul de zile trebuie să fie între 1 și 3650.");body.days=d;when=`${d} zile`}
+ else if(v==="until"){const u=$("pmuntil").value;if(!u||u<=todayS())return toast("Alege o dată din viitor.");body.until=u;when=`${untilTxt(u)}`}
+ else if(v==="perm"){body.permanent=true;when="permanent"}
+ else when=`${p.days} zile`;
+ ask("Confirmi acordarea planului?",`Sigur doriți să acordați planul <b>${esc(p.name)}</b> utilizatorului <b>${esc(t.name)}</b> (${esc(when)})?`,"Da, acordă",()=>premApply(id,body,p,when))}
+async function premApply(id,body,p,when){const t=acct(id);
+ if(SRV){const r=await api("/admin/users/"+encodeURIComponent(id)+"/plan",{method:"POST",body});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut acorda planul.");if(r.data.admin)admApply(r.data.admin);persist()}
+ else{const base=(t.plan==="premium"&&t.until&&t.until>todayS())?t.until:todayS();
+  const until=body.permanent?"2999-12-31":body.until?body.until:addDaysS(base,body.days||p.days);
+  t.plan="premium";t.until=until>(t.until||"")?until:t.until;t.planId=p.id;t.planFeatures=planAll(p);t.packages=[...(t.packages||[]).filter(x=>x.name!==p.name),{name:p.name,until,gift:true}];
+  audit(`A acordat planul „${p.name}” (${when}) lui ${t.name}`);save()}
+ closeModal();draw();toast(`Planul „${p.name}” a fost acordat lui ${t.name}`)}
+async function setGrantPlans(id,on){const t=acct(id);if(!t||ME().role!=="super"||t.role!=="admin")return deny();
+ if(SRV){const r=await api("/admin/users/"+encodeURIComponent(id)+"/grant-plans",{method:"PUT",body:{on}});if(!r.ok){toast((r.data&&r.data.error)||"Nu am putut salva.");return draw()}if(r.data.admin)admApply(r.data.admin);persist()}
+ else{t.grantPlans=!!on;audit(`${on?"A permis":"A oprit"} acordarea de planuri Premium pentru ${t.name}`);save()}
+ draw();toast(on?"Poate acorda planuri Premium":"Nu mai poate acorda planuri Premium")}
+function premGive(id,d){d=Math.round(+d);if(d<0||d>3650||isNaN(d))return toast("Perioada trebuie să fie între 1 și 3650 de zile.");
+ const go_=()=>{if(grantPremium(id,d)){closeModal();draw();toast(d>0?`Premium acordat: +${d} zile`:"Premium retras")}};
+ if(d===0){const t=acct(id);return ask("Retragi Premium?",`${esc(t?t.name:"")} pierde toate planurile active.`,"Retrage",go_,true)}go_()}
 function permModal(id){const t=acct(id),me=ME();if(!t||!canManage(t)||!extraTarget(t))return deny();const G=(GRANT[me.role]||[]).filter(p=>t.role==="moderator"||p==="images");
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("key")} Drepturi</p><h2 style="font-size:22px">${esc(t.name)} · ${esc(ROLE_L[t.role])}</h2></div>
  <p class="muted small">Bifează ce poate face în plus față de rolul lui. Poți acorda doar drepturi pe care le ai tu.</p>
@@ -3025,12 +3070,13 @@ function uOptsBtn(a,mg,self){if(!uHasOpts(a,mg,self))return self?"":`<span class
  return `<button class="btn sm optbtn" aria-expanded="${o}" aria-controls="uo-${a.id}" onclick="UOPEN=UOPEN==='${a.id}'?null:'${a.id}';draw()">${I("settings")}Opțiuni${I("down")}</button>`}
 function uOpts(a,mg,self){const me=ME(),sw=[],bt=[];
  if(mg&&RANK[a.role]<2)sw.push(tgl(!!a.famGrant,"Funcția de familie",`famGrantUI('${a.id}');draw()`,hasPrem(a)?"(are și prin Premium)":""));
+ if(me.role==="super"&&a.role==="admin")sw.push(tgl(!!a.grantPlans,"Poate acorda planuri Premium",`setGrantPlans('${a.id}',this.checked)`));
  if(canTgl(a))sw.push(tgl(uFeat(a,"receipt_scan"),"Scanare bon cu AI",`setUserFeature('${a.id}','receipt_scan',this.checked)`,uFeatPlan(a,"receipt_scan")?"(și din pachet)":""));
  if(RANK[a.role]<2&&a.id!==ME().id&&(isRecStaff()||canTgl(a))){sw.push(tgl(uFeat(a,"recipe_author"),"Poate adăuga rețete",`setUserFeature('${a.id}','recipe_author',this.checked)`));
   sw.push(tgl(uFeat(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(și din pachet)":""));
   sw.push(tgl(uFeat(a,"coach_cabinet"),"Cabinet de antrenor",`setUserFeature('${a.id}','coach_cabinet',this.checked)`,uFeatPlan(a,"coach_cabinet")?"(și din pachet)":a.role!=="trainer"?"(se folosește ca Antrenor)":""))}
  if(me.role==="super"&&!self)bt.push(`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Pachet și funcții</button>`);
- if(mg&&RANK[a.role]<2)bt.push(`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button>`);
+ if(mg&&RANK[a.role]<2&&canPlans())bt.push(`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button>`);
  if(mg&&extraTarget(a)&&(GRANT[me.role]||[]).length)bt.push(`<button class="btn sm" onclick="permModal('${a.id}')">${I("key")}Drepturi</button>`);
  if(canBlock(a))bt.push(`<button class="btn sm" onclick="blockUser('${a.id}',${!a.blocked})">${I("ban")}${a.blocked?"Deblochează":"Blochează"}</button>`);
  if(mg)bt.push(`<button class="btn sm danger" onclick="delUser('${a.id}')">${I("trash")}Șterge contul</button>`);
@@ -3054,7 +3100,7 @@ const pkgList=a=>a.packages&&a.packages.length?a.packages:a.planName?[{name:a.pl
 const pkgTags=a=>pkgList(a).map(x=>`<span class="tag pk">${esc(x.name)}</span>${x.gift?`<span class="tag gift">Oferit de admin</span>`:""}`).join(" ");
 function pkgModal(id){const t=acct(id);if(!t||ME().role!=="super")return deny();const pl=S.plans||[],cur=pkgList(t);
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Pachet și funcții</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email)} · ${esc(ROLE_L[t.role])}</p></div>
- ${cur.length?`<div class="box"><p class="h3" style="font-size:15px">Pachete active</p><ul class="pklist">${cur.map(x=>`<li><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<span class="small muted">până la ${fmtDate(x.until)}${x.later?" · începe după cel curent":""}</span></li>`).join("")}</ul></div>`:""}
+ ${cur.length?`<div class="box"><p class="h3" style="font-size:15px">Pachete active</p><ul class="pklist">${cur.map(x=>`<li><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<span class="small muted">${esc(untilTxt(x.until))}${x.later?" · începe după cel curent":""}</span></li>`).join("")}</ul></div>`:""}
  <div class="box"><p class="h3" style="font-size:15px">Oferă un pachet</p><p class="small muted">Utilizatorul primește toate funcțiile pachetului (și pe cele moștenite), fără plată, cu statusul „Oferit de admin”. Pachete diferite merg în paralel; același pachet se prelungește.</p>
   ${pl.length?`<form class="form" onsubmit="event.preventDefault();pkgGive('${id}')"><label class="lbl grow">Pachet<select id="pkgp" class="field" onchange="$('pkgf').innerHTML=pkgFeatsLine(this.value)">${pl.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.days} zile${p.on?"":" · inactiv pe site"}</option>`).join("")}</select></label>
   <label class="lbl">Zile<input id="pkgd" class="field w90" type="number" min="1" max="3650" placeholder="implicit"></label><button class="btn primary">${I("spark")}Oferă</button></form><p class="small muted" id="pkgf">${pkgFeatsLine(pl[0].id)}</p>`:`<p class="small muted">Nu există pachete. Le creezi în fila Monetizare.</p>`}</div>
@@ -3076,7 +3122,7 @@ ATAB_FN.mon=function(){
   <label class="lbl">Rețete deschise pe lună, în planul gratuit<input id="alim" class="field w120" type="number" min="0" max="999" value="${S.limit}" onchange="setLimit(this.value)"></label>
   <p class="small muted">După limită, utilizatorul fără Premium vede mesajul de abonare. Valorile nutriționale rămân ascunse pentru planul gratuit. Contorul se resetează la începutul fiecărei luni.</p></div>
  <div class="card panel"><h3>Abonamente active</h3><div class="stats2"><div><b>${act.length}</b><small>Premium active</small></div><div><b>${soon.length}</b><small>expiră în 14 zile</small></div></div>
-  ${soon.length?`<ul class="alist">${soon.map(a=>`<li><span class="grow">${esc(a.name)}</span><span class="small muted">până la ${fmtDate(a.until)}</span></li>`).join("")}</ul>`:`<p class="muted small">Niciun abonament nu expiră în curând.</p>`}</div>
+  ${soon.length?`<ul class="alist">${soon.map(a=>`<li><span class="grow">${esc(a.name)}</span><span class="small muted">${untilTxt(a.until)}</span></li>`).join("")}</ul>`:`<p class="muted small">Niciun abonament nu expiră în curând.</p>`}</div>
  <div class="card panel wide"><h3>Planuri Premium</h3><p class="small muted">Fiecare plan are o perioadă de valabilitate. Când cineva îl cumpără, primește acces Premium pentru atâtea zile. Prețurile sunt în MDL.</p>
   <ul class="alist big">${S.plans.map(p=>`<li class="planrow"><label class="lbl grow">Nume<input class="field" maxlength="24" value="${esc(p.name)}" onchange="planSet('${p.id}','name',this.value)"></label>
    <label class="lbl">Preț (MDL)<input class="field w90" type="number" min="0" max="99999" value="${p.price}" onchange="planSet('${p.id}','price',this.value)"></label>
