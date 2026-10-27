@@ -1101,6 +1101,26 @@ table.cmp.mytbl{min-width:0;font-size:13px}
 .pmform .lbl,.pmform .pmval{width:100%;box-sizing:border-box}
 .pmform .rowacts{justify-content:flex-start}
 
+/* ===== Telefon (iPhone): fără zoom la câmpuri, file și bare de unelte care încap, ținte de atingere mai mari ===== */
+@media (max-width:640px){
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{font-size:16px!important}
+  .atabs{flex-wrap:wrap;overflow:visible;border-bottom:0;gap:6px;margin-top:-6px}
+  .atabs button{height:38px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:14px}
+  .atabs button .i{width:16px;height:16px}
+  .atabs button[aria-selected="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+  .toolbar>.search{max-width:none!important;flex:1 1 100%}
+  .toolbar>.chips{flex:1 1 100%;flex-wrap:wrap}
+  .toolbar>.rowacts{margin-left:0!important;flex:1 1 100%}
+  .toolbar>.rowacts>.btn{flex:1 1 auto;justify-content:center}
+}
+@media (pointer:coarse),(max-width:640px){
+  select{min-height:36px}
+  .link{min-height:36px;display:inline-flex;align-items:center}
+  .ulink{min-height:36px;display:inline-flex;align-items:center}
+  .imgrep.sm,.imgdel.sm{min-width:32px;min-height:32px;justify-content:center}
+  .sw{min-width:36px;min-height:36px}
+}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -1858,7 +1878,9 @@ async function srvPull(force){
  if(S.pend){SYNC.ready=true;SYNC.dirty=true;srvPush();return false}   // modificări rămase nesalvate dintr-o sesiune anterioară (offline): încearcă să le urce
  applySnap(r.data);S.pend=0;SYNC.ready=true;persist();return true}
 const editing=()=>/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||"")||!!($("modal")&&!$("modal").hidden);
-async function srvRefresh(){if(!syncOn()||editing())return;const a=await srvPull(!SYNC.ready),b=await socRefresh(),c=await catLoad(),d=ED?false:await homeLoad();if(a||b||c||d)draw()}
+async function srvRefresh(){if(!SRV||editing())return;
+ if(!syncOn()){if(ED)return;const c=await catLoad(),d=await homeLoad();if(c||d)draw();return}   // vizitator: doar rețetele și pagina principală
+ const a=await srvPull(!SYNC.ready),b=await socRefresh(),c=await catLoad(),d=ED?false:await homeLoad();if(a||b||c||d)draw()}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)srvRefresh()});
 window.addEventListener("online",()=>{if(SYNC.dirty)srvPush();else srvRefresh()});
 setInterval(()=>{if(!document.hidden)srvRefresh()},60000);
