@@ -1121,6 +1121,181 @@ table.cmp.mytbl{min-width:0;font-size:13px}
   .sw{min-width:36px;min-height:36px}
 }
 
+/* ===== Meniul din stânga pe categorii ===== */
+.navgrp{display:flex;flex-direction:column;gap:2px}
+.nav button.navg{color:var(--ink);font-weight:700}
+.nav .navg .grow{flex:1;min-width:0}
+.nav .navchev{display:inline-flex;transition:transform .15s}
+.nav .navchev .i{width:16px;height:16px}
+.nav .navg[aria-expanded="false"] .navchev{transform:rotate(-90deg)}
+.navkids{display:flex;flex-direction:column;gap:2px;margin-left:14px;padding-left:10px;border-left:2px solid var(--line)}
+.navkids[hidden]{display:none}
+.nav button.navsub{padding:8px 10px;font-size:14.5px}
+.menuhead{display:block;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 12px 2px}
+.menu .badge{margin-left:auto}
+#me2{position:relative}
+.medot{position:absolute;top:-4px;right:-6px;min-width:18px;height:18px;font-size:11px;padding:0 5px}
+
+/* ===== Mesagerie ===== */
+.msgwrap{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:16px;align-items:start}
+.msglist{padding:14px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 220px);overflow:auto}
+.msghead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px 6px}
+.msghead h2{font-size:17px;margin:0}
+.threads{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.thread{display:flex;align-items:center;gap:12px;width:100%;padding:10px;border:0;border-radius:14px;background:none;text-align:left;cursor:pointer;color:var(--ink)}
+.thread:hover{background:var(--soft)}
+.thread.on{background:var(--green-soft)}
+.thread .tmain{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.thread .trow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.thread .tw{font-size:12px;color:var(--muted);white-space:nowrap}
+.thread .tlast{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.thread.unread b,.thread.unread .tlast{color:var(--ink);font-weight:700}
+.msgconv{display:flex;flex-direction:column;padding:0;overflow:hidden;height:calc(100vh - 220px);min-height:420px}
+.msgconv .empty{margin:auto;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.chathead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.chatwho{display:flex;align-items:center;gap:10px;flex:1;min-width:0;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink);padding:4px;border-radius:12px}
+.chatwho:hover{background:var(--soft)}
+.chatwho>span:last-child{display:flex;flex-direction:column;min-width:0}
+.msgbody{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.msgday{align-self:center;font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:8px 0}
+.bub{max-width:min(78%,520px);padding:8px 12px 6px;border-radius:18px;display:flex;flex-direction:column;gap:2px}
+.bub.them{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px}
+.bub.me{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:6px}
+.btxt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.45}
+.bmeta{display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:11px;opacity:.75}
+.bmeta .i{width:14px;height:14px}
+.bdel{border:0;background:none;color:inherit;opacity:0;padding:2px;cursor:pointer;display:inline-flex}
+.bub:hover .bdel,.bub:focus-within .bdel{opacity:.8}
+@media (pointer:coarse){.bdel{opacity:.55}}
+.composer{display:flex;gap:8px;align-items:flex-end;padding:10px 12px;border-top:1px solid var(--line);background:var(--surface)}
+.composer textarea{flex:1;resize:none;min-height:44px;max-height:160px;border-radius:22px;padding:11px 16px;line-height:1.4}
+.sendbtn{width:46px;height:46px;padding:0;border-radius:50%;justify-content:center;flex:none}
+.composer-off{margin:10px 12px;display:flex;gap:8px;align-items:center}
+.center{text-align:center}
+.showsm{display:none}
+@media (max-width:760px){
+  .msgwrap{grid-template-columns:1fr}
+  .msgwrap .hidesm{display:none}
+  .showsm{display:inline-flex}
+  .msglist{max-height:none}
+  .msgconv{height:calc(100dvh - 250px - env(safe-area-inset-bottom,0px));min-height:360px}
+}
+
+/* ===== Editor vizual: mutare prin tragere ===== */
+.edgrip{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:2px;border:0;border-radius:10px;background:rgba(255,255,255,.14);color:inherit;cursor:grab;touch-action:none;flex:none}
+.edgrip:active{cursor:grabbing}
+.edgrip .i{width:18px;height:18px}
+.ebghost{opacity:.35}
+.ebchosen{box-shadow:0 16px 40px rgb(22 42 31 / .28)}
+.edlist{display:flex;flex-direction:column;gap:32px}
+.sublist{list-style:none;margin:6px 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.sublist li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.subtop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.subedit{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+
+/* ===== Administrare → Aspect: meniul pe categorii ===== */
+.navtree{list-style:none;margin:8px 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.nvi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px 8px}
+.nvgroup{background:var(--soft)}
+.nvrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nvrow>.i{width:18px;height:18px;color:var(--muted);flex:none}
+.nvgrip{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;cursor:grab;color:var(--muted);touch-action:none;flex:none}
+.nvgrip:hover{background:var(--soft)}
+.nvgrip .i{width:18px;height:18px}
+.nvl{flex:1 1 160px;min-width:120px;height:38px}
+.nvsel{flex:0 1 190px;height:38px}
+.nvic{flex:0 0 112px;height:38px}
+.nvbtns{display:inline-flex;gap:2px;margin-left:auto}
+.navkids2{margin:8px 0 2px 26px;min-height:12px;padding-left:10px;border-left:2px solid var(--line)}
+.nvempty{margin:2px 0 4px 38px}
+.nvhidden{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+
+/* ===== Alergii, produse din magazine, coduri de bare ===== */
+.algrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.algwarn{display:flex;gap:10px;align-items:flex-start;background:#fff1e6;color:#8a3b12;border:1px solid #f3c7a5;border-radius:12px;padding:10px 12px;font-size:14px}
+.algwarn .i{flex:none;width:18px;height:18px;margin-top:2px}
+.foods{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow:auto}
+.food{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:10px;background:var(--surface)}
+.foodimg{width:56px;height:56px;flex:none;border-radius:10px;background:var(--soft);display:grid;place-items:center;overflow:hidden}
+.foodimg img{width:100%;height:100%;object-fit:contain}
+.foodmain{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.foodacts{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.nutri{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted)}
+.nutri b{color:var(--ink)}
+.nscore{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;color:#fff;font-weight:800}
+.scanbox{position:relative;border-radius:16px;overflow:hidden;background:#111;aspect-ratio:4/3;max-height:46vh}
+.scanbox video{width:100%;height:100%;object-fit:cover;display:block}
+.scanline{position:absolute;left:10%;right:10%;top:50%;height:2px;background:#ff4d4d;box-shadow:0 0 12px #ff4d4d;animation:scan 2s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(-60px)}50%{transform:translateY(60px)}}
+@media (max-width:640px){.food{flex-wrap:wrap}.foodacts{flex-direction:row;width:100%;justify-content:flex-end}}
+
+/* ===== Alerte cu rețete, cumpărături pe magazine ===== */
+.smartalert{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff7e4;border:1px solid #f0d9a3;border-radius:16px;padding:12px 16px;color:#5b4211}
+.smartalert>.i{width:22px;height:22px;flex:none;color:#c48a12}
+.smartalert .grow{flex:1;min-width:200px}
+.popalert{margin:6px 0}
+.storegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.storecat{margin:8px 0 2px;font-weight:700;text-transform:uppercase;font-size:11.5px;letter-spacing:.05em}
+.prephead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+/* ===== Mod de gătit „mâini libere” ===== */
+#cookmode{position:fixed;inset:0;z-index:70;background:#14231a;color:#fff;display:flex;flex-direction:column;gap:14px;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
+#cookmode[hidden]{display:none}
+body.cooking{overflow:hidden}
+.ck-top{display:flex;align-items:center;gap:12px}
+.ck-top b{flex:1;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ck-pr{font-size:14px;opacity:.75;white-space:nowrap}
+.ck-x{color:#fff}
+.ck-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.15);overflow:hidden}
+.ck-bar span{display:block;height:100%;background:var(--honey,#e7b96b);transition:width .25s}
+.ck-step{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(24px,5.2vw,44px);line-height:1.35;font-weight:700;padding:10px 4%;overflow:auto;cursor:pointer;user-select:none}
+.ck-ing{background:rgba(255,255,255,.07);border-radius:14px;padding:10px 14px}
+.ck-ing summary{cursor:pointer;display:flex;gap:8px;align-items:center;font-weight:700}
+.ck-ing ul{margin:8px 0 0;padding-left:18px;columns:2;font-size:15px}
+.ck-nav{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px}
+.ck-b{min-height:64px;font-size:18px;justify-content:center;border-radius:18px}
+#cookmode .btn:not(.primary){background:rgba(255,255,255,.12);color:#fff;border-color:transparent}
+.ck-opts{display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
+.ck-hint{opacity:.6;margin:0;text-align:center}
+@media (max-width:640px){.ck-ing ul{columns:1}.ck-nav{grid-template-columns:1fr 1fr}.ck-nav .primary{grid-column:1/-1}}
+
+/* ===== Progres client, șabloane, PDF ===== */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.kpi span{font-size:13px;color:var(--muted)}.kpi b{font-size:26px;color:var(--ink)}.kpi small{color:var(--muted);font-size:12.5px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.chart{width:100%;height:auto;display:block}
+.chart .ax{stroke:var(--line);stroke-width:1}.chart .tk{font-size:11px;fill:var(--muted)}
+.chart .ln{fill:none;stroke:var(--green);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.chart .dt{fill:var(--green);stroke:var(--surface);stroke-width:2}
+.mbars{display:flex;align-items:flex-end;gap:4px;height:170px;padding-top:6px}
+.mbar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;min-width:0}
+.mbv{width:100%;max-width:26px;background:var(--green);border-radius:4px 4px 0 0}
+.mbl{font-size:10px;color:var(--muted);white-space:nowrap}
+.jday{border-top:1px solid var(--line);padding:10px 0}.jday:first-of-type{border-top:0}
+.jdh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.jdh b{flex:1}
+.jlist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.jlist li{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.jlist .grow{flex:1;min-width:140px}
+.sendl{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;max-height:44vh;overflow:auto;padding:6px 0}
+.brandrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+.brandlogo{width:64px;height:64px;border-radius:14px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;background:var(--soft)}
+.brandlogo img{width:100%;height:100%;object-fit:contain}
+.pdfsheet{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#1d2a21;font-family:var(--font);padding:40px 46px;box-sizing:border-box}
+.pdfsheet header{display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid var(--bc);padding-bottom:16px;margin-bottom:22px}
+.pdfsheet .pl{display:flex;align-items:center;gap:14px}.pdfsheet .pl img{width:64px;height:64px;object-fit:contain}
+.pdfsheet .pl b{display:block;font-size:20px}.pdfsheet .pl span,.pdfsheet .pr span{font-size:12px;color:#6b776f}
+.pdfsheet .pr{text-align:right}.pdfsheet .pr b{display:block;font-size:14px}
+.pdfsheet h1{font-size:28px;margin:0 0 4px;color:var(--bc)}.pdfsheet .pf{margin:0 0 6px;font-size:14px}.pdfsheet .pn{font-size:13px;color:#4c5a51;background:#f5f6f1;border-radius:10px;padding:10px 12px}
+.pdfsheet section{margin-top:16px;break-inside:avoid}.pdfsheet h2{font-size:16px;margin:0 0 6px;color:var(--bc)}.pdfsheet h2 small{font-size:12px;color:#6b776f;font-weight:600;margin-left:6px}
+.pdfsheet table{width:100%;border-collapse:collapse;font-size:13.5px}.pdfsheet th{width:110px;text-align:left;color:#6b776f;font-weight:700;padding:6px 8px;border-bottom:1px solid #eceee6;vertical-align:top}
+.pdfsheet td{padding:6px 8px;border-bottom:1px solid #eceee6}.pdfsheet td span{color:#6b776f;font-size:12px}
+.pdfsheet footer{margin-top:26px;font-size:11px;color:#8a958d;text-align:center}
+.legal{padding:22px 26px;max-width:860px;line-height:1.6}
+.legal h2{font-size:18px;margin:18px 0 6px}.legal h2:first-child{margin-top:0}
+.legal ul{padding-left:20px;margin:6px 0}.legal li{margin:4px 0}
+.menulegal{display:block;text-align:center;font-size:12.5px;padding:6px 0 0}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -1219,6 +1394,18 @@ wrench:'<path d="M14.7 6.3a4 4 0 0 0 5 5L13 18l-3 3-4-4 3-3 6.7-6.7z"/>'
 /* Lista pictogramelor disponibile (generată din img/) */
 const ICON_LIST=["avocado", "bacon", "bagel", "baguette_bread", "banana", "beans", "beer_mug", "bell_pepper", "bento_box", "beverage_box", "birthday_cake", "blueberries", "bowl_with_spoon", "bread", "broccoli", "bubble_tea", "burrito", "butter", "candy", "canned_food", "carrot", "cheese_wedge", "cherries", "chestnut", "chocolate_bar", "coconut", "cooked_rice", "cookie", "cooking", "crab", "croissant", "cucumber", "cup_with_straw", "cupcake", "curry_rice", "custard", "cut_of_meat", "doughnut", "droplet", "dumpling", "ear_of_corn", "egg", "eggplant", "falafel", "fish", "flatbread", "fondue", "fortune_cookie", "french_fries", "fried_shrimp", "garlic", "ginger_root", "glass_of_milk", "grapes", "green_apple", "green_salad", "hamburger", "herb", "honey_pot", "hot_beverage", "hot_dog", "hot_pepper", "ice", "ice_cream", "jack-o-lantern", "jar", "kiwi_fruit", "leafy_green", "lemon", "lobster", "mango", "meat_on_bone", "melon", "mushroom", "oden", "olive", "onion", "oyster", "pancakes", "pea_pod", "peach", "peanuts", "pear", "pie", "pineapple", "pizza", "popcorn", "pot_of_food", "potato", "poultry_leg", "pretzel", "red_apple", "rice_ball", "rice_cracker", "roasted_sweet_potato", "salt", "sandwich", "seedling", "shallow_pan_of_food", "sheaf_of_rice", "shortcake", "shrimp", "spaghetti", "squid", "steaming_bowl", "strawberry", "stuffed_flatbread", "sushi", "taco", "tamale", "tangerine", "teacup_without_handle", "teapot", "tomato", "tropical_fish", "tumbler_glass", "waffle", "watermelon", "wine_glass"];
 
+/* Pictograme pentru mesagerie și meniul pe categorii */
+Object.assign(PATHS,{
+chat:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+grip:'<circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/>',
+folder:'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.6 3.9A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+back:'<path d="m15 18-6-6 6-6"/>',
+block:'<circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/>',
+checks:'<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
+home2:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'
+});
+
 /* ---------- Date inițiale ---------- */
 const CATS=["Legume","Fructe","Lactate","Carne","Cereale","Condimente","Băuturi","Altele"];
 const CATT={"Legume":"Legume și verdețuri","Fructe":"Fructe","Lactate":"Lactate și ouă","Carne":"Carne și pește","Cereale":"Cereale și panificație","Condimente":"Condimente și uleiuri","Băuturi":"Băuturi","Altele":"Altele"};
@@ -1296,14 +1483,14 @@ const DEF_HOME=[
 ];
 const DEF_THEME={brand:"Gusto",color:"#477653",honey:"#e7b96b"};
 const THEME_PRESETS=[["Verde salvie","#477653"],["Verde pădure","#2f6b4a"],["Bordo","#7b1e34"],["Albastru","#2f5d8a"],["Teracotă","#b4532a"],["Violet","#5b4b8a"]];
-const DEF_TXT={premEyebrow:"Abonament Premium",premT1:"Mai mult decât rețete.",premT2:"Un stil de viață mai sănătos.",premP:"Accesează toate funcționalitățile avansate și bucură-te de o experiență completă în bucătărie.",
+const DEF_TXT={legalCompany:"[Numele firmei sau al persoanei care administrează site-ul]",legalEmail:"[adresa de email pentru întrebări despre date]",premEyebrow:"Abonament Premium",premT1:"Mai mult decât rețete.",premT2:"Un stil de viață mai sănătos.",premP:"Accesează toate funcționalitățile avansate și bucură-te de o experiență completă în bucătărie.",
  premBtn:"Alege planul potrivit",recTitle:"Rețete",recSub:"Descoperă rețete delicioase, adaptate ingredientelor tale.",frSub:"Gestionează-ți ingredientele și evită risipa alimentară.",
  shopSub:"Cumpără doar ce îți lipsește.",planSub:"Planifică mesele săptămânii după ce ai în frigider.",statsSub:"Vezi cât ai economisit și ce ai aruncat."};
-const TXT_FIELDS=[["premEyebrow","Premium: etichetă"],["premT1","Premium: titlu, rândul 1"],["premT2","Premium: titlu, rândul 2"],["premP","Premium: text","area"],["premBtn","Premium: text buton"],
+const TXT_FIELDS=[["legalCompany","Pagini legale: cine administrează site-ul"],["legalEmail","Pagini legale: email de contact"],["premEyebrow","Premium: etichetă"],["premT1","Premium: titlu, rândul 1"],["premT2","Premium: titlu, rândul 2"],["premP","Premium: text","area"],["premBtn","Premium: text buton"],
  ["recTitle","Rețete: titlu pagină"],["recSub","Rețete: subtitlu"],["frSub","Frigider: subtitlu"],["shopSub","Cumpărături: subtitlu"],["planSub","Planificator: subtitlu"],["statsSub","Anti-risipă: subtitlu"]];
-const DEF_PLANS=[{id:"p3",name:"Premium Essential",price:79,days:30,on:true,pop:true,features:["nutrition","unlimited_recipes","auto_plan","waste_reports","family"]},
- {id:"p4",name:"Smart Kitchen",price:129,days:30,on:true,pop:false,includes:"p3",features:["fridge_match","auto_shopping","cooked_deduct","expiry_alerts","family_fridge","waste_details","ai_import","receipt_scan","gallery_5"]},
- {id:"p5",name:"Antrenor Pro",price:299,days:30,on:true,pop:false,features:["coach_cabinet","recipe_author","ai_recipes","coach_autoplan"]}];
+const DEF_PLANS=[{id:"p3",name:"Premium Essential",price:79,days:30,on:true,pop:true,features:["nutrition","unlimited_recipes","auto_plan","waste_reports","family","allergy_filters","local_products"]},
+ {id:"p4",name:"Smart Kitchen Ultra",price:129,days:30,on:true,pop:false,includes:"p3",features:["fridge_match","auto_shopping","cooked_deduct","expiry_alerts","family_fridge","waste_details","ai_import","receipt_scan","expiry_recipes","shop_groups","cook_mode","barcode_scan"]},
+ {id:"p5",name:"Antrenor / Expert",price:299,days:30,on:true,pop:false,includes:"p4",features:["coach_cabinet","recipe_author","ai_recipes","coach_autoplan","coach_templates","coach_pdf","coach_progress"]}];
 const ADMIN_PAGES=[["acasa","Acasă"],["retete","Rețete"],["frigider","Frigider"],["lista","Cumpărături"],["plan","Planificator"],["premium","Premium"]];
 
 /* ---------- Configurare server ---------- */
@@ -1395,8 +1582,8 @@ const pwOk=p=>typeof p==="string"&&p.length>=8&&/[A-Za-z]/.test(p)&&/\d/.test(p)
 const RANK={visitor:0,member:1,trainer:1,moderator:2,admin:3,super:4};
 const ROLE_L={visitor:"Vizitator",member:"Membru",trainer:"Antrenor personal",moderator:"Moderator",admin:"Administrator",super:"Administrator principal"};
 const PERM_L={recipes:"Rețete",images:"Imagini (înlocuire rapidă)",products:"Baza de produse",frontend:"Editor vizual",users:"Utilizatori și roluri",monetization:"Monetizare",security:"Blocări și securitate",admins:"Administratori",system:"Sistem"};
-const ROLE_DEF={member:[],trainer:[],moderator:["recipes"],admin:["recipes","products","frontend","users","monetization","security"],super:["recipes","products","frontend","users","monetization","security","admins","system","images"]};
-const GRANT={admin:["recipes","products","frontend","security"],super:["recipes","products","frontend","security","monetization","images"]};
+const ROLE_DEF={member:[],trainer:[],moderator:["recipes"],admin:["recipes","products","users","monetization","security"],super:["recipes","products","frontend","users","monetization","security","admins","system","images"]};
+const GRANT={admin:["recipes","products","security"],super:["recipes","products","frontend","security","monetization","images"]};
 
 /* ---------- Stare ---------- */
 const KEY=SRV?"gusto3s":"gusto3";
@@ -1404,8 +1591,8 @@ let S={};
 let ED=null;          // ciorna editorului vizual
 let POP=null;         // popover deschis
 let HASHREADY=Promise.resolve();
-const PERSIST=["v","uid","page","joinCode","accounts","ud","recipes","products","home","theme","txt","plans","limit","blocked","settings","audit","rcat","sort","fcat","detail","addOpen","hideDemo","myIp","atab","anSub","families","invites","coach","srv","srvUsed"];
-const UK=["rev","pend","fridge","shop","house","exps","expCats","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
+const PERSIST=["v","uid","page","joinCode","accounts","ud","recipes","products","home","theme","txt","plans","limit","blocked","settings","audit","rcat","sort","fcat","detail","addOpen","hideDemo","myIp","atab","anSub","families","invites","coach","srv","srvUsed","nav","navOpen","premPage"];
+const UK=["allergies","stores","shopView","rev","pend","fridge","shop","house","exps","expCats","fav","plan","pdays","viewed","viewedMonth","sel","demo","log"];
 const freshUD=()=>({rev:0,pend:0,fridge:[],shop:[],house:[],fav:[],plan:{},pdays:{},viewed:[],viewedMonth:"",sel:[],demo:false,log:[]});
 
 function demoLog(){let s=7;const rnd=()=>(s=(s*9301+49297)%233280)/233280;const out=[];
@@ -1469,7 +1656,7 @@ const acct=id=>S.accounts.find(a=>a.id===id);
 function setRoleOf(id,r){const t=acct(id);if(!t||!can("users")||!canManage(t)||!assignable().includes(r))return deny();
  if(t.role==="super"&&r!=="super"&&S.accounts.filter(a=>a.role==="super").length<2)return deny("Trebuie să rămână cel puțin un administrator principal.");
  const old=t.role;if(old===r)return true;t.role=r;if(RANK[r]>=3)t.extra=r==="admin"?(t.extra||[]).filter(p=>p==="images"):[];if(RANK[r]<2)t.extra=[];audit(`A schimbat rolul lui ${t.name}: ${ROLE_L[old]} → ${ROLE_L[r]}`);save();return true}
-const extraTarget=(t,p,me=ME())=>!!t&&!!me&&(t.role==="moderator"||(t.role==="admin"&&me.role==="super"&&(p===undefined||p==="images")));
+const extraTarget=(t,p,me=ME())=>!!t&&!!me&&(t.role==="moderator"||(t.role==="admin"&&me.role==="super"&&(p===undefined||p==="images"||p==="frontend")));
 function toggleExtra(id,p){const t=acct(id),me=ME();if(!t||!me||!can("users")||!canManage(t)||!extraTarget(t,p,me)||!(GRANT[me.role]||[]).includes(p))return deny();
  t.extra=t.extra||[];const k=t.extra.indexOf(p);k<0?t.extra.push(p):t.extra.splice(k,1);
  audit(`${k<0?"A acordat":"A retras"} dreptul „${PERM_L[p]}” ${k<0?"lui":"de la"} ${t.name}`);save();return true}
@@ -1541,7 +1728,7 @@ function deleteMyAccount(){if(SRV){api("/me",{method:"DELETE"});setTok("")}const
 /* ---------- Abonament Premium ---------- */
 const premLeft=u=>u&&u.plan==="premium"&&u.until?daysLeft(u.until):null;
 function buyPlan(pid){const m=ME(),p=S.plans.find(x=>x.id===pid&&x.on);if(!m||!p)return false;
- const base=(m.plan==="premium"&&m.until&&m.until>todayS())?m.until:todayS();m.plan="premium";m.until=addDaysS(base,p.days);m.planId=p.id;m.planFeatures=p.features||[];save();return true}
+ const base=(m.plan==="premium"&&m.until&&m.until>todayS())?m.until:todayS();m.plan="premium";m.until=addDaysS(base,p.days);m.planId=p.id;m.planFeatures=planAll(p);if(m.role==="member"&&planAll(p).includes("coach_cabinet"))m.role="trainer";save();return true}
 function cancelPlan(){const m=ME();if(!m)return;m.plan="free";m.until=null;save()}
 function ensureMonth(){const ym=todayS().slice(0,7);if(S.viewedMonth!==ym){S.viewedMonth=ym;S.viewed=[]}}
 const cheapest=()=>{const a=S.plans.filter(p=>p.on);return a.length?a.reduce((x,y)=>x.price<=y.price?x:y):null};
@@ -1554,14 +1741,18 @@ function menuRecIds(){const s=new Set();if(!S.uid||!S.coach)return s;const trs=n
  (S.coach.menus||[]).forEach(m=>{if(m.st===S.uid||m.tr===S.uid||trs.has(m.tr))(m.days||[]).forEach(d=>Object.values(d.m||{}).forEach(v=>v&&v.r&&s.add(v.r)))});return s}
 // vizibilă public, sau doar pentru mine: a mea / din meniul antrenorului (server: r.vis)
 const recVisible=(r,M)=>!!r&&(r.status!=="hid"||!!r.vis||(!!r.by&&r.by===S.uid)||(M||menuRecIds()).has(r.id));
-const recipes=()=>{const M=menuRecIds();return S.recipes.filter(r=>recVisible(r,M))};
+const recipes=()=>{const M=menuRecIds(),A=allergyOn()?myAllergies():null;return S.recipes.filter(r=>recVisible(r,M)&&(!A||!recAllergens(r,A).length))};
 const isRecStaff=()=>can("recipes");
 // poate adăuga rețete: dreptul „Rețete” (moderator în sus) sau antrenor căruia i s-a dat dreptul
 // funcțiile care pot fi incluse în pachete sau activate manual
 const FEAT_L={nutrition:"Valori nutriționale pe porție",unlimited_recipes:"Rețete nelimitate",auto_plan:"Planificare automată pe 7 zile",waste_reports:"Rapoarte și tendințe anti-risipă",family:"Funcția de familie",
- fridge_match:"Compatibilitate completă cu frigiderul („ce îmi lipsește”)",auto_shopping:"Lipsurile adăugate automat în lista de cumpărături",cooked_deduct:"„Am gătit-o”: scădere automată din frigider",expiry_alerts:"Notificări de expirare",family_fridge:"Frigider comun cu familia",waste_details:"Statistici detaliate de risipă",ai_import:"Import de rețete cu AI (link sau text)",receipt_scan:"Scanare bonuri fiscale cu AI",gallery_5:"Galerie de profil cu 5 poze",
- coach_cabinet:"Cabinet de antrenor",recipe_author:"Rețete proprii (antrenori)",ai_recipes:"Generare rețete cu AI (antrenori)",coach_autoplan:"Meniurile antrenorului intră automat în planificator"};
-const FEAT_G=[["Premium Essential",["nutrition","unlimited_recipes","auto_plan","waste_reports","family"]],["Smart Kitchen",["fridge_match","auto_shopping","cooked_deduct","expiry_alerts","family_fridge","waste_details","ai_import","receipt_scan","gallery_5"]],["Antrenor Pro",["coach_cabinet","recipe_author","ai_recipes","coach_autoplan"]]];
+ allergy_filters:"Filtre pentru alergii și intoleranțe",local_products:"Produse din magazinele din Moldova și România, cu valori nutriționale",
+ fridge_match:"Compatibilitate completă cu frigiderul („ce îmi lipsește”)",auto_shopping:"Lipsurile adăugate automat în lista de cumpărături",cooked_deduct:"„Am gătit-o”: scădere automată din frigider",expiry_alerts:"Notificări de expirare",family_fridge:"Frigider comun cu familia",waste_details:"Statistici detaliate de risipă",ai_import:"Import de rețete cu AI (link sau text)",receipt_scan:"Scanare bonuri fiscale cu AI",
+ expiry_recipes:"Alerte cu rețete pentru ce expiră primul",shop_groups:"Lista de cumpărături împărțită pe magazine",cook_mode:"Mod de gătit „mâini libere” (pași pe ecran mare și citiți cu voce)",barcode_scan:"Scanare coduri de bare direct în frigider",
+ coach_cabinet:"Cabinet de antrenor",recipe_author:"Rețete proprii (antrenori)",ai_recipes:"Generare rețete cu AI (antrenori)",coach_autoplan:"Meniurile antrenorului intră automat în planificator",
+ coach_templates:"Șabloane de meniuri trimise la mai mulți clienți deodată",coach_pdf:"Export PDF profesional cu logo-ul antrenorului",coach_progress:"Panou de progres al clientului (greutate, calorii, respectarea planului)"};
+const PK_ESS="Premium Essential",PK_SK="Smart Kitchen Ultra",PK_PRO="Antrenor / Expert";
+const FEAT_G=[[PK_ESS,["nutrition","unlimited_recipes","auto_plan","waste_reports","family","allergy_filters","local_products"]],[PK_SK,["fridge_match","auto_shopping","cooked_deduct","expiry_alerts","family_fridge","waste_details","ai_import","receipt_scan","expiry_recipes","shop_groups","cook_mode","barcode_scan"]],[PK_PRO,["coach_cabinet","recipe_author","ai_recipes","coach_autoplan","coach_templates","coach_pdf","coach_progress"]]];
 const ESS=FEAT_G[0][1];
 const pkgOf=f=>(FEAT_G.find(g=>g[1].includes(f))||["Premium"])[0];
 // toate funcțiile unui pachet, cu cele moștenite din pachetul inclus
@@ -1736,7 +1927,7 @@ function menuToPlan(id,start){const m=menuById(id);if(!m||m.st!==S.uid)return de
  let n=0;m.days.forEach((d,i)=>{const k=addDaysS(start,i);const extra=(d.slots||[]).filter(isExtra);
   if(extra.length)S.pdays[k]=sortSlots([...daySlots(k),...extra]).filter(isExtra);
   Object.entries(d.m).forEach(([key,v])=>{if(v.r&&rec(v.r)){S.plan[k+"|"+key]=v.r;n++}})});save();return n}
-/* meniurile de la un antrenor cu „Antrenor Pro” intră singure în planificator (o singură dată pe versiune) */
+/* meniurile de la un antrenor cu „Antrenor / Expert” intră singure în planificator (o singură dată pe versiune) */
 const trAuto=t=>!!t&&(SRV?!!t.autoplan:feat("coach_autoplan",t));
 function autoMenus(){const me=ME();if(!me||!S.coach)return;S.autoMenus=S.autoMenus||{};let n=0,k=0;
  (S.coach.menus||[]).filter(m=>m.st===me.id&&trAuto(acct(m.tr))).forEach(m=>{const v=m.updated||m.created||"1";if(S.autoMenus[m.id]===v)return;
@@ -1807,7 +1998,7 @@ async function api(path,o={}){
 function srvMirror(u){
  const old=S.accounts.find(a=>a.id===u.id)||{};
  const staff=RANK[u.role]>=2;
- const a={id:u.id,name:u.name,email:u.email,role:u.role,avatar:u.avatar||null,recipeAuthor:!!u.recipeAuthor,grantPlans:!!u.grantPlans,aiRecipes:!!u.aiRecipes,features:u.features||[],featureSources:u.featureSources||{},packages:u.packages||[],
+ const a={id:u.id,name:u.name,email:u.email,role:u.role,avatar:u.avatar||null,recipeAuthor:!!u.recipeAuthor,grantPlans:!!u.grantPlans,allergies:u.allergies||[],brand:u.brand||{},aiRecipes:!!u.aiRecipes,features:u.features||[],featureSources:u.featureSources||{},packages:u.packages||[],
   extra:(u.permissions||[]).filter(p=>!(ROLE_DEF[u.role]||[]).includes(p)),
   plan:u.premium&&!staff?"premium":"free",until:u.premiumUntil?String(u.premiumUntil).slice(0,10):null,
   blocked:false,salt:"",hash:"",created:String(u.createdAt||"").slice(0,10)||todayS(),last:todayS(),
@@ -1880,7 +2071,7 @@ async function srvPull(force){
 const editing=()=>/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||"")||!!($("modal")&&!$("modal").hidden);
 async function srvRefresh(){if(!SRV||editing())return;
  if(!syncOn()){if(ED)return;const c=await catLoad(),d=await homeLoad();if(c||d)draw();return}   // vizitator: doar rețetele și pagina principală
- const a=await srvPull(!SYNC.ready),b=await socRefresh(),c=await catLoad(),d=ED?false:await homeLoad();if(a||b||c||d)draw()}
+ const a=await srvPull(!SYNC.ready),b=await socRefresh(),c=await catLoad(),d=ED?false:await homeLoad(),e=await msgUnreadLoad();if(a||b||c||d||e)draw()}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)srvRefresh()});
 window.addEventListener("online",()=>{if(SYNC.dirty)srvPush();else srvRefresh()});
 setInterval(()=>{if(!document.hidden)srvRefresh()},60000);
@@ -2066,7 +2257,22 @@ function togSel(n){const k=S.sel.indexOf(n);k<0?S.sel.push(n):S.sel.splice(k,1);
 /* ---------- Navigare ---------- */
 const NAV=[["acasa","Acasă","home"],["retete","Rețete","grid"],["frigider","Frigider","fridge"],["casa","Casă și igienă","spray"],["lista","Cumpărături","cart"],["plan","Planificator","cal"],["fav","Favorite","heart"],["stats","Anti-risipă","chart"],["bani","Cheltuieli","wallet"],["premium","Premium","crown"]];
 const BNAV=[["acasa","Acasă","home"],["retete","Rețete","grid"],["frigider","Frigider","fridge"],["lista","Listă","cart"],["plan","Plan","cal"]];
-const NEEDLOGIN=["frigider","casa","bani","lista","plan","fav","stats","cont","familie","antrenor"];
+const NEEDLOGIN=["frigider","casa","bani","lista","plan","fav","stats","cont","familie","antrenor","mesaje"];
+/* Meniul din stânga: pagini și categorii (grupuri) pe 2 niveluri, editabil din Administrare → Aspect */
+const PAGE_META={acasa:["Acasă","home"],retete:["Rețete","grid"],frigider:["Frigider","fridge"],casa:["Casă și igienă","spray"],lista:["Cumpărături","cart"],plan:["Planificator","cal"],fav:["Favorite","heart"],stats:["Anti-risipă","chart"],bani:["Cheltuieli","wallet"],premium:["Premium","crown"],familie:["Familie","users"],antrenor:["Cabinet antrenor","dumbbell"],mesaje:["Mesaje","chat"],admin:["Administrare","shield"],cont:["Contul meu","user"]};
+const NAV_ICONS=["folder","users","home","fridge","cart","cal","heart","chart","wallet","crown","star","leaf","spark","chat","grid","tag","shield","dumbbell"];
+const DEF_NAV=()=>["acasa","retete","frigider","casa","lista","plan","fav","familie","antrenor","mesaje","stats","bani","admin"].map((p,i)=>({id:"d"+i,t:"p",p}));
+const navTree=()=>Array.isArray(S.nav)&&S.nav.length?S.nav:DEF_NAV();
+function navVisible(k){const m=ME();
+ if(k==="admin")return isStaff();
+ if(k==="antrenor")return !!m&&(isTrainer()||isStudent());
+ if(k==="familie"||k==="mesaje"||k==="cont")return !!m;
+ return !!PAGE_META[k]}
+const navLabel=it=>it.l||(it.p==="antrenor"&&!isTrainer()?"Antrenorul meu":(PAGE_META[it.p]||[it.p])[0]);
+const navOpen=g=>{const o=(S.navOpen||{})[g.id];return o===undefined?g.open!==false:!!o};
+function navTog(id){S.navOpen={...(S.navOpen||{}),[id]:!navOpen(navTree().find(x=>x.id===id)||{})};save();draw()}
+/* lista pentru meniu: [{g:grup|null, items:[pagini vizibile]}] */
+function navModel(){return navTree().map(x=>x.t==="g"?{g:x,items:(x.c||[]).filter(c=>navVisible(c.p))}:navVisible(x.p)?{g:null,items:[x]}:null).filter(x=>x&&(x.g?x.items.length:1))}
 const PAGES={};
 const GATE={bani:["wallet","Cheltuielile tale, lună de lună","Adaugă cheltuieli, scanează bonuri și vezi pe ce se duc banii, singur sau împreună cu familia. Ai nevoie de un cont gratuit."],casa:["spray","Casă și igienă","Detergenții, hârtia igienică, șamponul și pasta de dinți, ținute la zi. Le bifezi în lista de cumpărături și ajung singure aici. Ai nevoie de un cont gratuit."],frigider:["fridge","Frigiderul tău, mereu la îndemână","Adaugă ingredientele, urmărește datele de expirare și vezi imediat ce poți găti. Ai nevoie de un cont gratuit."],
  lista:["cart","Liste de cumpărături inteligente","Adaugă ce îți lipsește direct din rețete și mută cumpărăturile în frigider. Ai nevoie de un cont gratuit."],
@@ -2095,14 +2301,17 @@ function draw(){
  if(S.page==="admin"&&!isStaff())S.page="acasa";
  if(!PAGES[S.page])S.page="acasa";
  famSync();
- const extra=m?[["familie","Familie","users"],...(isTrainer()?[["antrenor","Cabinet antrenor","dumbbell"]]:isStudent()?[["antrenor","Antrenorul meu","dumbbell"]]:[])]:[];
- const items=[...NAV.slice(0,7),...extra,NAV[7],...(isStaff()?[["admin","Administrare","shield"]]:[])];
- const ni=m?invitesTo(m.id).length:0;
- const bd=k=>k==="lista"&&sh&&m?`<span class="badge">${sh}</span>`:k==="frigider"&&ex?`<span class="badge red">${ex}</span>`:k==="familie"&&ni?`<span class="badge red">${ni}</span>`:"";
- $("sidenav").innerHTML=items.map(([k,l,ic])=>`<button ${S.page===k?'aria-current="page"':""} onclick="go('${k}')">${I(ic)}${l}${bd(k)}</button>`).join("");
+ const ni=m?invitesTo(m.id).length:0,nm=m?(S.msgUnread||0):0;
+ const cnt=k=>k==="lista"&&m?sh:k==="frigider"?ex:k==="familie"?ni:k==="mesaje"?nm:0;
+ const bd=k=>{const n=cnt(k);return !n?"":`<span class="badge ${k==="lista"?"":"red"}">${n}</span>`};
+ const pbtn=(it,sub)=>`<button class="${sub?"navsub":""}" ${S.page===it.p?'aria-current="page"':""} onclick="go('${it.p}')">${I((PAGE_META[it.p]||[])[1]||"grid")}${esc(navLabel(it))}${bd(it.p)}</button>`;
+ $("sidenav").innerHTML=navModel().map(({g,items})=>{if(!g)return pbtn(items[0]);
+  const open=navOpen(g)||items.some(x=>x.p===S.page),sum=items.reduce((a,x)=>a+cnt(x.p),0);
+  return `<div class="navgrp"><button class="navg" aria-expanded="${open}" onclick="navTog('${g.id}')">${I(g.ic||"folder")}<span class="grow">${esc(g.l)}</span>${!open&&sum?`<span class="badge red">${sum}</span>`:""}<span class="navchev">${I("down")}</span></button>
+   <div class="navkids" ${open?"":"hidden"}>${items.map(x=>pbtn(x,1)).join("")}</div></div>`}).join("");
  $("bottomnav").innerHTML=BNAV.map(([k,l,ic])=>`<button ${S.page===k?'aria-current="page"':""} onclick="go('${k}')">${I(ic)}${l}${bd(k)}</button>`).join("");
  if(m){$("me1").innerHTML=`<span class="avatar">${esc(initials(m.name))}</span><span><b>${esc(m.name)}</b><span>${esc(planL(m))}</span></span>`;
-  $("me2").innerHTML=`<span class="avatar" style="width:34px;height:34px">${esc(initials(m.name))}</span>`}
+  $("me2").innerHTML=`<span class="avatar" style="width:34px;height:34px">${esc(initials(m.name))}</span>${nm?`<span class="badge red medot">${nm}</span>`:""}`}
  else{$("me1").innerHTML=`<span class="avatar ghost">${I("user")}</span><span><b>Vizitator</b><span>Autentifică-te</span></span>`;
   $("me2").innerHTML=`<span class="avatar ghost" style="width:34px;height:34px">${I("user")}</span>`}
  $("bell").innerHTML=I("bell")+(ex?`<span class="badge red">${ex}</span>`:"");
@@ -2126,18 +2335,22 @@ function drawPop(){const p=$("pop");if(!POP){p.hidden=true;p.innerHTML="";return
  p.hidden=false;const me=ME();
  if(POP==="notif"){
   if(!me){p.innerHTML=`<div class="pop"><h4>Notificări</h4><p class="muted small">Autentifică-te ca să primești alerte când produsele din frigider expiră.</p><button class="btn sm primary" onclick="POP=null;authModal('login')">Autentificare</button></div>`;return}
-  if(!feat("expiry_alerts")){p.innerHTML=`<div class="pop"><h4>Notificări de expirare</h4><p class="muted small">Alertele pentru produsele care expiră sunt incluse în pachetul Smart Kitchen. Fără el vezi doar eticheta „expiră curând” din frigider.</p>${lockBtn("expiry_alerts","Activează alertele")}</div>`;return}
-  const e=expiring(),np=typeof Notification!=="undefined"?Notification.permission:"x";p.innerHTML=`<div class="pop"><h4>Expiră curând</h4>${np==="default"?`<button class="btn sm" onclick="notifAsk()">${I("bell")}Primește alertele și în browser</button>`:""}${e.length?e.slice(0,6).map(f=>`<div class="row">${thumb(f.n,"s28")}<span style="flex:1">${esc(f.n)}</span>${expLabel(f.x)}</div>`).join(""):`<p class="muted small">Nimic nu expiră în următoarele 3 zile.</p>`}<hr><button class="link" onclick="go('frigider')">Vezi frigiderul ${I("arrow")}</button></div>`;return}
+  if(!feat("expiry_alerts")){p.innerHTML=`<div class="pop"><h4>Notificări de expirare</h4><p class="muted small">Alertele pentru produsele care expiră sunt incluse în pachetul Smart Kitchen Ultra. Fără el vezi doar eticheta „expiră curând” din frigider.</p>${lockBtn("expiry_alerts","Activează alertele")}</div>`;return}
+  const e=expiring(),np=typeof Notification!=="undefined"?Notification.permission:"x";p.innerHTML=`<div class="pop"><h4>Expiră curând</h4>${smartAlerts().map(x=>`<div class="box honey small popalert">${esc(x.text)} <button class="link" onclick="POP=null;drawPop();openRecipe('${x.r.id}')">Vezi rețeta</button></div>`).join("")}${np==="default"?`<button class="btn sm" onclick="notifAsk()">${I("bell")}Primește alertele și în browser</button>`:""}${e.length?e.slice(0,6).map(f=>`<div class="row">${thumb(f.n,"s28")}<span style="flex:1">${esc(f.n)}</span>${expLabel(f.x)}</div>`).join(""):`<p class="muted small">Nimic nu expiră în următoarele 3 zile.</p>`}<hr><button class="link" onclick="go('frigider')">Vezi frigiderul ${I("arrow")}</button></div>`;return}
  if(!me){p.innerHTML=`<div class="pop"><div class="row"><span class="avatar ghost">${I("user")}</span><span><b>Vizitator</b><br><span class="muted small">Nu ești autentificat</span></span></div><hr>
-  <button class="btn primary sm" onclick="POP=null;authModal('login')">${I("login")}Autentificare</button><button class="btn sm" onclick="POP=null;authModal('register')">Creează cont</button><hr>
+  <button class="btn primary sm" onclick="POP=null;authModal('login')">${I("login")}Autentificare</button><button class="btn sm" onclick="POP=null;authModal('register')">Creează cont</button><hr><span class="menulegal"><button class="link mutedlink" onclick="openLegal('confidentialitate')">Confidențialitate</button> · <button class="link mutedlink" onclick="openLegal('termeni')">Termeni</button></span>
   ${SRV?"":`<button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button>`}</div>`;return}
  const pl=premLeft(me);
  p.innerHTML=`<div class="pop"><div class="row"><span class="avatar">${esc(initials(me.name))}</span><span><b>${esc(me.name)}</b><br><span class="muted small">${esc(me.email)}</span></span></div>
   <div class="chips"><span class="tag">${esc(ROLE_L[me.role])}</span>${hasPrem(me)&&RANK[me.role]<2?`<span class="tag honey">Premium${pl!=null?` · ${pl} zile`:""}</span>`:""}</div><hr>
-  <button class="menu" onclick="go('cont')">${I("user")}Contul meu</button><button class="menu" onclick="POP=null;openProfile(S.uid)">${I("users")}Profilul meu public</button><button class="menu" onclick="go('fav')">${I("heart")}Favorite</button><button class="menu" onclick="go('casa')">${I("spray")}Casă și igienă</button><button class="menu" onclick="go('bani')">${I("wallet")}Cheltuieli</button><button class="menu" onclick="go('stats')">${I("chart")}Anti-risipă</button><button class="menu" onclick="go('familie')">${I("users")}Familie</button>${(isTrainer()||isStudent())?`<button class="menu" onclick="go('antrenor')">${I("dumbbell")}${isTrainer()?"Cabinet antrenor":"Antrenorul meu"}</button>`:""}<button class="menu" onclick="go('premium')">${I("crown")}Abonament Premium</button>
+  <button class="menu" onclick="go('cont')">${I("user")}Contul meu</button><button class="menu" onclick="POP=null;openProfile(S.uid)">${I("users")}Profilul meu public</button>${acctMenuPages()}<button class="menu" onclick="go('premium')">${I("crown")}Abonament Premium</button>
   ${isStaff()?`<button class="menu" onclick="go('admin')">${I("shield")}Administrare</button>`:""}${can("frontend")?`<button class="menu" onclick="POP=null;edStart()">${I("layout")}Editează pagina principală</button>`:""}<hr>
   <button class="menu" onclick="doLogout()">${I("logout")}Ieșire din cont</button>
+  <span class="menulegal"><button class="link mutedlink" onclick="openLegal('confidentialitate')">Confidențialitate</button> · <button class="link mutedlink" onclick="openLegal('termeni')">Termeni</button></span>
   ${SRV?"":`<button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button>`}</div>`}
+function acctMenuPages(){const skip=new Set([...BNAV.map(x=>x[0]),"admin","cont","premium"]);
+ return navModel().map(({g,items})=>{const l=items.filter(x=>!skip.has(x.p));if(!l.length)return "";
+  return (g?`<span class="menuhead">${esc(g.l)}</span>`:"")+l.map(x=>`<button class="menu" onclick="go('${x.p}')">${I((PAGE_META[x.p]||[])[1]||"grid")}${esc(navLabel(x))}${x.p==="mesaje"&&S.msgUnread?`<span class="badge red">${S.msgUnread}</span>`:""}</button>`).join("")}).join("")}
 function toggleDemo(){S.hideDemo=!S.hideDemo;POP=null;save();draw()}
 function doLogout(){logoutNow();draw();toast("Ai ieșit din cont");scrollTo({top:0})}
 function askReset(){POP=null;drawPop();ask("Resetezi demonstrația?","Toate datele din acest browser (conturi create, rețete modificate, setări, frigider) revin la valorile inițiale.","Resetează",()=>{resetAll();draw();toast("Demonstrația a fost resetată")},true)}
@@ -2160,7 +2373,7 @@ function askIp(){openModal(`<div class="sheet-b"><h2 style="font-size:21px;paddi
 function setMyIp(v){v=String(v||"").trim();if(!IP_RE.test(v)){const e=$("iperr");e?e.textContent="Adresa IP nu este validă (ex. 203.0.113.50).":toast("Adresa IP nu este validă.");return}
  S.myIp=v;save();closeModal();toast("IP simulat: "+v)}
 
-/* alertă de expirare în browser (Smart Kitchen): cel mult o dată pe zi */
+/* alertă de expirare în browser (Smart Kitchen Ultra): cel mult o dată pe zi */
 function notifAsk(){try{Notification.requestPermission().then(()=>{drawPop();expiryPush(true)})}catch(e){toast("Browserul tău nu permite notificări.")}}
 function expiryPush(force){try{if(!ME()||!feat("expiry_alerts")||typeof Notification==="undefined"||Notification.permission!=="granted")return;
  const k="gusto-notif-"+S.uid,d=todayS();if(!force&&localStorage.getItem(k)===d)return;const e=expiring();if(!e.length)return;
@@ -2179,6 +2392,7 @@ const BLOCK_DEF={
  text:{label:"Text",icon:"edit",desc:"Un titlu și un paragraf, pentru anunțuri sau explicații.",f:[["title","Titlu"],["text","Text","area"],["align","Aliniere","align"]]},
  features:{label:"Avantaje (3 coloane)",icon:"star",desc:"Trei avantaje scurte, cu pictogramă.",f:[["title","Titlu secțiune"],["i1t","Avantaj 1: titlu"],["i1d","Avantaj 1: text"],["i2t","Avantaj 2: titlu"],["i2d","Avantaj 2: text"],["i3t","Avantaj 3: titlu"],["i3d","Avantaj 3: text"]]}
 };
+const BLOCK_PAGES={home:["hero","recipes","widgets","banner","text","features"],premium:["phero","pbenefits","pplans","pcompare","banner","text","features"]};
 const BLOCK_NEW={
  hero:{eyebrow:"Gătește mai inteligent",t1:"Titlul tău aici.",t2:"Adaugă un al doilea rând.",text:"Scrie o descriere scurtă.",ph:"Ce ingrediente ai?",btn:"Caută",chips:"roșii, ouă",img:"photo/hero.jpg",tone:"sage"},
  recipes:{title:"Rețete pentru tine",count:4,source:"new",link:"Vezi toate"},widgets:{},
@@ -2223,8 +2437,9 @@ const BLK={
 };
 const ZONES=[["top","Sus"],["side","Lateral"],["bottom","Jos"]];
 const zoneOf=b=>["top","side","bottom"].includes(b.zone)?b.zone:"bottom";
-PAGES.acasa=function(){const blocks=ED?ED.blocks:S.home;const out=[];
- if(ED){blocks.forEach((b,i)=>{const vis=b.show!==false&&audOK(b.aud),f=BLK[b.type];out.push(edWrap(b,i,blocks.length,f?f(b):"",vis))});
+PAGES.acasa=function(){if(ED&&ED.page==="premium"){const e=ED;ED=null;try{return homePage()}finally{ED=e}}return homePage()};
+function homePage(){const blocks=ED?ED.blocks:S.home;const out=[];
+ if(ED){out.push(`<div class="edlist" id="edlist">${blocks.map((b,i)=>{const vis=b.show!==false&&audOK(b.aud),f=BLK[b.type];return edWrap(b,i,blocks.length,f?f(b):"",vis)}).join("")}</div>`);
   out.push(`<button class="addblock" onclick="edAddAt(${blocks.length})">${I("plus")}Adaugă un bloc</button>`)}
  else{   // banerele stau în zona lor: Sus, Lateral (lângă conținut) sau Jos
   const vis=blocks.filter(b=>b.show!==false&&audOK(b.aud)),R=b=>{const f=BLK[b.type];return f?f(b):""};
@@ -2234,29 +2449,45 @@ PAGES.acasa=function(){const blocks=ED?ED.blocks:S.home;const out=[];
   if(side)out.push(`<div class="homegrid"><div class="hzone">${main}</div><aside class="hzone zside" aria-label="Banere">${side}</aside></div>`);else if(main)out.push(main);
   if(bottom)out.push(`<div class="hzone zbottom">${bottom}</div>`)}
  if(!ED&&!out.length)out.push(`<div class="empty">Pagina principală nu are încă niciun bloc vizibil.</div>`);
- return (!ED&&can("frontend")?`<div class="edentry"><button class="btn sm" onclick="edStart()">${I("layout")}Editează pagina</button></div>`:"")+out.join("")};
+ return (!ED&&can("frontend")?`<div class="edentry"><button class="btn sm" onclick="edStart()">${I("layout")}Editează pagina</button></div>`:"")+(ED?"":smartAlertCard())+out.join("")}
 function heroGo(e){e.preventDefault();const v=e.target.querySelector("input").value.trim().toLowerCase();if(v&&!S.sel.includes(v))S.sel.push(v);S.page="retete";save();draw();scrollTo({top:0})}
 
 /* ---------- Editor vizual ---------- */
 function edWrap(b,i,n,html,vis){const D=BLOCK_DEF[b.type]||{label:b.type,icon:"layout"};
- return `<div class="eb ${vis?"":"off"}"><div class="ebar"><span class="etag">${I(D.icon)}${D.label}</span>${b.type==="banner"?`<span class="tag">Poziție: ${(ZONES.find(z=>z[0]===zoneOf(b))||[])[1]}</span>`:""}${b.show===false?`<span class="tag">Ascuns</span>`:""}${b.aud&&b.aud!=="all"?`<span class="tag honey">${AUD_L[b.aud]}</span>`:""}
+ return `<div class="eb ${vis?"":"off"}"><div class="ebar"><button type="button" class="edgrip" aria-label="Trage ca să muți blocul" title="Trage ca să muți blocul">${I("grip")}</button><span class="etag">${I(D.icon)}${D.label}</span>${b.type==="banner"?`<span class="tag">Poziție: ${(ZONES.find(z=>z[0]===zoneOf(b))||[])[1]}</span>`:""}${b.show===false?`<span class="tag">Ascuns</span>`:""}${b.aud&&b.aud!=="all"?`<span class="tag honey">${AUD_L[b.aud]}</span>`:""}
   <span class="eacts"><button onclick="edEdit(${i})">${I("edit")}Editează</button><button onclick="edMove(${i},-1)" ${i===0?"disabled":""} aria-label="Mută în sus">${I("up")}</button><button onclick="edMove(${i},1)" ${i===n-1?"disabled":""} aria-label="Mută în jos">${I("down")}</button>
   <button onclick="edToggle(${i})" aria-label="${b.show===false?"Arată blocul":"Ascunde blocul"}">${I(b.show===false?"eyeoff":"eye")}</button><button onclick="edDup(${i})" aria-label="Duplică">${I("copy")}</button><button class="danger" onclick="edDel(${i})" aria-label="Șterge blocul">${I("trash")}</button></span></div>
   <div class="ebody">${html||`<p class="muted">Bloc gol</p>`}</div></div>`}
 function drawEdbar(){const e=$("edbar");if(!ED){e.hidden=true;e.innerHTML="";return}
- e.hidden=false;e.innerHTML=`<div class="edbar"><span class="edtag">${I("edit")}Editezi pagina principală</span><span class="small edhint">Modificările devin publice abia după ce apeși Publică.</span>
+ e.hidden=false;setTimeout(edDnd,0);e.innerHTML=`<div class="edbar"><span class="edtag">${I("edit")}Editezi ${ED.page==="premium"?"pagina Abonament Premium":"pagina principală"}</span><span class="small edhint">Modificările devin publice abia după ce apeși Publică.</span>
   <button class="btn sm" onclick="edTheme()">${I("palette")}Culori și nume</button><button class="btn sm" onclick="edCancel()">Anulează</button><button class="btn sm honey" onclick="edPublish()">Publică</button></div>`}
-function edStart(){if(!can("frontend"))return deny("Nu ai dreptul să editezi pagina principală.");ED={blocks:clone(S.home),theme:clone(S.theme)};S.page="acasa";POP=null;draw();scrollTo({top:0})}
+function edStart(page){page=page==="premium"?"premium":"home";
+ if(!can("frontend"))return deny("Editorul vizual îl pot folosi doar Administratorul principal și cei cărora le-a dat acest drept.");
+ ED={page,blocks:clone(page==="premium"?premBlocks():S.home),theme:clone(S.theme)};S.page=page==="premium"?"premium":"acasa";POP=null;draw();scrollTo({top:0})}
+/* mutarea blocurilor prin tragere (mouse sau deget), pe lângă săgețile sus/jos */
+function edDnd(){const el=$("edlist");if(!ED||!el||el.dataset.dnd)return;el.dataset.dnd="1";
+ loadSortable().then(Sortable=>{if(!Sortable||!document.body.contains(el)||!ED)return;
+  Sortable.create(el,{animation:160,forceFallback:true,fallbackTolerance:4,handle:".edgrip",draggable:".eb",ghostClass:"ebghost",chosenClass:"ebchosen",
+   onEnd:e=>{if(e.oldIndex===e.newIndex||!ED)return;const a=ED.blocks,[m]=a.splice(e.oldIndex,1);a.splice(e.newIndex,0,m);draw();toast("Bloc mutat. Apasă Publică ca să fie vizibil tuturor.")}})})}
 function edCancel(){ED=null;draw();toast("Modificările nepublicate au fost anulate")}
 function edPublish(){if(!can("frontend"))return deny();
  if(!ED.blocks.some(b=>b.show!==false)){toast("Cel puțin un bloc trebuie să fie vizibil.");return}
+ if(ED.page==="premium")return edPublishPrem();
  S.home=clone(ED.blocks);S.theme=clone(ED.theme);ED=null;audit("A publicat modificări pe pagina principală");save();draw();toast("Pagina principală a fost actualizată")}
+async function edPublishPrem(){
+ if(!ED.blocks.some(b=>b.type==="pplans"&&b.show!==false)){toast("Blocul „Planuri și prețuri” trebuie să rămână vizibil.");return}
+ const blocks=clone(ED.blocks),theme=clone(ED.theme),themeChanged=JSON.stringify(theme)!==JSON.stringify(S.theme);
+ if(SRV){const r=await api("/pages/premium",{method:"PUT",body:{blocks}});
+  if(!r.ok){toast((r.data&&r.data.error)||"Pagina nu a putut fi publicată.");return}
+  S.premPage=r.data.premium;if(themeChanged){S.theme=theme;homePush()}}
+ else{S.premPage=blocks;S.theme=theme;audit("A publicat modificări pe pagina Abonament Premium")}
+ ED=null;save();draw();toast("Pagina Abonament Premium a fost actualizată")}
 function edMove(i,d){const a=ED.blocks,j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];draw()}
 function edToggle(i){const b=ED.blocks[i];b.show=b.show===false;draw()}
 function edDup(i){const c=clone(ED.blocks[i]);c.id="b"+uid8();ED.blocks.splice(i+1,0,c);draw()}
 function edDel(i){const b=ED.blocks[i];ask("Ștergi blocul?",`Blocul „${BLOCK_DEF[b.type]?.label||b.type}” dispare din ciornă. Poți anula tot cu „Anulează”.`,"Șterge blocul",()=>{ED.blocks.splice(i,1);draw()},true)}
 function edAddAt(pos){openModal(`<div class="sheet-b"><div style="padding-right:36px"><h2 style="font-size:22px">Adaugă un bloc</h2><p class="muted small">Alege tipul de bloc. Îl poți edita și muta după aceea.</p></div>
- <div class="choices">${Object.entries(BLOCK_DEF).map(([t,d])=>`<button class="choice" onclick="edAdd('${t}',${pos})"><b>${I(d.icon)}${d.label}</b><span>${d.desc}</span></button>`).join("")}</div></div>`,1)}
+ <div class="choices">${Object.entries(BLOCK_DEF).filter(([t])=>(BLOCK_PAGES[(ED&&ED.page)||"home"]||[]).includes(t)).map(([t,d])=>`<button class="choice" onclick="edAdd('${t}',${pos})"><b>${I(d.icon)}${d.label}</b><span>${d.desc}</span></button>`).join("")}</div></div>`,1)}
 function edAdd(t,pos){const b={id:"b"+uid8(),type:t,show:true,aud:"all",...clone(BLOCK_NEW[t])};ED.blocks.splice(pos,0,b);const keep=ED;closeModal();ED=keep;draw();toast("Bloc adăugat")}
 function selHTML(id,opts,val){return `<select id="${id}" class="field">${opts.map(([v,l])=>`<option value="${v}" ${v===val?"selected":""}>${l}</option>`).join("")}</select>`}
 function edEdit(i){const b=ED.blocks[i],D=BLOCK_DEF[b.type];
@@ -2381,10 +2612,12 @@ function imgRemove(kind,id){
 function homeSet(h){if(h&&Array.isArray(h.blocks)&&h.blocks.length){S.home=h.blocks;persist()}}
 async function homeLoad(){if(!SRV)return false;
  const r=await api("/home");if(!r.ok)return false;
- const before=JSON.stringify([S.home,S.theme]);
+ const before=JSON.stringify([S.home,S.theme,S.nav,S.premPage]);
  if(Array.isArray(r.data.blocks)&&r.data.blocks.length)S.home=r.data.blocks;
  if(r.data.theme&&r.data.theme.color){S.theme={...DEF_THEME,...r.data.theme};applyTheme(S.theme)}
- if(before===JSON.stringify([S.home,S.theme]))return false;persist();return true}
+ if("nav" in r.data)S.nav=Array.isArray(r.data.nav)?r.data.nav:null;            // meniul pe categorii
+ if("premium" in r.data)S.premPage=Array.isArray(r.data.premium)?r.data.premium:null;   // pagina Premium din editor
+ if(before===JSON.stringify([S.home,S.theme,S.nav,S.premPage]))return false;persist();return true}
 async function homePush(extra){
  const r=await api("/home",{method:"PUT",body:{blocks:S.home,theme:S.theme,texts:S.txt,...(extra||{})}});
  if(!r.ok){toast((r.data&&r.data.error)||"Nu am putut salva pe server.");await homeLoad();draw();return false}
@@ -2456,7 +2689,7 @@ PATHS.grip='<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circ
 const RCATS=["Toate","Favorite","Mic dejun","Prânz","Cină","Desert","Vegetarian","Rapid"];
 PAGES.retete=function(){
  ensureMonth();const opened=Math.min(usedN(),S.limit),P=feat("unlimited_recipes");
- return pagehead(esc(txt("recTitle")),esc(txt("recSub")),ME()?(canAI()?`<button class="btn" onclick="aiImport()">${I("spark")}Importă cu AI</button>`:lockBtn("ai_import","Importă cu AI","")):"")+
+ return pagehead(esc(txt("recTitle")),esc(txt("recSub")),ME()?allergyBtn()+(canAI()?`<button class="btn" onclick="aiImport()">${I("spark")}Importă cu AI</button>`:lockBtn("ai_import","Importă cu AI","")):"")+allergyBar()+
  `${P?"":`<div class="freebar">${I("lock")}${ME()?"Plan gratuit":"Fără cont"}: ai deschis ${opened} din ${S.limit} rețete luna aceasta. Rețetele nelimitate și valorile nutriționale sunt în Premium Essential.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
  <div class="rlayout"><div style="display:flex;flex-direction:column;gap:16px;min-width:0">
   <div class="toolbar"><div class="chips">${RCATS.filter(c=>c!=="Favorite"||ME()).map(c=>`<button class="chip" aria-pressed="${S.rcat===c}" onclick="S.rcat='${c}';save();draw()">${c}</button>`).join("")}</div>
@@ -2509,14 +2742,14 @@ function openRecipeCore(id,g){const r=byId(id);if(!r||(!recVisible(r)&&!isStaff(
  const guest=`<div class="box"><p class="small">Cu un cont gratuit poți salva rețeta la favorite, o poți adăuga în planificator, poți trimite lipsurile pe lista de cumpărături și poți scădea ingredientele din frigider.</p><div class="rowacts"><button class="btn sm primary" onclick="closeModal();authModal('register')">Creează cont</button><button class="btn sm" onclick="closeModal();authModal('login')">Autentificare</button></div></div>`;
  const body=locked?`<div class="paywall"><p class="eyebrow" style="color:var(--honey)">${I("crown")} Premium</p><h3>Ai deschis toate cele ${S.limit} rețete gratuite din această lună</h3><p>Cu Premium Essential ai acces nelimitat la rețete, valori nutriționale și planificare automată.</p><button class="btn honey" onclick="closeModal();go('premium')">Vezi planurile</button></div>`
  :`<div class="cols2"><div style="display:flex;flex-direction:column;gap:12px"><p class="h3">Ingrediente</p>${ingList(r,me&&!FM)}
-   ${!me?"":miss.length?`<div class="missbox">${FM?`<p class="small"><b>Îți lipsesc:</b> ${miss.map(x=>esc(x.miss!=null?`${num(x.miss)} ${x.u||""}`.trim()+" "+x.n:x.n)).join(", ")}</p>`:`<p class="small"><b>Îți lipsesc ${miss.length} ${miss.length===1?"ingredient":"ingrediente"}.</b> <button class="link" onclick="featLocked('fridge_match')">${I("lock")}Vezi ce îți lipsește (Smart Kitchen)</button></p>`}
+   ${!me?"":miss.length?`<div class="missbox">${FM?`<p class="small"><b>Îți lipsesc:</b> ${miss.map(x=>esc(x.miss!=null?`${num(x.miss)} ${x.u||""}`.trim()+" "+x.n:x.n)).join(", ")}</p>`:`<p class="small"><b>Îți lipsesc ${miss.length} ${miss.length===1?"ingredient":"ingrediente"}.</b> <button class="link" onclick="featLocked('fridge_match')">${I("lock")}Vezi ce îți lipsește (Smart Kitchen Ultra)</button></p>`}
     ${AS?`<button class="btn sm primary" id="missBtn" onclick="addMissing('${id}')">${I("cart")}Adaugă ingredientele lipsă în lista de cumpărături</button>`:lockBtn("auto_shopping","Adaugă lipsurile în lista de cumpărături")}</div>`:`<p class="compat">${I("checkc")}Ai toate ingredientele</p>`}
    ${me?`<div class="box"><p class="h3" style="font-size:14px">Adaugă în planificator</p><div class="form"><select id="pday" class="field" aria-label="Zi">${days.map(d=>`<option value="${iso(d)}" ${iso(d)===todayS()?"selected":""}>${dayName(d)} ${d.getDate()}</option>`).join("")}</select>
    <select id="pmeal" class="field" aria-label="Masă">${[...MEALS,...EXTRA_MEALS].map(m=>`<option ${(r.cat||[]).includes(m)?"selected":""}>${m}</option>`).join("")}</select><button class="btn sm" onclick="planPut($('pday').value,$('pmeal').value,'${id}')&&toast('Adăugată în planificator')">${I("cal")}Adaugă</button></div></div>`:guest}</div>
-  <div style="display:flex;flex-direction:column;gap:12px"><p class="h3">Preparare</p><ol class="steps">${r.s.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ol>
-   ${me?`<div id="cookbox">${CD?`<button class="btn primary" onclick="cookAsk('${id}')">${I("cook")}Am gătit-o</button><p class="small muted" style="margin-top:6px">Scădem ingredientele folosite din frigider, după confirmare.</p>`:`${lockBtn("cooked_deduct","Am gătit-o")}<p class="small muted" style="margin-top:6px">Scăderea automată din frigider este inclusă în Smart Kitchen.</p>`}</div>`:""}</div></div>`;
+  <div style="display:flex;flex-direction:column;gap:12px"><div class="prephead"><p class="h3">Preparare</p>${r.s.length?(feat("cook_mode")?`<button class="btn sm honey" onclick="cookStart('${id}')">${I("cook")}Mod gătire</button>`:ME()?lockBtn("cook_mode","Mod gătire",""):""):""}</div><ol class="steps">${r.s.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ol>
+   ${me?`<div id="cookbox">${CD?`<button class="btn primary" onclick="cookAsk('${id}')">${I("cook")}Am gătit-o</button><p class="small muted" style="margin-top:6px">Scădem ingredientele folosite din frigider, după confirmare.</p>`:`${lockBtn("cooked_deduct","Am gătit-o")}<p class="small muted" style="margin-top:6px">Scăderea automată din frigider este inclusă în Smart Kitchen Ultra.</p>`}</div>`:""}</div></div>`;
  openModal(`<div class="sheet-top"><div class="media">${tile(r)}${heartBtn(id)}</div>
-  <div style="display:flex;flex-direction:column;gap:10px;padding-right:36px"><p class="eyebrow">${(r.cat||[]).join(" · ")}${r.veg?" · Vegetarian":""}${r.status==="hid"?" · Ascunsă":""}</p><h2>${esc(r.n)}</h2><p class="muted">${esc(r.d||"")}</p>${authorChip(r,"Rețetă de")}
+  <div style="display:flex;flex-direction:column;gap:10px;padding-right:36px"><p class="eyebrow">${(r.cat||[]).join(" · ")}${r.veg?" · Vegetarian":""}${r.status==="hid"?" · Ascunsă":""}</p><h2>${esc(r.n)}</h2><p class="muted">${esc(r.d||"")}</p>${authorChip(r,"Rețetă de")}${allergyWarn(r)}
   <div class="ratebox" id="ratebox">${rateBox(r)}</div>
   <div class="facts"><span class="fact">${I("clock")}${r.t} min</span><span class="fact">${I("level")}${esc(r.dif)}</span><span class="fact">${I("users")}${r.por} porții</span><span class="fact" style="color:var(--green)">${I("checkc")}${r.i.length-miss.length} din ${r.i.length} în stoc</span></div>
   ${canEditRec(r)?`<div><button class="btn sm" onclick="closeModal();recEdit('${id}')">${I("edit")}Editează rețeta</button></div>`:""}</div></div>
@@ -2539,7 +2772,7 @@ function cookAsk(id){if(!feat("cooked_deduct"))return featLocked("cooked_deduct"
 function cookDo(id){const pl=cookPlan(byId(id));let k=0;
  pl.forEach(x=>{if(x.manual)return;const f=S.fridge.find(y=>y.n===x.n);if(!f)return;
   logEv("u",f.n,Math.min(+f.q,x.rq),f.u);f.q=Math.round((+f.q-x.rq)*100)/100;k++;if(f.q<=0)S.fridge.splice(S.fridge.indexOf(f),1)});
- S.demo=false;save();$("cookbox").innerHTML=`<p class="compat">${I("checkc")}Poftă bună! Am actualizat ${k} produse în frigider.</p>`}
+ S.demo=false;save();journalCooked(id);$("cookbox").innerHTML=`<p class="compat">${I("checkc")}Poftă bună! Am actualizat ${k} produse în frigider.</p>`}
 
 /* ---------- Frigider ---------- */
 let FQ="";
@@ -2550,7 +2783,7 @@ PAGES.frigider=function(){
  const list=S.fridge.map((f,i)=>({...f,i,cat:prod(f.n).cat})).filter(f=>(S.fcat==="Toate"||f.cat===S.fcat)&&(!fq||f.n.includes(fq)));
  const sel=S.fridge.filter(f=>f.s).length;
  const exN=new Set(ex.map(f=>f.n)),useIt=recipes().filter(r=>r.i.some(x=>exN.has(x[0]))).slice(0,3);
- return pagehead("Frigiderul meu",esc(txt("frSub")),`<button class="btn primary" onclick="S.addOpen=!S.addOpen;save();draw();setTimeout(()=>$('fn')&&$('fn').focus())">${I("plus")}Adaugă ingredient</button>`)+famBanner()+
+ return pagehead("Frigiderul meu",esc(txt("frSub")),`${feat("barcode_scan")?`<button class="btn" onclick="barcodeModal()">${I("camera")}Scanează cod</button>`:lockBtn("barcode_scan","Scanează cod","")}${feat("local_products")?`<button class="btn" onclick="foodsModal()">${I("tag")}Produse din magazine</button>`:lockBtn("local_products","Produse din magazine","")}<button class="btn primary" onclick="S.addOpen=!S.addOpen;save();draw();setTimeout(()=>$('fn')&&$('fn').focus())">${I("plus")}Adaugă ingredient</button>`)+famBanner()+smartAlertCard()+
  `${S.addOpen?`<form class="card addpanel" onsubmit="addFridge(event)"><p class="h3">Ingredient nou</p><div class="form">
   <label class="lbl grow">Produs<input id="fn" class="field" list="dlp3" required placeholder="ex. roșii" oninput="const p=S.products[this.value.trim().toLowerCase()];if(p){const u=$('fu');const m={kg:'g',l:'ml'}[p.u]||p.u;if([...u.options].some(o=>o.value===m))u.value=m}"><datalist id="dlp3">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
   <label class="lbl">Cantitate<input id="fq" class="field w90" type="number" min="0" step="any" value="1"></label>
@@ -2601,14 +2834,14 @@ PAGES.lista=function(){
   <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&k==="food"&&inFridge(s.n)?" · ai deja în frigider":""}${s.d?"":` · <span class="dest">→ ${KIND_DEST[k]}</span>`}</span></label>
   <button class="iconbtn" onclick="S.shop.splice(${i},1);save();draw()" aria-label="Șterge ${esc(s.n)}">${I("x")}</button></div>`};
  return pagehead("Lista de cumpărături",`${esc(txt("shopSub"))} · ${todo.length} de cumpărat, aproximativ ${Math.round(est)} MDL`,
-  `${rcBtn("Fă poză la bon","honey")}<button class="btn" onclick="shareList()">${I("share")}Partajează</button>${feat("auto_shopping")?`<button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`:lockBtn("auto_shopping","Importă din rețetă","")}`)+
+  `${rcBtn("Fă poză la bon","honey")}${feat("shop_groups")?`<button class="btn" onclick="S.shopView=S.shopView==='store'?'cat':'store';save();draw()">${I("cart")}${S.shopView==="store"?"Pe raioane":"Pe magazine"}</button>`:lockBtn("shop_groups","Pe magazine","")}<button class="btn" onclick="shareList()">${I("share")}Partajează</button>${feat("auto_shopping")?`<button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`:lockBtn("auto_shopping","Importă din rețetă","")}`)+
  `<form class="card addpanel" onsubmit="addShop(event)"><div class="form"><label class="lbl grow">Produs<input id="sn" class="field" list="dlp4" required maxlength="80" placeholder="ex. lapte, detergent de vase, șampon" oninput="shopKindHint()"><datalist id="dlp4">${[...allProducts(),...HOUSE_SUG,...HYG_SUG].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
   <label class="lbl">Cantitate<input id="sq" class="field w90" type="number" min="0" step="any" placeholder="1"></label>
   <label class="lbl">Unitate<select id="su" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label>
   <label class="lbl">Tip<select id="sk" class="field" onchange="shopKindHint()"><option value="">Automat</option>${Object.entries(KIND_L).map(([k,l])=>`<option value="${k}">${l}</option>`).join("")}</select></label><button class="btn primary">${I("plus")}Adaugă</button></div><p class="small muted skh" id="skh" aria-live="polite"></p></form>
  ${lastBuyBar()}
  ${inF?`<div class="suggest">${I("fridge")}<span><b>${inF} ${inF===1?"produs e":"produse sunt"} deja în frigider.</b></span><button class="btn sm" onclick="S.shop=S.shop.filter(s=>s.d||!inFridge(s.n));save();draw();toast('Am eliminat produsele pe care le ai')">Elimină-le din listă</button></div>`:""}
- ${S.shop.length?`<p class="small muted">Bifează un produs când l-ai cumpărat: alimentele merg în Frigider, curățenia în Pentru casă, igiena în Igienă personală.</p><div class="scols">${CATS.map(c=>{const it=todo.filter(s=>itemKind(s)==="food"&&prod(s.n).cat===c);return it.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">${CATT[c]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
+ ${S.shop.length&&feat("shop_groups")&&S.shopView==="store"?`<p class="small muted">Lista e împărțită pe magazine. <button class="link" onclick="storesModal()">${I("settings")}Alege magazinele</button></p>${storeView(row)}`:S.shop.length?`<p class="small muted">Bifează un produs când l-ai cumpărat: alimentele merg în Frigider, curățenia în Pentru casă, igiena în Igienă personală.</p><div class="scols">${CATS.map(c=>{const it=todo.filter(s=>itemKind(s)==="food"&&prod(s.n).cat===c);return it.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">${CATT[c]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
   ${["house","hyg"].map(k=>{const it=todo.filter(s=>itemKind(s)===k);return it.length?`<div class="card slist k-${k}"><div class="fcol-h" style="padding-top:12px">${I(KIND_IC[k])}${KIND_L[k]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
   ${done.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">În coș<span class="badge">${done.length}</span></div>${done.map(row).join("")}
    <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 0"><button class="btn primary sm" onclick="routeDone()">${I("checkc")}Distribuie în locurile lor</button><button class="btn sm" onclick="S.shop=S.shop.filter(s=>!s.d);save();draw()">Șterge din listă</button></div></div>`:""}</div>`
@@ -2697,7 +2930,7 @@ PAGES.stats=function(){const P=feat("waste_reports"),DET=feat("waste_details"),D
  :`<div class="anrow"><section class="card herostat"><p class="eyebrow">Rata de utilizare</p><div class="bigfig">${rate}%</div><p class="muted">din valoarea produselor scoase din frigider în ultimele ${n} săptămâni a fost folosită, nu aruncată.</p>
    <div class="meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${rate}" aria-label="Rata de utilizare"><i style="width:${rate}%"></i></div></section>
   ${kpi("Valoare folosită",`${num(c.u)} MDL`,`${c.un} ${c.un===1?"produs":"produse"}`)}${kpi("Valoare aruncată",`${num(c.w)} MDL`,deltaHTML(c.w,D.prev.w,true))}${kpi("Produse aruncate",c.wn,deltaHTML(c.wn,D.prev.wn,true))}</div>`}
- ${P?charts:lockedBlock}${!tot?"":DET?details:`<section class="card panel lockline"><span class="ic h">${I("lock")}</span><span style="flex:1;min-width:200px"><b>Statistici detaliate</b><br><span class="small muted">Risipa pe categorii de alimente și produsele aruncate cel mai des sunt incluse în pachetul Smart Kitchen.</span></span>${lockBtn("waste_details","Deblochează")}</section>`}`};
+ ${P?charts:lockedBlock}${!tot?"":DET?details:`<section class="card panel lockline"><span class="ic h">${I("lock")}</span><span style="flex:1;min-width:200px"><b>Statistici detaliate</b><br><span class="small muted">Risipa pe categorii de alimente și produsele aruncate cel mai des sunt incluse în pachetul Smart Kitchen Ultra.</span></span>${lockBtn("waste_details","Deblochează")}</section>`}`};
 function weekTable(D){const f=s=>{const d=new Date(s+"T00:00");return `${d.getDate()}.${pad2(d.getMonth()+1)}`};
  return `<div class="tablewrap"><table class="cmp"><thead><tr><th>Săptămâna</th><th>Folosit (MDL)</th><th>Risipit (MDL)</th><th>Risipă</th></tr></thead><tbody>${D.B.map(b=>{const t=b.u+b.w;return `<tr><td>${f(b.s)} – ${f(b.e)}</td><td>${num(b.u)}</td><td>${num(b.w)}</td><td>${t?Math.round(b.w/t*100)+"%":"–"}</td></tr>`}).join("")}</tbody></table></div>`}
 
@@ -2741,35 +2974,63 @@ function hbTip(e,k,v,n){const host=e.target.closest(".viz");
 
 /* ---------- Premium ---------- */
 const periodL=d=>d===30?"o lună":d===90?"3 luni":d===180?"6 luni":d===365?"un an":`${d} zile`;
-PAGES.premium=function(){const m=ME(),P=prem(),plans=S.plans.filter(p=>p.on),pk=(m&&m.packages)||[];
- const B=[["grid","Premium Essential","Rețete nelimitate, valori nutriționale, planificare automată pe 7 zile, rapoarte anti-risipă și familia ta."],["fridge","Smart Kitchen","Tot din Essential, plus „ce îmi lipsește”, lipsurile direct pe listă, „Am gătit-o”, alerte de expirare, frigider comun cu familia și import cu AI."],["dumbbell","Antrenor Pro","Cabinetul de antrenor: grup, meniuri, ședințe, rețete proprii, AI pentru rețete, meniuri trimise direct în planificatorul clienților."]];
- const FREE={unlimited_recipes:`${S.limit} pe lună`,fridge_match:"Doar numărul",expiry_alerts:"Doar eticheta",gallery_5:"2 poze"};
- const cols=plans.slice(0,6),fs=FEAT_G.flatMap(g=>g[1]).filter(f=>FREE[f]||cols.some(p=>planAll(p).includes(f)));
- const yes=`<span class="yes">${I("check")}<span class="sr">inclus</span></span>`,no=`<span class="no" aria-label="nu">–</span>`;
- const pl=m?premLeft(m):null;
- const status=!m?"":RANK[m.role]>=2?`<div class="freebar tone-g">${I("crown")}Ca membru al echipei ai acces Premium inclus.</div>`
+/* Pagina „Abonament Premium” e făcută din blocuri, editabile în editorul vizual (ca pagina principală).
+   Planurile, avantajele și tabelul se construiesc mereu din planurile reale din baza de date. */
+const PREM_FREE=()=>({unlimited_recipes:`${S.limit} pe lună`,fridge_match:"Doar numărul",expiry_alerts:"Doar eticheta"});
+const DEF_PREM=()=>[
+ {id:"pm1",type:"phero",show:true,aud:"all",eyebrow:txt("premEyebrow"),t1:txt("premT1"),t2:txt("premT2"),text:txt("premP"),btn:txt("premBtn"),img:"photo/premium.jpg"},
+ {id:"pm2",type:"pbenefits",show:true,aud:"all",title:"Pachetele, pe scurt"},
+ {id:"pm3",type:"pplans",show:true,aud:"all",title:"Alege planul",note:"Abonamentul se activează pentru perioada aleasă și îl poți prelungi oricând; zilele se adaugă la cele rămase."},
+ {id:"pm4",type:"pcompare",show:true,aud:"all",title:"Ce include fiecare pachet"}];
+const premBlocks=()=>Array.isArray(S.premPage)&&S.premPage.length?S.premPage:DEF_PREM();
+const premPlans=()=>S.plans.filter(p=>p.on);
+function premStatus(){const m=ME();if(!m)return"";const pk=m.packages||[],pl=premLeft(m);
+ return RANK[m.role]>=2?`<div class="freebar tone-g">${I("crown")}Ca membru al echipei ai acces Premium inclus.</div>`
   :pk.length?`<div class="freebar tone-g">${I("crown")}<span>Pachetele tale: ${pk.map(x=>`<b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""} ${untilTxt(x.until)}${x.later?" (începe după cel actual)":""}`).join(" · ")}</span></div>`
   :hasPrem(m)?`<div class="freebar tone-g">${I("crown")}Premium activ${m.until?` ${untilTxt(m.until)}${pl!=null&&pl<30000?` · mai sunt ${pl} zile`:""}`:""}. Poți prelungi oricând, iar zilele se adaugă la cele rămase.</div>`
-  :m.plan==="premium"&&m.until?`<div class="freebar">${I("alarm")}Premium-ul tău a expirat pe ${fmtDate(m.until)}. Alege un plan ca să reactivezi accesul.</div>`:"";
- return `<section class="phero"><div class="phero-t"><p class="eyebrow">${I("crown")}${esc(txt("premEyebrow"))}</p><h1><span>${esc(txt("premT1"))}</span><span>${esc(txt("premT2"))}</span></h1>
-  <p>${esc(txt("premP"))}</p>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn honey" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">${esc(txt("premBtn"))}</button><button class="btn ghost" onclick="document.getElementById('cmp').scrollIntoView({behavior:'smooth'})">Află mai multe ${I("arrow")}</button></div></div>
-  <div class="phero-img"><img src="${IM("photo/premium.jpg")}" alt=""></div></section>
- ${status}
- <section class="stack"><div class="sechead"><h2>Trei pachete, după cum gătești</h2></div>
-  <div class="benefits">${B.map(([ic,t,d])=>`<div class="benefit"><span class="ic ${ic==="spark"?"h":"g"}">${I(ic)}</span><span><b>${t}</b><span>${d}</span></span></div>`).join("")}</div></section>
- <section id="plans" class="stack"><div class="sechead"><h2>Alege planul</h2></div>
+  :m.plan==="premium"&&m.until?`<div class="freebar">${I("alarm")}Premium-ul tău a expirat pe ${fmtDate(m.until)}. Alege un plan ca să reactivezi accesul.</div>`:""}
+const PICON=p=>{const a=planAll(p);return a.includes("coach_cabinet")?"dumbbell":a.includes("fridge_match")?"fridge":"grid"};
+Object.assign(BLK,{
+ phero(b){return `<section class="phero"><div class="phero-t"><p class="eyebrow">${I("crown")}${esc(b.eyebrow)}</p><h1><span>${esc(b.t1)}</span><span>${esc(b.t2)}</span></h1>
+  <p>${esc(b.text)}</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn honey" onclick="const e=document.getElementById('plans');e&&e.scrollIntoView({behavior:'smooth'})">${esc(b.btn||"Alege planul")}</button><button class="btn ghost" onclick="const e=document.getElementById('cmp');e&&e.scrollIntoView({behavior:'smooth'})">Află mai multe ${I("arrow")}</button></div></div>
+  ${b.img?`<div class="phero-img"><img src="${IM(b.img)}" alt=""></div>`:""}</section>`},
+ /* avantajele: generate din funcțiile reale ale fiecărui plan activ */
+ pbenefits(b){const pl=premPlans().filter(p=>(p.features||[]).length).slice(0,4);if(!pl.length)return"";
+  return `<section class="stack"><div class="sechead"><h2>${esc(b.title)}</h2></div>
+  <div class="benefits">${pl.map((p,i)=>{const inc=p.includes&&S.plans.find(x=>x.id===p.includes),own=(p.features||[]).map(f=>(FEAT_L[f]||f).split(" (")[0]);
+   const d=(inc?`Tot din ${inc.name}, plus: `:"")+own.slice(0,6).join(", ").replace(/^./,c=>inc?c.toLowerCase():c)+(own.length>6?` și încă ${own.length-6}`:"")+".";
+   return `<div class="benefit"><span class="ic ${i%2?"h":"g"}">${I(PICON(p))}</span><span><b>${esc(p.name)}</b><span>${esc(d)}</span></span></div>`}).join("")}</div></section>`},
+ pplans(b){const m=ME(),P=prem(),plans=premPlans(),pk=(m&&m.packages)||[];
+  return `${premStatus()}<section id="plans" class="stack"><div class="sechead"><h2>${esc(b.title)}</h2></div>
   <div class="plans"><div class="card plan"><h3>Gratuit</h3><p class="small muted">Esențial pentru început</p>
    <ul>${["Rețete de bază ("+S.limit+" pe lună)","Inventar simplu al frigiderului","Liste interactive","Planificare manuală"].map(x=>`<li>${I("check")}${x}</li>`).join("")}</ul>
    <div class="price"><span><b>0 MDL</b></span>${P?"":`<button class="btn sm" disabled>${m?"Planul tău":"Fără cont"}</button>`}</div></div>
   ${plans.map(p=>{const perM=p.days>=60?Math.round(p.price/(p.days/30)):null;return `<div class="card plan ${p.pop?"feat":""}">${p.pop?`<span class="ribbon">Popular</span>`:""}<h3>${esc(p.name)}</h3><p class="small muted">Valabil ${periodL(p.days)}${perM?` · ~${perM} MDL pe lună`:""}</p>
    <ul>${p.includes&&S.plans.find(x=>x.id===p.includes)?`<li class="pinc">${I("check")}<b>Tot ce include ${esc(S.plans.find(x=>x.id===p.includes).name)}</b></li>`:""}${(p.features||[]).map(f=>`<li>${I("check")}${esc(FEAT_L[f]||f)}</li>`).join("")}${(p.features||[]).includes("family_fridge")&&!planAll(S.plans.find(x=>x.id===p.includes)).includes("family")&&!(p.features||[]).includes("family")?`<li>${I("check")}${esc(FEAT_L.family)}</li>`:""}</ul>
    <div class="price"><span><b>${num(p.price)} MDL</b></span><button class="btn ${p.pop?"primary":""} sm" onclick="choosePlan('${p.id}')">${pk.some(x=>x.name===p.name)||(!SRV&&m&&m.planId===p.id&&hasPrem(m))?"Prelungește":"Alege pachetul"}</button></div></div>`}).join("")}
-  ${plans.length?"":`<div class="card plan"><h3>Premium</h3><p class="muted small">Planurile Premium nu sunt disponibile momentan.</p></div>`}
-  <div class="card promo">${I("leaf")}<h3>Investește în sănătatea ta și în timpul tău.</h3><p>Cu Premium gătești mai ușor, mai inteligent și mai gustos.</p><img src="${IM("photo/hero.jpg")}" alt=""></div></div>
-  <p class="small muted">Demonstrație: activarea nu implică nicio plată. În versiunea reală, plata se face prin Stripe, iar abonamentul se activează după confirmarea prin webhook, pentru perioada setată de administrator.</p></section>
- <section id="cmp" class="stack"><div class="sechead"><h2>Ce include fiecare pachet</h2></div>
-  <div class="card tablewrap"><table class="cmp pkcmp"><thead><tr><th>Funcție</th><th>Gratuit</th>${cols.map(p=>`<th>${esc(p.name)}</th>`).join("")}</tr></thead><tbody>${fs.map(f=>`<tr><td>${esc(FEAT_L[f]||f)}</td><td>${FREE[f]?`<span class="small muted">${FREE[f]}</span>`:no}</td>${cols.map(p=>`<td>${planAll(p).includes(f)?yes:no}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`};
+  ${plans.length?"":`<div class="card plan"><h3>Premium</h3><p class="muted small">Planurile Premium nu sunt disponibile momentan.</p></div>`}</div>
+  ${b.note?`<p class="small muted">${esc(b.note)}</p>`:""}</section>`},
+ /* tabelul: exact funcțiile pe care serverul le verifică pentru fiecare plan */
+ pcompare(b){const cols=premPlans().slice(0,6),FREE=PREM_FREE(),fs=FEAT_G.flatMap(g=>g[1]).filter(f=>FREE[f]||cols.some(p=>planAll(p).includes(f)));
+  const yes=`<span class="yes">${I("check")}<span class="sr">inclus</span></span>`,no=`<span class="no" aria-label="nu">–</span>`;
+  if(!cols.length)return"";
+  return `<section id="cmp" class="stack"><div class="sechead"><h2>${esc(b.title)}</h2></div>
+  <div class="card tablewrap"><table class="cmp pkcmp"><thead><tr><th>Funcție</th><th>Gratuit</th>${cols.map(p=>`<th>${esc(p.name)}</th>`).join("")}</tr></thead><tbody>${fs.map(f=>`<tr><td>${esc(FEAT_L[f]||f)}</td><td>${FREE[f]?`<span class="small muted">${FREE[f]}</span>`:no}</td>${cols.map(p=>`<td>${planAll(p).includes(f)?yes:no}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`}
+});
+Object.assign(BLOCK_DEF,{
+ phero:{label:"Premium: titlu",icon:"crown",desc:"Titlul paginii Premium, cu text, buton și imagine.",f:[["eyebrow","Etichetă"],["t1","Titlu, rândul 1"],["t2","Titlu, rândul 2"],["text","Text","area"],["btn","Text buton"],["img","Imagine","img"]]},
+ pbenefits:{label:"Premium: pachetele pe scurt",icon:"star",desc:"Câte un rând pentru fiecare pachet activ, cu funcțiile lui reale (se actualizează singur).",f:[["title","Titlu secțiune"]]},
+ pplans:{label:"Premium: planuri și prețuri",icon:"coin",desc:"Cardurile cu planurile active și butonul de alegere (obligatoriu).",f:[["title","Titlu secțiune"],["note","Notă sub planuri","area"]]},
+ pcompare:{label:"Premium: tabel comparativ",icon:"check",desc:"Ce include fiecare pachet, exact după setările din Monetizare.",f:[["title","Titlu secțiune"]]}
+});
+Object.assign(BLOCK_NEW,{phero:{eyebrow:"Abonament Premium",t1:"Titlu",t2:"al doilea rând",text:"Descriere scurtă.",btn:"Alege planul",img:"photo/premium.jpg"},pbenefits:{title:"Pachetele, pe scurt"},pplans:{title:"Alege planul",note:""},pcompare:{title:"Ce include fiecare pachet"}});
+PAGES.premium=function(){const E=ED&&ED.page==="premium",blocks=E?ED.blocks:premBlocks(),out=[];
+ if(E){out.push(`<div class="edlist" id="edlist">${blocks.map((b,i)=>{const vis=b.show!==false&&audOK(b.aud),f=BLK[b.type];return edWrap(b,i,blocks.length,f?f(b):"",vis)}).join("")}</div>`);
+  out.push(`<button class="addblock" onclick="edAddAt(${blocks.length})">${I("plus")}Adaugă un bloc</button>`)}
+ else{blocks.filter(b=>b.show!==false&&audOK(b.aud)).forEach(b=>{const f=BLK[b.type];if(f)out.push(f(b))});
+  if(!blocks.some(b=>b.type==="pplans"&&b.show!==false))out.push(BLK.pplans({title:"Alege planul"}))}
+ return (!ED&&can("frontend")?`<div class="edentry"><button class="btn sm" onclick="edStart('premium')">${I("layout")}Editează pagina</button></div>`:"")+out.join("")};
 function choosePlan(pid){const m=ME();if(!m){toast("Creează un cont ca să activezi Premium.");authModal("register");return}
  if(RANK[m.role]>=2){toast("Ca membru al echipei ai deja acces Premium.");return}
  if(SRV){openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("crown")} Premium</p><h2 style="font-size:24px">Plata online nu este activă încă</h2></div><div class="box honey"><p class="small">Plățile prin card se conectează în etapa următoare. Până atunci, Premium se activează de administrator, după ce confirmi plata. Scrie-i administratorului site-ului, cu emailul contului tău.</p></div><div class="rowacts"><button class="btn primary" onclick="closeModal()">Am înțeles</button></div></div>`,1);return}
@@ -2790,14 +3051,14 @@ function authModal(tab){POP=null;tab=tab==="register"?"register":"login";
   <label class="lbl">Email<input id="ae" class="field" type="email" autocomplete="username" placeholder="adresa@exemplu.md"></label>
   <label class="lbl">Parola<span class="pw"><input id="ap" class="field" type="password" autocomplete="current-password">${eye("ap")}</span></label>
   <p class="err" id="aerr" role="alert"></p><button class="btn primary" id="abtn">Intră în cont</button>
-  <p class="small muted">${SRV?"Ai uitat parola? Resetarea prin email se adaugă într-o etapă următoare.":"Ai uitat parola? Resetarea prin email se face în versiunea cu server."}</p></form>${demo}`
+  <p class="small"><button type="button" class="link" onclick="forgotModal($('ae').value)">Ai uitat parola?</button></p></form>${demo}`
  :`<form id="af" onsubmit="authGo(event,'register')" novalidate>
   <label class="lbl">Nume<input id="an" class="field" autocomplete="name" maxlength="60" placeholder="Prenume și nume"></label>
   <label class="lbl">Email<input id="ae" class="field" type="email" autocomplete="username" placeholder="adresa@exemplu.md"></label>
   <label class="lbl">Parola<span class="pw"><input id="ap" class="field" type="password" autocomplete="new-password">${eye("ap")}</span><small class="muted">Cel puțin 8 caractere, cu litere și cifre.</small></label>
   <label class="lbl">Repetă parola<input id="ap2" class="field" type="password" autocomplete="new-password"></label>
   <p class="err" id="aerr" role="alert"></p><button class="btn primary" id="abtn">Creează contul</button>
-  <p class="small muted">Contul nou este de tip Membru, cu planul gratuit. Parola este stocată criptat${SRV?" pe server (bcrypt)":" (PBKDF2)"}.</p></form>`}</div>`,1,tab==="login"?"#ae":"#an")}
+  <p class="small muted">Creând contul accepți <button type="button" class="link" onclick="openLegal('termeni')">Termenii de utilizare</button> și <button type="button" class="link" onclick="openLegal('confidentialitate')">Politica de confidențialitate</button>. Parola este stocată criptat${SRV?" pe server (bcrypt)":" (PBKDF2)"}.</p></form>`}</div>`,1,tab==="login"?"#ae":"#an")}
 function fillDemo(email){$("ae").value=email;$("ap").value=DEMO_PW;$("abtn").focus()}
 function pwEye(id,b){const i=$(id);const show=i.type==="password";i.type=show?"text":"password";b.innerHTML=I(show?"eyeoff":"eye");b.setAttribute("aria-label",show?"Ascunde parola":"Arată parola")}
 async function authGo(e,mode){e.preventDefault();const b=$("abtn"),er=$("aerr");er.textContent="";b.disabled=true;const t=b.textContent;b.textContent="Se verifică…";
@@ -3041,7 +3302,8 @@ function delUser(id){const t=acct(id);if(!t)return;ask("Ștergi contul?",`Contul
 const canPlans=(m=ME())=>!!m&&(m.role==="super"||(m.role==="admin"&&!!m.grantPlans));
 function premModal(id){const t=acct(id);if(!t||!canPlans()||!canManage(t))return deny();const pl=S.plans||[],cur=pkgList(t),tom=addDaysS(todayS(),1);
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("crown")} Premium</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email||"")} · ${esc(ROLE_L[t.role]||"")}</p></div>
- <div class="box"><div class="kv"><span>Stare</span><b>${cur.length||hasPrem(t)?"Premium":"Plan gratuit"}</b></div>${cur.map(x=>`<div class="kv"><span>${esc(x.name)}${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}</span><b>${esc(untilTxt(x.until))}</b></div>`).join("")}</div>
+ <div class="box"><div class="kv"><span>Stare</span><b>${cur.length||hasPrem(t)?"Premium":"Plan gratuit"}</b></div></div>
+ ${subsHTML(id)}
  ${pl.length?`<form class="form pmform" onsubmit="event.preventDefault();premAsk('${id}')">
   <label class="lbl">Plan Premium<select id="pmplan" class="field" onchange="premInfo()">${pl.map(p=>`<option value="${p.id}">${esc(p.name)} · ${num(p.price)} MDL · ${p.days} zile${p.on?"":" · inactiv pe site"}</option>`).join("")}</select></label>
   <p class="small muted" id="pminfo"></p>
@@ -3052,7 +3314,7 @@ function premModal(id){const t=acct(id);if(!t||!canPlans()||!canManage(t))return
    <label class="pmopt"><input type="radio" name="pmv" value="perm" onchange="premInfo()"><span>Permanent <span class="muted">(fără dată de expirare)</span></span></label>
   </fieldset>
   <div class="rowacts"><button class="btn primary">${I("crown")}Acordă</button>${cur.length||hasPrem(t)?`<button type="button" class="btn danger" onclick="premGive('${id}',0)">Retrage Premium</button>`:""}<button type="button" class="btn ghost" onclick="closeModal()">Închide</button></div></form>`
-  :`<p class="small muted">Nu există planuri Premium. Le creezi în Administrare → Monetizare.</p><div class="rowacts"><button class="btn" onclick="closeModal()">Închide</button></div>`}</div>`,1);premInfo()}
+  :`<p class="small muted">Nu există planuri Premium. Le creezi în Administrare → Monetizare.</p><div class="rowacts"><button class="btn" onclick="closeModal()">Închide</button></div>`}</div>`,1);premInfo();subsLoad(id,"prem")}
 function premPick(v){const r=document.querySelector(`input[name=pmv][value=${v}]`);if(r)r.checked=true}
 function premInfo(){const p=(S.plans||[]).find(x=>x.id===($("pmplan")||{}).value);if(!p)return;
  if($("pmdef"))$("pmdef").textContent=`(${p.days} zile)`;if($("pminfo"))$("pminfo").innerHTML=pkgFeatsLine(p.id)}
@@ -3077,7 +3339,7 @@ async function setGrantPlans(id,on){const t=acct(id);if(!t||ME().role!=="super"|
 function premGive(id,d){d=Math.round(+d);if(d<0||d>3650||isNaN(d))return toast("Perioada trebuie să fie între 1 și 3650 de zile.");
  const go_=()=>{if(grantPremium(id,d)){closeModal();draw();toast(d>0?`Premium acordat: +${d} zile`:"Premium retras")}};
  if(d===0){const t=acct(id);return ask("Retragi Premium?",`${esc(t?t.name:"")} pierde toate planurile active.`,"Retrage",go_,true)}go_()}
-function permModal(id){const t=acct(id),me=ME();if(!t||!canManage(t)||!extraTarget(t))return deny();const G=(GRANT[me.role]||[]).filter(p=>t.role==="moderator"||p==="images");
+function permModal(id){const t=acct(id),me=ME();if(!t||!canManage(t)||!extraTarget(t))return deny();const G=(GRANT[me.role]||[]).filter(p=>t.role==="moderator"||p==="images"||p==="frontend");
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("key")} Drepturi</p><h2 style="font-size:22px">${esc(t.name)} · ${esc(ROLE_L[t.role])}</h2></div>
  <p class="muted small">Bifează ce poate face în plus față de rolul lui. Poți acorda doar drepturi pe care le ai tu.</p>
  <div class="stack">${G.map(p=>{const built=(ROLE_DEF[t.role]||[]).includes(p),on=built||(t.extra||[]).includes(p);return `<label class="switch"><input type="checkbox" ${on?"checked":""} ${built?"disabled":""} onchange="extraSet('${id}','${p}')"><span><b>${PERM_L[p]}</b>${built?` <span class="small muted">(inclus în rol)</span>`:""}${p==="frontend"?`<br><span class="small muted">Poate edita pagina principală cu editorul vizual.</span>`:""}</span></label>`}).join("")}</div>
@@ -3096,8 +3358,9 @@ function uOpts(a,mg,self){const me=ME(),sw=[],bt=[];
  if(canTgl(a))sw.push(tgl(uFeat(a,"receipt_scan"),"Scanare bon cu AI",`setUserFeature('${a.id}','receipt_scan',this.checked)`,uFeatPlan(a,"receipt_scan")?"(și din pachet)":""));
  if(RANK[a.role]<2&&a.id!==ME().id&&(isRecStaff()||canTgl(a))){sw.push(tgl(uFeat(a,"recipe_author"),"Poate adăuga rețete",`setUserFeature('${a.id}','recipe_author',this.checked)`));
   sw.push(tgl(uFeat(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(și din pachet)":""));
-  sw.push(tgl(uFeat(a,"coach_cabinet"),"Cabinet de antrenor",`setUserFeature('${a.id}','coach_cabinet',this.checked)`,uFeatPlan(a,"coach_cabinet")?"(și din pachet)":a.role!=="trainer"?"(se folosește ca Antrenor)":""))}
+  sw.push(tgl(uFeat(a,"coach_cabinet"),"Cabinet de antrenor",`setUserFeature('${a.id}','coach_cabinet',this.checked)`,uFeatPlan(a,"coach_cabinet")?"(și din pachet)":a.role!=="trainer"?"(contul devine Antrenor)":""))}
  if(me.role==="super"&&!self)bt.push(`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Pachet și funcții</button>`);
+ if(mg&&SRV)bt.push(`<button class="btn sm" onclick="resetLinkUI('${a.id}')">${I("key")}Link resetare parolă</button>`);
  if(mg&&RANK[a.role]<2&&canPlans())bt.push(`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button>`);
  if(mg&&extraTarget(a)&&(GRANT[me.role]||[]).length)bt.push(`<button class="btn sm" onclick="permModal('${a.id}')">${I("key")}Drepturi</button>`);
  if(canBlock(a))bt.push(`<button class="btn sm" onclick="blockUser('${a.id}',${!a.blocked})">${I("ban")}${a.blocked?"Deblochează":"Blochează"}</button>`);
@@ -3116,7 +3379,7 @@ async function setUserFeature(id,f,on){const t=acct(id)||(PROF.data&&PROF.data.i
  if(SRV){const r=await api("/admin/users/"+encodeURIComponent(id)+"/features",{method:"PUT",body:{feature:f,on}});
   if(!r.ok){toast((r.data&&r.data.error)||"Nu am putut salva.");return draw()}
   if(r.data.admin)admApply(r.data.admin);if(r.data.trainers){RAUTH.list=r.data.trainers;RAUTH.at=Date.now()}persist()}
- else{if(f==="recipe_author")t.recipeAuthor=!!on;const l=new Set(t.features||[]);on?l.add(f):l.delete(f);t.features=[...l];audit(`${on?"A activat":"A dezactivat"} „${FEAT_L[f]}” pentru ${t.name}`);save()}
+ else{if(f==="recipe_author")t.recipeAuthor=!!on;if(f==="coach_cabinet"&&on&&t.role==="member")t.role="trainer";const l=new Set(t.features||[]);on?l.add(f):l.delete(f);t.features=[...l];audit(`${on?"A activat":"A dezactivat"} „${FEAT_L[f]}” pentru ${t.name}`);save()}
  draw();toast(on?"Funcția a fost activată":"Funcția a fost dezactivată")}
 const pkgList=a=>a.packages&&a.packages.length?a.packages:a.planName?[{name:a.planName,until:a.until,gift:!1}]:[];
 const pkgTags=a=>pkgList(a).map(x=>`<span class="tag pk">${esc(x.name)}</span>${x.gift?`<span class="tag gift">Oferit de admin</span>`:""}`).join(" ");
@@ -3135,6 +3398,36 @@ async function pkgGive(id){const pid=$("pkgp").value,d=$("pkgd").value?Math.roun
  if(SRV){const r=await api("/admin/users/"+encodeURIComponent(id)+"/plan",{method:"POST",body:{planId:pid,days:d}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut atașa pachetul.");admApply(r.data.admin);persist()}
  else{const base=(t.plan==="premium"&&t.until&&t.until>todayS())?t.until:todayS();t.plan="premium";t.until=addDaysS(base,d||p.days);t.planId=p.id;t.planFeatures=planAll(p);t.packages=[{name:p.name,until:t.until,gift:true}];audit(`A oferit pachetul „${p.name}” lui ${t.name}`);save()}
  closeModal();draw();toast(`Pachetul „${p?p.name:""}” a fost oferit lui ${t?t.name:""}`)}
+
+/* ---------- Pachetele active ale unui utilizator: modificare dată / dezactivare (moderator în sus, și pentru pachetele cadou) ---------- */
+const SUBX={list:{},edit:null,ctx:{}};
+function subsLocal(uid){const t=acct(uid);return t?(t.packages||[]).map((x,i)=>({id:"l"+i,name:x.name,gift:!!x.gift,until:x.until})):[]}
+async function subsLoad(uid,ctx){SUBX.ctx[uid]=ctx;if(!SRV){SUBX.list[uid]=subsLocal(uid);return subsPaint(uid)}
+ SUBX.list[uid]=null;subsPaint(uid);const r=await api("/admin/users/"+encodeURIComponent(uid)+"/subscriptions");
+ SUBX.list[uid]=r.ok?r.data.subscriptions:{err:(r.data&&r.data.error)||"Pachetele nu au putut fi încărcate."};subsPaint(uid)}
+function subsPaint(uid){const el=$("subs-"+uid);if(el)el.outerHTML=subsHTML(uid)}
+function subsHTML(uid){const l=SUBX.list[uid];
+ const rows=!l?`<p class="small muted">Se încarcă…</p>`:l.err?`<p class="small muted">${esc(l.err)}</p>`:!l.length?`<p class="small muted">Nu are niciun pachet activ.</p>`
+  :`<ul class="sublist">${l.map(x=>`<li><div class="subtop"><span><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<br><span class="small muted">${esc(untilTxt(x.until))}${x.later?" · începe după cel curent":""}</span></span>
+    <span class="rowacts"><button class="btn sm" onclick="subsEdit('${x.id}','${uid}')">${I("edit")}Modifică</button><button class="btn sm danger" onclick="subsCancel('${x.id}','${uid}')">Dezactivează</button></span></div>
+    ${SUBX.edit===x.id?`<form class="form subedit" onsubmit="event.preventDefault();subsSave('${x.id}','${uid}')"><label class="lbl">Valabil până la<input id="sub_d" class="field w160" type="date" min="${todayS()}" max="2999-12-30" value="${String(x.until||"").slice(0,4)>="2900"?addDaysS(todayS(),30):esc(x.until||todayS())}"></label>
+     <label class="switch"><input type="checkbox" id="sub_p" ${String(x.until||"").slice(0,4)>="2900"?"checked":""}>Permanent</label><button class="btn sm primary">Salvează</button><button type="button" class="btn sm ghost" onclick="SUBX.edit=null;subsPaint('${uid}')">Renunță</button></form>`:""}</li>`).join("")}</ul>`;
+ return `<div class="box" id="subs-${uid}"><p class="h3" style="font-size:15px">Pachete active</p>${rows}<p class="small muted">Poți schimba data de expirare sau opri orice pachet, inclusiv cele oferite cadou.</p></div>`}
+function subsEdit(sid,uid){SUBX.edit=SUBX.edit===sid?null:sid;subsPaint(uid)}
+function subsAfter(uid,r){if(r&&r.data){if(r.data.subscriptions)SUBX.list[uid]=r.data.subscriptions;if(r.data.admin)admApply(r.data.admin);persist()}
+ SUBX.edit=null;const c=SUBX.ctx[uid];if(c==="prem")premModal(uid);else if(c==="prof")profAdmReload();else subsPaint(uid);draw()}
+async function subsSave(sid,uid){const perm=$("sub_p").checked,d=$("sub_d").value;
+ if(!perm&&(!d||d<todayS()))return toast("Alege o dată de azi sau din viitor.");
+ if(SRV){const r=await api("/admin/subscriptions/"+encodeURIComponent(sid),{method:"PATCH",body:perm?{permanent:true}:{until:d}});
+  if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");toast("Pachetul a fost modificat");return subsAfter(uid,r)}
+ const t=acct(uid),i=+sid.slice(1);if(t&&t.packages&&t.packages[i]){t.packages[i].until=perm?"2999-12-31":d;t.until=t.packages.map(x=>x.until).sort().pop();audit(`A modificat pachetul „${t.packages[i].name}” al lui ${t.name}`);save()}
+ SUBX.list[uid]=subsLocal(uid);toast("Pachetul a fost modificat");subsAfter(uid)}
+function subsCancel(sid,uid){const x=(SUBX.list[uid]||[]).find(y=>y.id===sid);if(!x)return;
+ ask("Dezactivezi pachetul?",`Pachetul <b>${esc(x.name)}</b> se oprește acum${x.gift?", chiar dacă a fost oferit cadou":""}. Funcțiile lui se închid imediat pentru acest utilizator.`,"Dezactivează",async()=>{
+  if(SRV){const r=await api("/admin/subscriptions/"+encodeURIComponent(sid)+"/cancel",{method:"POST"});
+   if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut dezactiva pachetul.");toast("Pachetul a fost dezactivat");return subsAfter(uid,r)}
+  const t=acct(uid),i=+sid.slice(1);if(t&&t.packages){t.packages.splice(i,1);if(!t.packages.length){t.plan="free";t.until=null;t.planFeatures=[]}audit(`A dezactivat pachetul „${x.name}” al lui ${t.name}`);save()}
+  SUBX.list[uid]=subsLocal(uid);toast("Pachetul a fost dezactivat");subsAfter(uid)},true)}
 
 /* ---------- Monetizare ---------- */
 ATAB_FN.mon=function(){
@@ -3193,9 +3486,11 @@ function setReg(v){if(!need("security")){draw();return}S.settings.reg=!!v;audit(
 ATAB_FN.look=function(){const t=S.theme;setTimeout(banMount);
  return `<div class="panels">
  ${bannerPanel()}
- <div class="card panel"><h3>Editor vizual</h3><p class="muted">Rearanjează, editează, ascunde și adaugă blocuri pe pagina principală, direct pe pagină. Modificările se văd tuturor abia după „Publică”.</p>
-  <div><button class="btn primary" onclick="edStart()">${I("layout")}Deschide editorul</button></div>
-  <button class="link" onclick="askResetHome()">${I("reset")}Restabilește pagina principală</button></div>
+ <div class="card panel"><h3>Editor vizual</h3><p class="muted">Rearanjează prin tragere, editează, ascunde și adaugă blocuri (bannere, texte, structura paginii), direct pe pagină. Modificările se văd tuturor abia după „Publică”.</p>
+  <div class="rowacts"><button class="btn primary" onclick="edStart()">${I("layout")}Pagina principală</button><button class="btn primary" onclick="edStart('premium')">${I("crown")}Pagina Abonament Premium</button></div>
+  <p class="small muted">Acces: Administratorul principal și cei cărora el le-a dat dreptul „Editor vizual” (Utilizatori → Opțiuni → Drepturi).</p>
+  <button class="link" onclick="askResetHome()">${I("reset")}Restabilește pagina principală</button>${S.premPage?`<button class="link" onclick="askResetPrem()">${I("reset")}Restabilește pagina Premium</button>`:""}</div>
+ ${navPanel()}
  <div class="card panel"><h3>Nume și culori</h3>
   <label class="lbl">Numele site-ului<input id="tb" class="field" maxlength="24" value="${esc(t.brand)}"></label>
   <div class="lbl">Culoarea principală<div class="swatches">${THEME_PRESETS.map(([n,c])=>`<button type="button" class="sw" style="background:${c}" title="${n}" aria-label="${n}" aria-pressed="${t.color.toLowerCase()===c}" onclick="$('tc').value='${c}'"></button>`).join("")}<input type="color" id="tc" value="${esc(t.color)}" aria-label="Alege altă culoare"></div></div>
@@ -3204,6 +3499,9 @@ ATAB_FN.look=function(){const t=S.theme;setTimeout(banMount);
  <div class="card panel wide"><h3>Texte din celelalte pagini</h3><p class="small muted">Titlurile și subtitlurile paginilor Rețete, Frigider, Cumpărături, Planificator, Anti-risipă și Premium.</p>
   <form class="stack" onsubmit="event.preventDefault();saveTxt()"><div class="txtgrid">${TXT_FIELDS.map(([k,l,t])=>t==="area"?`<label class="lbl wide">${l}<textarea id="tx_${k}" class="field" rows="2" maxlength="300">${esc(S.txt[k]??DEF_TXT[k])}</textarea></label>`:`<label class="lbl">${l}<input id="tx_${k}" class="field" maxlength="120" value="${esc(S.txt[k]??DEF_TXT[k])}"></label>`).join("")}</div>
   <div class="rowacts"><button class="btn primary">Salvează textele</button><button type="button" class="btn" onclick="saveTxt(true)">Valorile inițiale</button></div></form></div></div>`};
+function askResetPrem(){ask("Revii la pagina Premium inițială?","Blocurile paginii Abonament Premium revin la varianta de la lansare.","Revino la varianta inițială",async()=>{if(!need("frontend"))return;
+ const blocks=DEF_PREM();if(SRV){const r=await api("/pages/premium",{method:"PUT",body:{blocks}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut restabili pagina.");S.premPage=r.data.premium}else S.premPage=null;
+ audit("A restabilit pagina Premium");save();draw();toast("Pagina Premium a fost restabilită")},true)}
 function askResetHome(){ask("Revii la pagina inițială?","Blocurile paginii principale revin la varianta de la lansare. Culorile și numele nu se schimbă.","Revino la varianta inițială",()=>{if(!need("frontend"))return;S.home=clone(DEF_HOME);audit("A restabilit pagina principală la varianta inițială");save();draw();toast("Pagina principală a fost restabilită")},true)}
 function saveTheme(reset){if(!need("frontend"))return;
  if(reset)S.theme=clone(DEF_THEME);else S.theme={brand:($("tb").value.trim()||"Gusto").slice(0,24),color:$("tc").value,honey:$("th").value};
@@ -3314,6 +3612,68 @@ function confirmAi(id){const r=byId(id)||(AIX.res&&AIX.res.recipe);if(!r)return 
  b.querySelector(".aicard .rowacts").innerHTML=`<span class="small"><b>Ștergi „${esc(r.n)}”?</b> Se șterge definitiv.</span><button class="btn danger sm" onclick="aiDelGo('${r.id}')">Da, șterge</button><button class="btn sm" onclick="aiDraw()">Renunță</button>`;return true}
 function aiDelGo(id){S.recipes=S.recipes.filter(x=>x.id!==id);save();socOp("DELETE","/recipes/"+encodeURIComponent(id));AIX.res=null;aiDraw();toast("Rețeta a fost ștearsă");setTimeout(aiHist,1200);if(S.page==="admin")draw()}
 
+/* ---------- Administrare → Aspect: meniul din stânga pe categorii (arbore pe 2 niveluri) ---------- */
+const NAVED={items:null,dirty:false};
+const navRid=p=>p+Math.random().toString(36).slice(2,8);
+function navDraft(){if(!NAVED.items)NAVED.items=clone(navTree());return NAVED.items}
+const navFind=id=>{for(const x of navDraft()){if(x.id===id)return{it:x,list:navDraft(),parent:null};if(x.t==="g"){const c=(x.c||[]).find(y=>y.id===id);if(c)return{it:c,list:x.c,parent:x}}}return null};
+const navUsed=()=>new Set(navDraft().flatMap(x=>x.t==="g"?(x.c||[]).map(c=>c.p):[x.p]));
+function navTouch(){NAVED.dirty=true;draw()}
+
+function navRow(it,inGroup){const def=(PAGE_META[it.p]||[it.p])[0],groups=navDraft().filter(g=>g.t==="g");
+ return `<li class="nvi" data-id="${it.id}"><div class="nvrow"><span class="nvgrip" title="Trage ca să muți">${I("grip")}</span>${I((PAGE_META[it.p]||[])[1]||"grid")}
+  <input class="field nvl" value="${esc(it.l||"")}" placeholder="${esc(def)}" maxlength="30" aria-label="Numele din meniu pentru ${esc(def)}" oninput="navLbl('${it.id}',this.value)">
+  <select class="field nvsel" aria-label="Categoria" onchange="navMoveTo('${it.id}',this.value)"><option value="">Fără categorie</option>${groups.map(g=>`<option value="${g.id}" ${inGroup&&inGroup.id===g.id?"selected":""}>În: ${esc(g.l||"Categorie nouă")}</option>`).join("")}</select>
+  <span class="nvbtns"><button class="iconbtn" onclick="navStep('${it.id}',-1)" aria-label="Mută în sus">${I("up")}</button><button class="iconbtn" onclick="navStep('${it.id}',1)" aria-label="Mută în jos">${I("down")}</button>
+  ${it.p==="acasa"?"":`<button class="iconbtn" onclick="navHide('${it.id}')" aria-label="Scoate din meniu" title="Scoate din meniu">${I("eyeoff")}</button>`}</span></div></li>`}
+function navPanel(){if(!can("frontend"))return"";const items=navDraft(),used=navUsed(),hidden=Object.keys(PAGE_META).filter(p=>!used.has(p));setTimeout(navMount);
+ return `<div class="card panel wide" id="navpanel"><h3>Meniul din stânga</h3>
+  <p class="small muted">Grupează paginile în categorii, de exemplu <b>Familie</b> → Cumpărături, Frigider, Casă și igienă. Trage de ${I("grip")} ca să muți o pagină sau o categorie; o pagină se poate trage și într-o categorie. Pe telefon, același meniu apare în meniul contului.</p>
+  <ul class="navtree" id="navroot">${items.map(x=>x.t!=="g"?navRow(x):`<li class="nvi nvgroup" data-id="${x.id}"><div class="nvrow"><span class="nvgrip" title="Trage ca să muți">${I("grip")}</span>
+   <select class="field nvic" aria-label="Pictograma categoriei" onchange="navIcon('${x.id}',this.value)">${NAV_ICONS.map(i=>`<option value="${i}" ${x.ic===i?"selected":""}>${i}</option>`).join("")}</select>${I(x.ic||"folder")}
+   <input class="field nvl" value="${esc(x.l||"")}" placeholder="Numele categoriei" maxlength="30" aria-label="Numele categoriei" oninput="navLbl('${x.id}',this.value)">
+   <label class="switch small"><input type="checkbox" ${x.open!==false?"checked":""} onchange="navOpenDef('${x.id}',this.checked)">Deschisă</label>
+   <span class="nvbtns"><button class="iconbtn" onclick="navStep('${x.id}',-1)" aria-label="Mută în sus">${I("up")}</button><button class="iconbtn" onclick="navStep('${x.id}',1)" aria-label="Mută în jos">${I("down")}</button>
+   <button class="iconbtn" onclick="navDelGroup('${x.id}')" aria-label="Șterge categoria" title="Șterge categoria">${I("trash")}</button></span></div>
+   <ul class="navtree navkids2" data-g="${x.id}">${(x.c||[]).map(c=>navRow(c,x)).join("")||""}</ul>${(x.c||[]).length?"":`<p class="small muted nvempty">Trage aici pagini sau alege categoria din lista unei pagini.</p>`}</li>`).join("")}</ul>
+  ${hidden.length?`<div class="nvhidden"><span class="small muted">Pagini care nu sunt în meniu:</span><div class="chips">${hidden.map(p=>`<button class="chip" onclick="navAdd('${p}')">${I("plus")}${esc(PAGE_META[p][0])}</button>`).join("")}</div></div>`:""}
+  <div class="rowacts"><button class="btn" onclick="navAddGroup()">${I("folder")}Categorie nouă</button><button class="btn primary" onclick="navSave()" ${NAVED.dirty?"":"disabled"}>Salvează meniul</button>
+   ${NAVED.dirty?`<button class="btn ghost" onclick="NAVED.items=null;NAVED.dirty=false;draw()">Anulează modificările</button>`:""}<button class="link" onclick="navReset()">${I("reset")}Meniul inițial</button></div>
+  <p class="small muted">Paginile Familie, Mesaje și Antrenor apar doar celor conectați, iar Administrare doar echipei, indiferent de categorie.</p></div>`}
+
+function navLbl(id,v){const f=navFind(id);if(!f)return;f.it.l=String(v).slice(0,30);NAVED.dirty=true;const b=document.querySelector("#navpanel .btn.primary");if(b)b.disabled=false}
+function navIcon(id,v){const f=navFind(id);if(f){f.it.ic=v;navTouch()}}
+function navOpenDef(id,v){const f=navFind(id);if(f){f.it.open=!!v;NAVED.dirty=true;const b=document.querySelector("#navpanel .btn.primary");if(b)b.disabled=false}}
+function navStep(id,d){const f=navFind(id);if(!f)return;const i=f.list.indexOf(f.it),j=i+d;if(j<0||j>=f.list.length)return;[f.list[i],f.list[j]]=[f.list[j],f.list[i]];navTouch()}
+function navMoveTo(id,gid){const f=navFind(id);if(!f)return;f.list.splice(f.list.indexOf(f.it),1);
+ if(gid){const g=navDraft().find(x=>x.id===gid);(g.c=g.c||[]).push(f.it)}else{const at=f.parent?navDraft().indexOf(f.parent)+1:navDraft().length;navDraft().splice(at,0,f.it)}navTouch()}
+function navHide(id){const f=navFind(id);if(!f||f.it.p==="acasa")return;f.list.splice(f.list.indexOf(f.it),1);navTouch()}
+function navAdd(p){navDraft().push({id:navRid("p"),t:"p",p});navTouch()}
+function navAddGroup(){navDraft().push({id:navRid("g"),t:"g",l:"Categorie nouă",ic:"folder",open:true,c:[]});navTouch();
+ setTimeout(()=>{const l=document.querySelectorAll("#navroot > .nvgroup .nvl");const e=l[l.length-1];if(e){e.focus();e.select()}},50)}
+function navDelGroup(id){const items=navDraft(),g=items.find(x=>x.id===id);if(!g)return;
+ ask("Ștergi categoria?",`Paginile din „${esc(g.l||"categorie")}” rămân în meniu, fără categorie.`,"Șterge categoria",()=>{const i=items.indexOf(g);items.splice(i,1,...(g.c||[]));navTouch()},true)}
+/* tragere: o categorie se mută doar între categorii; o pagină poate intra sau ieși dintr-o categorie */
+function navMount(){const root=$("navroot");if(!root||root.dataset.dnd)return;root.dataset.dnd="1";
+ loadSortable().then(Sortable=>{if(!Sortable||!document.body.contains(root))return;
+  const opt={group:"nav",animation:150,forceFallback:true,fallbackTolerance:4,handle:".nvgrip",draggable:".nvi",ghostClass:"ebghost",fallbackOnBody:true,swapThreshold:.6,
+   onMove:e=>!(e.dragged.classList.contains("nvgroup")&&e.to!==root),onEnd:navFromDom};
+  Sortable.create(root,opt);root.querySelectorAll(".navkids2").forEach(ul=>Sortable.create(ul,{...opt,emptyInsertThreshold:24}))})}
+function navFromDom(){const root=$("navroot");if(!root)return;const all={};
+ const walk=l=>l.forEach(x=>{all[x.id]=x;if(x.t==="g")walk(x.c||[])});walk(navDraft());
+ NAVED.items=[...root.children].filter(li=>li.dataset.id&&all[li.dataset.id]).map(li=>{const it=all[li.dataset.id];
+  if(it.t==="g"){const ul=li.querySelector(".navkids2");it.c=ul?[...ul.children].map(c=>all[c.dataset.id]).filter(x=>x&&x.t!=="g"):[]}return it});
+ navTouch()}
+async function navSave(){const items=navDraft();
+ if(items.some(x=>x.t==="g"&&!String(x.l||"").trim()))return toast("Fiecare categorie are nevoie de un nume.");
+ const nav=items.map(x=>x.t==="g"?{...x,l:x.l.trim(),c:(x.c||[]).map(c=>({...c,l:(c.l||"").trim()||undefined}))}:{...x,l:(x.l||"").trim()||undefined});
+ if(SRV){const r=await api("/nav",{method:"PUT",body:{nav}});if(!r.ok)return toast((r.data&&r.data.error)||"Meniul nu a putut fi salvat.");S.nav=r.data.nav}
+ else{S.nav=nav;audit("A modificat meniul din stânga")}
+ NAVED.items=null;NAVED.dirty=false;save();draw();toast("Meniul a fost salvat")}
+function navReset(){ask("Revii la meniul inițial?","Categoriile create dispar, iar paginile revin în ordinea de la lansare.","Revino la meniul inițial",async()=>{
+ if(SRV){const r=await api("/nav",{method:"DELETE"});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut reseta meniul.")}
+ S.nav=null;NAVED.items=null;NAVED.dirty=false;save();draw();toast("Meniul a revenit la forma inițială")},true)}
+
 /* ---------- Pagina Familie ---------- */
 PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
  const head=pagehead("Familie","Adaugă-ți familia și împărțiți, dacă vreți, un singur frigider.");
@@ -3340,7 +3700,7 @@ PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
  <div class="card panel"><h3>Frigiderul meu</h3>
   <div class="kv"><span>Folosesc acum</span><b>${sharing?"frigiderul comun":"frigiderul meu personal"}</b></div>
   <div class="kv"><span>Frigiderul comun</span><b>${(f.fridge||[]).length} produse · ${sharers.length} ${sharers.length===1?"membru":"membri"}</b></div>
-  ${sharing||feat("family_fridge")?`<label class="switch"><input type="checkbox" ${sharing?"checked":""} onchange="famShareUI(this.checked)"><span>Folosesc frigiderul comun al familiei <span class="small muted">(și produsele din Casă și igienă)</span></span></label>`:`<p class="small muted">Frigiderul comun, sincronizat între toți membrii, este inclus în pachetul Smart Kitchen.</p><div>${lockBtn("family_fridge","Folosesc frigiderul comun")}</div>`}
+  ${sharing||feat("family_fridge")?`<label class="switch"><input type="checkbox" ${sharing?"checked":""} onchange="famShareUI(this.checked)"><span>Folosesc frigiderul comun al familiei <span class="small muted">(și produsele din Casă și igienă)</span></span></label>`:`<p class="small muted">Frigiderul comun, sincronizat între toți membrii, este inclus în pachetul Smart Kitchen Ultra.</p><div>${lockBtn("family_fridge","Folosesc frigiderul comun")}</div>`}
   <p class="small muted">Dacă oprești, revii la frigiderul tău personal, exact cum l-ai lăsat. Produsele din frigiderul comun rămân pentru ceilalți.</p>
   <button class="btn sm" onclick="go('frigider')">${I("fridge")}Deschide frigiderul</button></div>
  <div class="card panel"><h3>Ieșire</h3><p class="small muted">Poți ieși oricând din familie. Frigiderul tău personal rămâne neatins.</p>
@@ -3396,7 +3756,7 @@ const mondayOf=k=>{const d=new Date(k+"T00:00");d.setDate(d.getDate()-((d.getDay
 
 PAGES.antrenor=function(){
  if(isTrainer())return feat("coach_cabinet")?trainerPage():pagehead("Cabinet antrenor","Grupul tău, meniurile pentru studenți, ședințele și rețetele proprii.")+
-  `<div class="card gate"><span class="ic h">${I("lock")}</span><h1>Cabinetul de antrenor este în pachetul Antrenor Pro</h1><p class="muted">Cu Antrenor Pro ai grupul de studenți, meniuri pe zile, programarea ședințelor, rețete proprii, generare de rețete cu AI, iar meniurile trimise intră automat în planificatorul clienților tăi.</p><div>${lockBtn("coach_cabinet","Vezi pachetul Antrenor Pro","honey")}</div></div>`;
+  `<div class="card gate"><span class="ic h">${I("lock")}</span><h1>Cabinetul de antrenor este în pachetul Antrenor / Expert</h1><p class="muted">Cu Antrenor / Expert ai grupul de studenți, meniuri pe zile, programarea ședințelor, rețete proprii, generare de rețete cu AI, iar meniurile trimise intră automat în planificatorul clienților tăi.</p><div>${lockBtn("coach_cabinet","Vezi pachetul Antrenor / Expert","honey")}</div></div>`;
  if(isStudent())return studentPage();
  return pagehead("Antrenor personal","Meniuri și antrenamente stabilite împreună cu antrenorul tău.")+
   `<div class="card gate"><span class="ic g">${I("dumbbell")}</span><h1>Încă nu ai un antrenor</h1><p class="muted">Când lucrezi cu un antrenor personal de pe ${esc(S.theme.brand||"Gusto")}, el te adaugă în grupul lui după emailul contului tău (${esc(ME().email)}). Apoi vezi aici meniurile tale și orele de antrenament.</p></div>`};
@@ -3404,10 +3764,10 @@ PAGES.antrenor=function(){
 /* ======== Cabinetul antrenorului ======== */
 function trainerPage(){const st=myStudents(),wk=sessInRange(mondayOf(todayS()),addDaysS(mondayOf(todayS()),6));
  if(CMENU&&!ownMenu(CMENU))CMENU=null;
- const tabs=[["stud","Studenți","users"],["men","Meniuri","grid"],["rec","Rețetele mele","edit"],["cal","Calendar","cal"]];
+ const tabs=[["stud","Studenți","users"],["men","Meniuri","grid"],["tpl","Șabloane","copy"],["prog","Progres","chart"],["rec","Rețetele mele","edit"],["cal","Calendar","cal"]];
  return pagehead("Cabinet antrenor",`${st.length} ${st.length===1?"student":"studenți"} · ${wk.length} ${wk.length===1?"ședință":"ședințe"} săptămâna aceasta · ${myMenus().length} meniuri`)+
   `<div class="atabs ctabs" role="tablist">${tabs.map(([k,l,ic])=>`<button role="tab" aria-selected="${CTAB===k}" onclick="CTAB='${k}';CMENU=null;draw()">${I(ic)}${l}</button>`).join("")}</div>`+
-  (CTAB==="stud"?studentsTab(st):CTAB==="men"?(CMENU?menuView(ownMenu(CMENU),true):menusTab(st)):CTAB==="rec"?myRecipesTab():calendarView(true))}
+  (CTAB==="stud"?studentsTab(st):CTAB==="men"?(CMENU?menuView(ownMenu(CMENU),true):menusTab(st)):CTAB==="tpl"?tplTab():CTAB==="prog"?(feat("coach_progress")?coachProgTab():`<div class="card gate"><span class="ic h">${I("lock")}</span><h1>Panoul de progres este în ${PK_PRO}</h1><p class="muted">Grafice cu greutatea, caloriile și respectarea planului pentru fiecare client.</p><button class="btn honey" onclick="go('premium')">Vezi pachetul</button></div>`):CTAB==="rec"?myRecipesTab():calendarView(true))}
 /* ---- rețetele antrenorului: vizibile imediat la el și la studenții lui (din meniuri); publice după aprobare ---- */
 function myRecipesTab(){const mine=S.recipes.filter(r=>ownRec(r)),can2=canAuthor();
  return `<div class="toolbar"><p class="small muted" style="margin:0;flex:1;min-width:220px">Rețetele tale se văd imediat în contul tău și le poți pune în meniurile studenților (le văd toți studenții din grup). Devin publice pentru toți după aprobarea unui moderator.</p>
@@ -3424,7 +3784,7 @@ function studentsTab(st){
   <form class="form" onsubmit="event.preventDefault();coachAddUI()"><label class="lbl grow">Emailul studentului<input id="cst" class="field" type="email" autocomplete="off" placeholder="ex. dan.lupu@exemplu.md"></label><button class="btn primary">${I("plus")}Adaugă în grup</button></form></div>
  ${st.length?`<div class="card panel"><h3>Grupul meu</h3><ul class="alist flat">${st.map(u=>{const nm=S.coach.menus.filter(m=>m.tr===S.uid&&m.st===u.id).length,nx=nextSess(u.id);
   return `<li><span class="avatar ${stTone(u.id)}">${esc(initials(u.name))}</span><span class="grow"><b>${esc(u.name)}</b> ${hasPrem(u)?`<span class="tag honey">Premium</span>`:""}<br><span class="small muted">${esc(u.email)} · ${nm} ${nm===1?"meniu":"meniuri"} · ${nx?`următoarea ședință: ${dateL(nx.d)}, ${nx.s}`:"nicio ședință programată"}</span></span>
-  <span class="rowacts"><button class="btn sm" onclick="menuNewUI('${u.id}')">${I("plus")}Meniu</button><button class="btn sm" onclick="sessModal(null,'${u.id}')">${I("cal")}Programează</button><button class="iconbtn" onclick="coachRemoveUI('${u.id}')" aria-label="Elimină ${esc(u.name)} din grup">${I("trash")}</button></span></li>`}).join("")}</ul></div>`
+  <span class="rowacts">${SRV?`<button class="btn sm" onclick="openChat('${u.id}')">${I("chat")}Mesaj</button>`:""}<button class="btn sm" onclick="coachProg('${u.id}')">${I("chart")}Progres</button><button class="btn sm" onclick="menuNewUI('${u.id}')">${I("plus")}Meniu</button><button class="btn sm" onclick="sessModal(null,'${u.id}')">${I("cal")}Programează</button><button class="iconbtn" onclick="coachRemoveUI('${u.id}')" aria-label="Elimină ${esc(u.name)} din grup">${I("trash")}</button></span></li>`}).join("")}</ul></div>`
  :`<div class="empty"><img src="${IM("img/cooking.png")}" alt="">Grupul tău este gol. Adaugă primul student după emailul contului lui.</div>`}`}
 function nextSess(sid){const now=todayS()+" "+hm(new Date().getHours()*60+new Date().getMinutes());
  return S.coach.sessions.filter(x=>x.st===sid&&(x.tr===S.uid||x.st===S.uid)&&(x.d+" "+x.s)>=now).sort((a,b)=>(a.d+a.s).localeCompare(b.d+b.s))[0]}
@@ -3454,7 +3814,7 @@ function menuView(m,tr){if(!m)return"";const u=acct(tr?m.st:m.tr);
  return `<button class="link back" onclick="CMENU=null;draw()">${I("arrow")}Toate meniurile</button>
  <div class="card panel menuhead"><div class="grow"><p class="eyebrow">${tr?"Meniu pentru":"Meniu de la"} ${esc(u?u.name:"")} · confidențial</p><h2>${esc(m.title)}</h2>${m.note?`<p class="muted">${esc(m.note)}</p>`:""}
   <p class="small muted">${m.days.length} ${m.days.length===1?"zi":"zile"} · ${mealsCount(m)} mese · actualizat ${fmtDate(m.updated)}</p></div>
-  <div class="rowacts">${tr?`<button class="btn sm primary" onclick="copyModal('${m.id}')">${I("copy")}Copiază pentru alt student</button><button class="btn sm" onclick="menuEditUI('${m.id}')">${I("edit")}Detalii</button><button class="btn sm" onclick="menuAddDay('${m.id}')&&draw()">${I("plus")}Adaugă o zi</button><button class="iconbtn" onclick="menuDelUI('${m.id}')" aria-label="Șterge meniul">${I("trash")}</button>`
+  <div class="rowacts">${tr?`<button class="btn sm primary" onclick="copyModal('${m.id}')">${I("copy")}Copiază pentru alt student</button>${SRV?`<button class="btn sm" onclick="sendModal('menu','${m.id}')">${I("users")}Trimite la mai mulți</button><button class="btn sm" onclick="tplSaveModal('${m.id}')">${I("copy")}Salvează ca șablon</button>`:""}<button class="btn sm" onclick="menuPDF('${m.id}')">${feat("coach_pdf")?I("upload"):I("lock")}PDF</button><button class="btn sm" onclick="menuEditUI('${m.id}')">${I("edit")}Detalii</button><button class="btn sm" onclick="menuAddDay('${m.id}')&&draw()">${I("plus")}Adaugă o zi</button><button class="iconbtn" onclick="menuDelUI('${m.id}')" aria-label="Șterge meniul">${I("trash")}</button>`
    :`<button class="btn sm primary" onclick="menuPlanUI('${m.id}')">${I("cal")}Adaugă în planificator</button>`}</div></div>
  <div class="week mweek">${m.days.map((d,di)=>`<div class="card day"><div class="day-h"><b>Ziua ${di+1}</b>${tr&&m.days.length>1?`<button class="slotx" style="position:static" onclick="menuDelDay('${m.id}',${di})&&draw()" aria-label="Șterge ziua ${di+1}">${I("x")}</button>`:""}</div>
   ${menuSlots(d).map(x=>{const v=d.m[x];if(!tr&&!v)return"";const r=v&&v.r&&rec(v.r),s=r&&rsrc(r);
@@ -3485,10 +3845,10 @@ function menuPlanUI(id){const nm=iso(addD(monday(),7));
 /* ======== Cabinetul studentului ======== */
 function studentPage(){const tr=trainersOf(S.uid),mm=myMenus().filter(m=>m.st===S.uid);
  if(CMENU&&!mm.some(m=>m.id===CMENU))CMENU=null;
- const tabs=[["men","Meniurile mele","grid"],["cal","Calendarul meu","cal"]];
+ const tabs=[["men","Meniurile mele","grid"],["prog","Progresul meu","chart"],["cal","Calendarul meu","cal"]];
  return pagehead("Antrenorul meu",tr.map(t=>esc(t.name)).join(", ")+` · ${mm.length} ${mm.length===1?"meniu":"meniuri"} pentru tine`)+
   `<div class="atabs ctabs" role="tablist">${tabs.map(([k,l,ic])=>`<button role="tab" aria-selected="${STAB===k}" onclick="STAB='${k}';CMENU=null;draw()">${I(ic)}${l}</button>`).join("")}</div>`+
-  (STAB==="cal"?calendarView(false):CMENU?menuView(mm.find(m=>m.id===CMENU),false):
+  (STAB==="cal"?calendarView(false):STAB==="prog"?`<p class="small muted">Antrenorul tău vede greutatea și jurnalul, ca să-ți poată da sfaturi.</p>`+myProgress():CMENU?menuView(mm.find(m=>m.id===CMENU),false):
    `<p class="small muted">Meniurile sunt doar pentru tine: le vezi tu și antrenorul tău.</p>${mm.length?`<div class="mcards">${mm.map(m=>menuCard(m,false)).join("")}</div>`:`<div class="empty"><img src="${IM("img/curry_rice.png")}" alt="">Antrenorul tău nu ți-a trimis încă un meniu.</div>`}`)}
 
 /* ======== Calendar (zi / săptămână / lună) ======== */
@@ -3591,7 +3951,7 @@ async function profileLoad(){const id=PROF.id;if(!id)return;
 function localProfile(id){const a=acct(id);if(!a)return null;const me=S.uid;
  const sameFam=me&&famOf(me)&&famOf(me).members.includes(id),inGrp=me&&((S.coach&&S.coach.groups[id])||[]).includes(me);
  const all=S.recipes.filter(r=>r.by===id),vis=all.filter(r=>r.status!=="hid"||me===id||isRecStaff()||sameFam||inGrp);
- return{id,name:a.name,role:a.role,bio:a.bio||"",avatar:a.avatar||null,since:a.created,photos:a.photos||[],recipeTotal:all.length,recipes:vis,me:me===id,maxPhotos:me===id&&!feat("gallery_5")?2:5}}
+ return{id,name:a.name,role:a.role,bio:a.bio||"",avatar:a.avatar||null,since:a.created,photos:a.photos||[],recipeTotal:all.length,recipes:vis,me:me===id,maxPhotos:5}}
 PAGES.profil=function(){const p=PROF.data;
  if(PROF.err)return `<div class="empty">${esc(PROF.err)}</div>`;
  if(!p)return `<div class="empty">${PROF.loading||SRV?"Se încarcă profilul…":"Profilul nu există."}</div>`;
@@ -3599,13 +3959,13 @@ PAGES.profil=function(){const p=PROF.data;
  return `<div class="card profhead">
   <div class="profav">${avatarHTML({name:p.name,av:p.avatar},"xl")}
    ${own?`<div class="rowacts"><label class="btn sm">${I("upload")}${p.avatar?"Schimbă poza":"Adaugă poză"}<input type="file" accept="image/*" hidden onchange="profAvatar(this)"></label>${p.avatar?`<button class="btn sm danger" onclick="profAvatarDel()">${I("trash")}Șterge</button>`:""}</div>`:""}</div>
-  <div class="profinfo">${!own&&ME()&&RANK[ME().role]>=2?`<div class="profadm"><button class="btn sm" onclick="profAdmin()">${I("settings")}Administrează utilizatorul</button></div>`:""}<p class="eyebrow">${esc(ROLE_L[p.role]||"Membru")}${p.since?` · pe ${esc(S.theme.brand||"Gusto")} din ${fmtDate(p.since)}`:""}</p><h1>${esc(p.name)}</h1>
+  <div class="profinfo">${!own&&ME()?`<div class="profadm">${SRV?`<button class="btn sm primary" onclick="openChat('${p.id}')">${I("chat")}Trimite mesaj</button>`:""}${RANK[ME().role]>=2?`<button class="btn sm" onclick="profAdmin()">${I("settings")}Administrează utilizatorul</button>`:""}</div>`:""}<p class="eyebrow">${esc(ROLE_L[p.role]||"Membru")}${p.since?` · pe ${esc(S.theme.brand||"Gusto")} din ${fmtDate(p.since)}`:""}</p><h1>${esc(p.name)}</h1>
    ${own&&PROF.editBio?`<form class="stack" onsubmit="event.preventDefault();profBio()"><label class="lbl">Despre mine<textarea id="pbio" class="field" rows="4" maxlength="600">${esc(p.bio)}</textarea></label><div class="rowacts"><button class="btn primary sm">Salvează</button><button type="button" class="btn sm" onclick="PROF.editBio=false;draw()">Renunță</button></div></form>`
     :`${p.bio?`<p class="profbio">${esc(p.bio).replace(/\n/g,"<br>")}</p>`:`<p class="muted">${own?"Nu ai scris încă nimic despre tine.":"Nicio descriere încă."}</p>`}${own?`<div><button class="link" onclick="PROF.editBio=true;draw();setTimeout(()=>$('pbio')&&$('pbio').focus())">${I("edit")}${p.bio?"Editează descrierea":"Scrie ceva despre tine"}</button></div>`:""}`}
    <button class="profcount" onclick="PROF.showRec=!PROF.showRec;draw();PROF.showRec&&setTimeout(()=>$('profrec')&&$('profrec').scrollIntoView({behavior:'smooth',block:'start'}))" aria-expanded="${PROF.showRec}"><b>${p.recipeTotal}</b><span>${p.recipeTotal===1?"rețetă adăugată":"rețete adăugate"}</span>${I("arrow")}</button></div></div>
  <div class="card panel"><div class="sechead"><h3>Galerie</h3><span class="small muted">${ph.length} / ${max}</span></div>
   ${ph.length?`<div class="profgal">${ph.map((x,i)=>`<div class="pgitem"><button class="pgimg" onclick="lightbox(${i})" aria-label="Deschide poza ${i+1}"><img src="${esc(IM(x.url))}" alt="Poza ${i+1}" loading="lazy"></button>${own?`<button class="pgdel" onclick="profPhotoDel('${esc(x.id)}')" aria-label="Șterge poza ${i+1}">${I("x")}</button>`:""}</div>`).join("")}
-   ${own&&ph.length>=max&&max<5?`<button class="pgadd" onclick="featLocked('gallery_5')">${I("lock")}<span>Până la 5 poze cu Smart Kitchen</span></button>`:""}
+
    ${own&&ph.length<max?`<label class="pgadd">${I("plus")}<span>Adaugă poză</span><input type="file" accept="image/*" hidden onchange="profPhotoAdd(this)"></label>`:""}</div>`
   :`<p class="muted small">${own?"":"Nicio poză în galerie."}</p>${own?`<label class="btn sm">${I("plus")}Adaugă prima poză<input type="file" accept="image/*" hidden onchange="profPhotoAdd(this)"></label>`:""}`}</div>
  ${PROF.showRec?`<div id="profrec" class="stack"><div class="sechead"><h2>Rețetele lui ${esc(p.name.split(" ")[0])}</h2><span class="small muted">${p.recipes.length===p.recipeTotal?"":`${p.recipes.length} din ${p.recipeTotal} vizibile pentru tine`}</span></div>
@@ -3634,7 +3994,7 @@ function profAvatarDel(){ask("Ștergi poza de profil?","În locul ei vor apărea
  toast("Poza de profil a fost ștearsă")},true)}
 function profPhotoAdd(inp){optimizeImg(inp.files[0],1600,async u=>{
  if(SRV){toast("Se încarcă poza…");const r=await api("/me/photos",{method:"POST",body:{data:u}});if(!r.ok)return toast((r.data&&r.data.error)||"Poza nu a putut fi încărcată.");profSet(r.data.profile)}
- else{const m=ME();m.photos=m.photos||[];const mx=feat("gallery_5")?5:2;if(m.photos.length>=mx)return mx<5?featLocked("gallery_5"):toast("Poți avea cel mult 5 poze în galerie.");m.photos.push({id:"ph"+uid8(),url:u});save();PROF.data=localProfile(S.uid);draw()}
+ else{const m=ME();m.photos=m.photos||[];const mx=5;if(m.photos.length>=mx)return toast("Poți avea cel mult 5 poze în galerie.");m.photos.push({id:"ph"+uid8(),url:u});save();PROF.data=localProfile(S.uid);draw()}
  toast("Poza a fost adăugată în galerie")})}
 function profPhotoDel(id){ask("Ștergi poza din galerie?","Poza se șterge definitiv.","Șterge poza",async()=>{
  if(SRV){const r=await api("/me/photos/"+encodeURIComponent(id),{method:"DELETE"});if(!r.ok)return toast("Poza nu a putut fi ștearsă.");profSet(r.data.profile)}
@@ -3658,10 +4018,11 @@ function profAdmin(){const p=PROF.data;if(!p||!ME()||RANK[ME().role]<2)return;
    ${A.family?tgl(A.famGrant,"Funcția de familie",`profAdmFam('${id}',this.checked)`,A.premium?"(are și prin Premium)":""):""}
    ${tgl(on("receipt_scan"),"Scanare bon cu AI",`profAdmSet('${id}','receipt_scan',this.checked)`,note("receipt_scan"))}
    ${tgl(on("recipe_author"),"Poate adăuga rețete",`profAdmSet('${id}','recipe_author',this.checked)`)+tgl(on("ai_recipes"),"Generare rețete cu AI",`profAdmSet('${id}','ai_recipes',this.checked)`,note("ai_recipes"))}</div></div>`:""}
- ${A?`<div class="box"><p class="h3" style="font-size:15px">Antrenor</p><div class="tgls">${tgl(on("coach_cabinet"),"Cabinet de antrenor",`profAdmSet('${id}','coach_cabinet',this.checked)`,note("coach_cabinet"))}</div>${tr?"":`<p class="small muted">Cabinetul se folosește când contul are rolul Antrenor personal.</p>`}</div>`:""}
+ ${A?subsHTML(id):""}
+ ${A?`<div class="box"><p class="h3" style="font-size:15px">Antrenor</p><div class="tgls">${tgl(on("coach_cabinet"),"Cabinet de antrenor",`profAdmSet('${id}','coach_cabinet',this.checked)`,note("coach_cabinet"))}</div>${tr?"":`<p class="small muted">Dacă pornești cabinetul, contul devine automat Antrenor personal.</p>`}</div>`:""}
  ${isRecStaff()&&p.recipeTotal?`<div class="box"><p class="h3" style="font-size:15px">Rețetele lui</p><div class="rowacts"><button class="btn sm" onclick="closeModal();PROF.showRec=true;draw();setTimeout(()=>$('profrec')&&$('profrec').scrollIntoView({behavior:'smooth'}))">${I("grid")}Vezi rețetele (${p.recipeTotal})</button>${pend?`<button class="btn sm" onclick="closeModal();S.atab='rec';go('admin')">${I("check")}Aprobă în Administrare → Rețete</button>`:""}</div></div>`:""}
  ${!can("users")?`<p class="small muted">Rolul, pachetele, blocarea și ștergerea contului le schimbă un Administrator.</p>`:""}
- <div class="rowacts"><button class="btn" onclick="closeModal()">Gata</button></div></div>`,1)}
+ <div class="rowacts"><button class="btn" onclick="closeModal()">Gata</button></div></div>`,1);if(A)subsLoad(id,"prof")}
 async function profAdmReload(){if(SRV){await profileLoad();if(S.page==="profil"&&PROF.data)profAdmin()}else profAdmin()}
 async function profAdmFam(id,on){
  if(SRV){const r=await api("/admin/users/"+encodeURIComponent(id)+"/family-grant",{method:"PUT",body:{on}});
@@ -3925,8 +4286,453 @@ async function rcConfirm(){rcRead();const R=RC,it=R.items.filter(x=>x.name);if(!
  try{SYNC.dirty=true;await srvFlush()}catch(e){}   // inventarul ajunge imediat în baza de date
  RC=null;closeModal();draw();toast(`Am adăugat ${it.length} produse: `+Object.keys(cnt).map(k=>`${cnt[k]} în ${KIND_DEST[k]}`).join(", "))}
 
+/* ---------- Mesagerie privată: Inbox cu fire de discuție (o conversație pentru fiecare pereche de utilizatori) ---------- */
+const MSG={threads:null,open:null,conv:null,loading:false,err:null,timer:null,sending:false,q:"",found:[],draft:{}};
+const msgAv=u=>({name:u.name,av:u.avatar||null});
+function msgWhen(iso){if(!iso)return"";const d=new Date(iso),now=new Date(),p=n=>String(n).padStart(2,"0");
+ const hm=`${p(d.getHours())}:${p(d.getMinutes())}`;
+ if(d.toDateString()===now.toDateString())return hm;
+ const y=new Date(now);y.setDate(now.getDate()-1);if(d.toDateString()===y.toDateString())return "ieri, "+hm;
+ return `${p(d.getDate())}.${p(d.getMonth()+1)}${d.getFullYear()!==now.getFullYear()?"."+d.getFullYear():""}, ${hm}`}
+
+/* numărul mesajelor necitite (insigna din meniu), adus la fiecare reîmprospătare */
+async function msgUnreadLoad(){if(!SRV||!ME())return false;const r=await api("/messages/unread");if(!r.ok)return false;
+ const n=r.data.unread|0;if(n===(S.msgUnread|0))return false;S.msgUnread=n;return true}
+async function msgThreads(){const r=await api("/messages");if(!r.ok){MSG.err=(r.data&&r.data.error)||"Mesajele nu au putut fi încărcate.";return false}
+ MSG.err=null;MSG.threads=r.data.threads;S.msgUnread=r.data.unread|0;return true}
+async function msgConv(uid,keep){const r=await api("/messages/with/"+encodeURIComponent(uid));
+ if(!r.ok){toast((r.data&&r.data.error)||"Conversația nu a putut fi deschisă.");MSG.open=null;MSG.conv=null;return}
+ if(MSG.open!==uid)return;const was=MSG.conv&&MSG.conv.messages.length;MSG.conv=r.data;S.msgUnread=r.data.unread|0;
+ const t=(MSG.threads||[]).find(x=>x.user.id===uid);if(t)t.unread=0;
+ if(!keep||r.data.messages.length!==was)setTimeout(msgScroll,0)}
+function msgScroll(){const b=$("msgbody");if(b)b.scrollTop=b.scrollHeight}
+
+/* deschiderea Inbox-ului / a unei conversații (ex. din profilul cuiva) */
+function openChat(uid){if(!ME()){authModal("login");return}if(!SRV){go("mesaje");return}
+ if(MSG.uid!==S.uid)Object.assign(MSG,{uid:S.uid,threads:null,err:null,draft:{}});
+ MSG.open=uid;MSG.conv=null;go("mesaje");msgConv(uid).then(()=>{if(S.page==="mesaje")draw()})}
+function msgBack(){MSG.open=null;MSG.conv=null;draw();msgThreads().then(()=>S.page==="mesaje"&&draw())}
+
+/* reîmprospătare cât timp pagina e deschisă (mesajele noi apar singure) */
+function msgPoll(){clearInterval(MSG.timer);MSG.timer=setInterval(async()=>{
+ if(S.page!=="mesaje"||document.hidden||!ME()){if(S.page!=="mesaje")clearInterval(MSG.timer);return}
+ const box=$("msgtext"),typing=box&&document.activeElement===box,draft=box?box.value:"";
+ if(MSG.open){const n=MSG.conv?MSG.conv.messages.length:0;await msgConv(MSG.open,true);if(MSG.conv&&MSG.conv.messages.length!==n){draw();const b=$("msgtext");if(b){b.value=draft;if(typing)b.focus()}}}
+ else if(await msgThreads())draw()},8000)}
+
+PAGES.mesaje=function(){
+ if(!SRV)return pagehead("Mesaje","Mesajele private dintre utilizatori.")+`<div class="card gate"><span class="ic g">${I("chat")}</span><h1>Mesageria funcționează pe site</h1><p class="muted">În varianta demonstrativă, fără server, mesajele nu se pot trimite.</p></div>`;
+ if(MSG.uid!==S.uid){Object.assign(MSG,{uid:S.uid,threads:null,open:null,conv:null,err:null,draft:{}})}   // alt cont: Inbox gol
+ if(!MSG.threads&&!MSG.loading){MSG.loading=true;msgThreads().then(()=>{MSG.loading=false;if(S.page==="mesaje")draw()})}
+ msgPoll();
+ const list=`<div class="card msglist ${MSG.open?"hidesm":""}">
+  <div class="msghead"><h2>Conversații</h2><button class="btn sm primary" onclick="msgNew()">${I("plus")}Mesaj nou</button></div>
+  ${MSG.err?`<div class="box aierr">${esc(MSG.err)}</div>`:!MSG.threads?`<p class="muted small" style="padding:12px 4px">Se încarcă…</p>`
+   :!MSG.threads.length?`<div class="empty small">Nu ai încă nicio conversație. Apasă „Mesaj nou” sau „Trimite mesaj” pe profilul cuiva.</div>`
+   :`<ul class="threads">${MSG.threads.map(t=>`<li><button class="thread ${MSG.open===t.user.id?"on":""} ${t.unread?"unread":""}" onclick="openChat('${t.user.id}')">${avatarHTML(msgAv(t.user),"sm")}
+     <span class="tmain"><span class="trow"><b>${esc(t.user.name)}</b><span class="tw">${esc(msgWhen(t.last.at))}</span></span>
+     <span class="trow"><span class="tlast">${t.last.mine?"Tu: ":""}${esc(t.last.body)}</span>${t.unread?`<span class="badge red">${t.unread}</span>`:t.blocked?`<span class="tag">Blocat</span>`:""}</span></span></button></li>`).join("")}</ul>`}</div>`;
+ const c=MSG.conv,u=c&&c.user;
+ const conv=!MSG.open?`<div class="card msgconv hidesm"><div class="empty">${I("chat")}<p>Alege o conversație din stânga sau începe una nouă.</p></div></div>`
+  :!c?`<div class="card msgconv"><p class="muted" style="padding:20px">Se încarcă conversația…</p></div>`
+  :`<div class="card msgconv">
+   <div class="chathead"><button class="iconbtn showsm" onclick="msgBack()" aria-label="Înapoi la conversații">${I("back")}</button>
+    <button class="chatwho" onclick="openProfile('${u.id}')">${avatarHTML(msgAv(u),"sm")}<span><b>${esc(u.name)}</b><span class="small muted">${esc(ROLE_L[u.role]||"Membru")}</span></span></button>
+    <button class="iconbtn" onclick="msgMenu()" aria-label="Opțiuni conversație">${I("more")}</button></div>
+   <div class="msgbody" id="msgbody" aria-live="polite">${c.more?`<p class="small muted center">Se văd ultimele 60 de mesaje.</p>`:""}
+    ${c.messages.length?c.messages.map((m,i)=>{const prev=c.messages[i-1],day=new Date(m.at).toDateString(),newDay=!prev||new Date(prev.at).toDateString()!==day;
+     return (newDay?`<p class="msgday">${esc(new Date(m.at).toLocaleDateString("ro-RO",{day:"numeric",month:"long",year:"numeric"}))}</p>`:"")+
+     `<div class="bub ${m.mine?"me":"them"}"><div class="btxt">${esc(m.body)}</div><div class="bmeta">${esc(msgWhen(m.at).split(", ").pop())}${m.mine?` <span class="seen" title="${m.read?"Văzut":"Trimis"}">${I(m.read?"checks":"check")}</span>`:""}
+      <button class="bdel" onclick="msgDel(${m.id})" aria-label="Șterge mesajul">${I("trash")}</button></div></div>`}).join("")
+     :`<p class="muted center small">Începe conversația cu ${esc(u.name)}.</p>`}</div>
+   ${c.canSend?`<form class="composer" onsubmit="event.preventDefault();msgSend()"><textarea id="msgtext" class="field" rows="1" maxlength="2000" placeholder="Scrie un mesaj…" aria-label="Mesaj"
+     oninput="MSG.draft['${u.id}']=this.value;this.style.height='auto';this.style.height=Math.min(this.scrollHeight,160)+'px'"
+     onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!('ontouchstart' in window)){event.preventDefault();msgSend()}">${esc(MSG.draft[u.id]||"")}</textarea>
+     <button class="btn primary sendbtn" ${MSG.sending?"disabled":""} aria-label="Trimite">${I("send")}</button></form>`
+    :`<div class="box small muted composer-off">${I("block")}${esc(c.reason||"Nu poți trimite mesaje în această conversație.")}</div>`}</div>`;
+ return pagehead("Mesaje","Conversațiile tale private. Doar tu și persoana cu care vorbești le vedeți.")+`<div class="msgwrap ${MSG.open?"inconv":""}">${list}${conv}</div>`};
+
+async function msgSend(){const box=$("msgtext");if(!box||MSG.sending||!MSG.open)return;const body=box.value.trim();if(!body)return;
+ MSG.sending=true;const uid=MSG.open;
+ const r=await api("/messages",{method:"POST",body:{to:uid,body}});MSG.sending=false;
+ if(!r.ok){toast((r.data&&r.data.error)||"Mesajul nu a fost trimis.");draw();return}
+ MSG.draft[uid]="";if(MSG.conv&&MSG.open===uid)MSG.conv.messages.push(r.data.message);
+ draw();setTimeout(()=>{msgScroll();const b=$("msgtext");if(b)b.focus()},0);msgThreads()}
+function msgDel(id){ask("Ștergi mesajul?","Mesajul dispare doar din conversația ta. Celălalt utilizator îl vede în continuare.","Șterge",async()=>{
+ const r=await api("/messages/"+id,{method:"DELETE"});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut șterge mesajul.");
+ if(MSG.conv)MSG.conv.messages=MSG.conv.messages.filter(m=>m.id!==id);draw();toast("Mesaj șters");msgThreads().then(()=>draw())},true)}
+function msgMenu(){const c=MSG.conv;if(!c)return;const u=c.user;
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("chat")} Conversație</p><h2 style="font-size:22px">${esc(u.name)}</h2></div>
+  <div class="stack">
+   <button class="btn" onclick="closeModal();openProfile('${u.id}')">${I("user")}Vezi profilul</button>
+   <button class="btn" onclick="msgBlock('${u.id}',${!c.blocked})">${I("block")}${c.blocked?"Deblochează utilizatorul":"Blochează utilizatorul"}</button>
+   <button class="btn danger" onclick="msgDelConv('${u.id}')">${I("trash")}Șterge conversația</button></div>
+  <p class="small muted">Dacă blochezi pe cineva, nu-ți mai poate scrie. Ștergerea conversației o scoate doar din Inbox-ul tău.</p></div>`,1)}
+async function msgBlock(uid,on){const r=await api("/messages/block/"+encodeURIComponent(uid),{method:"PUT",body:{on}});closeModal();
+ if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");toast(on?"Utilizator blocat":"Utilizator deblocat");await msgConv(uid);await msgThreads();draw()}
+function msgDelConv(uid){ask("Ștergi conversația?","Toate mesajele cu această persoană dispar din Inbox-ul tău. Pentru ea rămân vizibile.","Șterge conversația",async()=>{
+ const r=await api("/messages/with/"+encodeURIComponent(uid),{method:"DELETE"});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut șterge conversația.");
+ MSG.open=null;MSG.conv=null;await msgThreads();draw();toast("Conversația a fost ștearsă")},true)}
+
+/* mesaj nou: căutare după nume (fără emailuri) */
+function msgNew(){MSG.q="";MSG.found=[];
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("chat")} Mesaj nou</p><h2 style="font-size:22px">Cui îi scrii?</h2></div>
+  <label class="search">${I("search")}<input id="msgq" type="search" placeholder="Caută după nume (minim 2 litere)" oninput="msgFind(this.value)" aria-label="Caută utilizator" autocomplete="off"></label>
+  <ul class="threads" id="msgfound"></ul></div>`,1,"#msgq")}
+let MSGQT=null;
+function msgFind(v){MSG.q=v;clearTimeout(MSGQT);MSGQT=setTimeout(async()=>{const q=MSG.q.trim(),el=$("msgfound");if(!el)return;
+ if(q.length<2){el.innerHTML="";return}
+ const r=await api("/users/search?q="+encodeURIComponent(q));if(!$("msgfound")||MSG.q.trim()!==q)return;
+ const l=(r.ok&&r.data.users)||[];
+ $("msgfound").innerHTML=l.length?l.map(u=>`<li><button class="thread" onclick="closeModal();openChat('${u.id}')">${avatarHTML(msgAv(u),"sm")}<span class="tmain"><b>${esc(u.name)}</b><span class="small muted">${esc(ROLE_L[u.role]||"Membru")}</span></span></button></li>`).join("")
+  :`<li class="small muted" style="padding:10px 4px">Nu am găsit pe nimeni cu acest nume.</li>`},250)}
+
+/* ======== Funcțiile noi din pachete: Essential (alergii, produse din magazine) și Smart Kitchen Ultra
+   (alerte cu rețete, cumpărături pe magazine, mod de gătit „mâini libere”, coduri de bare) ======== */
+function loadScript(url,glob){
+ if(glob&&window[glob])return Promise.resolve(window[glob]);
+ LOADS[url]=LOADS[url]||new Promise((res,rej)=>{const s=document.createElement("script");s.src=url;s.async=true;s.crossOrigin="anonymous";
+  s.onload=()=>res(glob?window[glob]:true);s.onerror=()=>{delete LOADS[url];rej(new Error("Nu am putut încărca "+url))};document.head.appendChild(s)});
+ return LOADS[url]}
+const LOADS={};
+
+/* ---------- Essential: alergii și intoleranțe ---------- */
+const ALLERGENS=[["gluten","Gluten","făină|paste|spaghete|tăiței|lasagna|pâine|pesmet|bulgur|cuscus|orz|grâu|griș|ovăz|biscuiți|aluat|tortilla|chifl|baghet|crutoane|bere"],
+ ["lactoza","Lactoză","lapte|iaurt|smântân|unt\\b|brânz|cașcaval|mozzarella|parmezan|feta|ricotta|mascarpone|frișcă|chefir|telemea|caș\\b"],
+ ["oua","Ouă","\\bou\\b|ouă|maionez"],["nuci","Nuci","nuc[ia]|migdal|alun|caju|fistic|pecan"],["arahide","Arahide","arahid"],
+ ["peste","Pește","pește|somon|\\bton\\b|\\bcod\\b|hering|macrou|sardin|păstrăv|șalău|crap"],["fructe_mare","Fructe de mare","crevet|midii|calamar|scoic|caracati"],
+ ["soia","Soia","soia|tofu|edamame"],["susan","Susan","susan|tahini"],["telina","Țelină","țelin"],["mustar","Muștar","muștar"]];
+const ALG_RE=Object.fromEntries(ALLERGENS.map(([k,,re])=>[k,new RegExp(re,"i")]));
+const myAllergies=()=>{const m=ME();return m?(SRV?(m.allergies||[]):(S.allergies||[])):[]};
+const allergyOn=()=>!!ME()&&feat("allergy_filters")&&myAllergies().length>0;
+function recAllergens(r,list){const ing=(r.i||[]).map(x=>String(x[0]||"")).join(" | ");return (list||myAllergies()).filter(k=>ALG_RE[k]&&ALG_RE[k].test(ing))}
+const allergyL=k=>(ALLERGENS.find(a=>a[0]===k)||[,k])[1];
+function allergyBar(){if(!ME())return"";const l=myAllergies();
+ if(!feat("allergy_filters"))return "";
+ return l.length?`<div class="freebar tone-g">${I("shield")}<span>Ascundem rețetele cu: <b>${l.map(allergyL).join(", ")}</b>.</span><button class="link" onclick="allergyModal()">Modifică</button></div>`:""}
+function allergyBtn(){if(!ME())return"";return feat("allergy_filters")?`<button class="btn" onclick="allergyModal()">${I("shield")}Alergii${myAllergies().length?` (${myAllergies().length})`:""}</button>`:lockBtn("allergy_filters","Alergii","")}
+function allergyWarn(r){const l=ME()?recAllergens(r):[];return l.length?`<div class="algwarn" role="note">${I("alarm")}<span>Conține ingrediente cu <b>${l.map(allergyL).join(", ")}</b>, din lista ta de alergii.</span></div>`:""}
+function allergyModal(){if(!feat("allergy_filters"))return featLocked("allergy_filters");const cur=new Set(myAllergies());
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("shield")} Alergii și intoleranțe</p><h2 style="font-size:22px">Ce nu poți mânca?</h2>
+  <p class="muted small">Rețetele care conțin aceste ingrediente dispar din liste, din recomandări și din planificarea automată. Verificăm ingredientele după nume, așa că citește totuși eticheta produselor.</p></div>
+  <div class="algrid">${ALLERGENS.map(([k,l])=>`<label class="switch"><input type="checkbox" value="${k}" ${cur.has(k)?"checked":""}><span>${l}</span></label>`).join("")}</div>
+  <div class="rowacts"><button class="btn primary" onclick="allergySave()">Salvează</button><button class="btn" onclick="closeModal()">Renunță</button></div></div>`,1)}
+async function allergySave(){const l=[...document.querySelectorAll(".algrid input:checked")].map(x=>x.value);
+ if(SRV){const r=await api("/me/allergies",{method:"PUT",body:{allergies:l}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");const m=ME();if(m)m.allergies=r.data.allergies;persist()}
+ else{S.allergies=l;save()}
+ closeModal();draw();toast(l.length?"Rețetele cu alergenii aleși sunt ascunse":"Filtrul de alergii este oprit")}
+
+/* ---------- Produse din magazine (Open Food Facts) + coduri de bare ---------- */
+const FOODS={q:"",list:null,busy:false,err:null};
+const NS_COL={a:"#1e8f4e",b:"#7ac143",c:"#f2c200",d:"#ef8a1d",e:"#e3401b"};
+function nutriRows(p){const n=p.per100||{},row=(l,v,u)=>v==null?"":`<span><b>${num(v)}</b> ${u} ${l}</span>`;
+ return `<div class="nutri">${row("kcal",n.kcal,"")}${row("proteine",n.protein,"g")}${row("grăsimi",n.fat,"g")}${row("carbohidrați",n.carbs,"g")}${row("zahăr",n.sugar,"g")}${row("sare",n.salt,"g")}</div>`}
+function foodCard(p,i){return `<li class="food"><div class="foodimg">${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:I("tag")}</div>
+ <div class="foodmain"><b>${esc(p.name)}</b><span class="small muted">${esc([p.brand,p.quantity].filter(Boolean).join(" · "))}${p.local?" · produs local":""}</span>
+  <span class="small muted">la 100 g/ml:</span>${nutriRows(p)}</div>
+ <div class="foodacts">${p.nutriscore?`<span class="nscore" style="background:${NS_COL[p.nutriscore]}" title="Nutri-Score">${p.nutriscore.toUpperCase()}</span>`:""}
+  <button class="btn sm primary" onclick="foodToFridge(${i})">${I("fridge")}În frigider</button><button class="btn sm" onclick="foodToList(${i})">${I("cart")}Pe listă</button></div></li>`}
+function foodsModal(){if(!feat("local_products"))return featLocked("local_products");
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("tag")} Produse din magazine</p><h2 style="font-size:22px">Caută un produs din Moldova sau România</h2>
+  <p class="muted small">Valorile nutriționale vin din baza publică Open Food Facts. Poți căuta după nume sau după codul de bare de pe ambalaj.</p></div>
+  <form class="form" onsubmit="event.preventDefault();foodsSearch()"><label class="search grow">${I("search")}<input id="foodq" type="search" placeholder="ex. lapte JLC, iaurt, 4840049000107" value="${esc(FOODS.q)}" aria-label="Produs sau cod de bare" autocomplete="off"></label><button class="btn primary">Caută</button>
+   ${feat("barcode_scan")?`<button type="button" class="btn" onclick="barcodeModal()">${I("camera")}Scanează</button>`:""}</form>
+  <div id="foodres">${foodsRes()}</div></div>`,0,"#foodq")}
+function foodsRes(){if(FOODS.busy)return `<p class="muted small">Caut…</p>`;if(FOODS.err)return `<div class="box aierr small">${esc(FOODS.err)}</div>`;
+ if(!FOODS.list)return"";if(!FOODS.list.length)return `<p class="muted small">Nu am găsit produse. Încearcă alt nume sau codul de bare.</p>`;
+ return `<ul class="foods">${FOODS.list.map(foodCard).join("")}</ul>`}
+async function foodsSearch(){const q=($("foodq").value||"").trim();FOODS.q=q;if(q.length<2)return;
+ FOODS.busy=true;FOODS.err=null;$("foodres").innerHTML=foodsRes();
+ const code=q.replace(/\s/g,""),r=/^\d{6,14}$/.test(code)?await api("/foods/barcode/"+code):await api("/foods/search?q="+encodeURIComponent(q));
+ FOODS.busy=false;if(!r.ok){FOODS.err=(r.data&&r.data.error)||"Căutarea nu a reușit.";FOODS.list=null}else FOODS.list=r.data.product?[r.data.product]:r.data.products;
+ if($("foodres"))$("foodres").innerHTML=foodsRes()}
+function foodName(p){return (p.match&&p.match.name)||String(p.name).toLowerCase().slice(0,80)}
+function foodQty(p){const m=/([\d.,]+)\s*(kg|g|ml|l)\b/i.exec(p.quantity||"");return m?{q:+m[1].replace(",","."),u:m[2].toLowerCase()}:{q:1,u:"buc"}}
+function foodToFridge(i,list){const p=(list||FOODS.list)[i];if(!p)return;const n=foodName(p),{q,u}=foodQty(p);
+ const ex=S.fridge.find(f=>f.n===n&&f.u===u);if(ex)ex.q=+ex.q+q;else S.fridge.push({n,q,u,x:inDays(7),s:false});save();draw();toast(`${n} a fost adăugat în frigider`)}
+function foodToList(i){const p=FOODS.list[i];if(!p)return;const n=foodName(p);if(!S.shop.some(s=>!s.d&&s.n===n))S.shop.push({n,q:"",u:"",d:false});save();draw();toast(`${n} a fost pus pe lista de cumpărături`)}
+
+/* scanare cu camera: BarcodeDetector (Android/Chrome) sau ZXing (iPhone, alte browsere) */
+const BAR={stream:null,reader:null,stop:false,last:"",found:[]};
+async function barcodeModal(){if(!feat("barcode_scan"))return featLocked("barcode_scan");if(!SRV)return toast("Scanarea codurilor funcționează pe site, cu serverul conectat.");
+ BAR.found=[];BAR.last="";
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("camera")} Cod de bare</p><h2 style="font-size:22px">Scanează produsele cumpărate</h2>
+  <p class="muted small">Ține codul de bare în cadru. Fiecare produs găsit intră imediat în frigider; poți scana mai multe la rând.</p></div>
+  <div class="scanbox"><video id="barvid" playsinline muted autoplay></video><span class="scanline"></span></div>
+  <p class="small muted" id="barmsg" aria-live="polite">Pornesc camera…</p>
+  <form class="form" onsubmit="event.preventDefault();barcodeLookup($('barman').value)"><label class="lbl grow">Sau scrie codul<input id="barman" class="field" inputmode="numeric" pattern="[0-9 ]*" placeholder="ex. 4840049000107"></label><button class="btn">Caută</button></form>
+  <ul class="foods" id="barfound"></ul>
+  <div class="rowacts"><button class="btn primary" onclick="barcodeStop();closeModal()">Gata</button></div></div>`,0);
+ barcodeStart()}
+async function barcodeStart(){const msg=t=>{const e=$("barmsg");if(e)e.textContent=t};BAR.stop=false;
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return msg("Camera nu este disponibilă aici. Scrie codul de bare mai jos.");
+ try{BAR.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false})}
+ catch(e){return msg("Nu am acces la cameră. Permite camera din setările telefonului sau scrie codul mai jos.")}
+ const v=$("barvid");if(!v){barcodeStop();return}v.srcObject=BAR.stream;await v.play().catch(()=>{});msg("Caut un cod de bare…");
+ if("BarcodeDetector" in window){let det;try{det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]})}catch(e){}
+  if(det){const loop=async()=>{if(BAR.stop||!$("barvid"))return barcodeStop();try{const c=await det.detect(v);if(c&&c[0])barcodeHit(c[0].rawValue)}catch(e){}setTimeout(loop,350)};return loop()}}
+ try{const Z=await loadScript("https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js","ZXing");if(BAR.stop)return;
+  const hints=new Map();hints.set(Z.DecodeHintType.POSSIBLE_FORMATS,[Z.BarcodeFormat.EAN_13,Z.BarcodeFormat.EAN_8,Z.BarcodeFormat.UPC_A,Z.BarcodeFormat.UPC_E]);
+  BAR.reader=new Z.BrowserMultiFormatReader(hints,350);
+  BAR.reader.decodeFromVideoElementContinuously(v,(res)=>{if(res)barcodeHit(res.getText())})}
+ catch(e){msg("Cititorul de coduri nu s-a putut încărca. Scrie codul mai jos.")}}
+function barcodeStop(){BAR.stop=true;try{BAR.reader&&BAR.reader.reset()}catch(e){}BAR.reader=null;if(BAR.stream){BAR.stream.getTracks().forEach(t=>t.stop());BAR.stream=null}}
+function barcodeHit(code){code=String(code||"").replace(/\D/g,"");if(!code||code===BAR.last)return;BAR.last=code;if(navigator.vibrate)navigator.vibrate(60);barcodeLookup(code)}
+async function barcodeLookup(code){code=String(code||"").replace(/\D/g,"");const msg=t=>{const e=$("barmsg");if(e)e.textContent=t};
+ if(!/^\d{6,14}$/.test(code))return msg("Codul de bare are între 6 și 14 cifre.");msg("Caut produsul "+code+"…");
+ const r=await api("/foods/barcode/"+code);if(!$("barmsg"))return;
+ if(!r.ok){msg((r.data&&r.data.error)||"Produsul nu a fost găsit.");setTimeout(()=>{BAR.last=""},2500);return}
+ const p=r.data.product;BAR.found.unshift(p);foodToFridge(0,[p]);msg(`Adăugat: ${p.name}. Poți scana următorul produs.`);
+ const ul=$("barfound");if(ul)ul.innerHTML=BAR.found.map((x,i)=>`<li class="food"><div class="foodimg">${x.image?`<img src="${esc(x.image)}" alt="" referrerpolicy="no-referrer">`:I("tag")}</div><div class="foodmain"><b>${esc(x.name)}</b><span class="small muted">→ în frigider ca „${esc(foodName(x))}”</span>${nutriRows(x)}</div></li>`).join("");
+ setTimeout(()=>{BAR.last=""},2500)}
+
+/* ---------- Smart Kitchen Ultra: alerte cu rețete pentru ce expiră primul ---------- */
+function smartAlerts(){if(!ME()||!feat("expiry_recipes"))return[];
+ const soon=S.fridge.filter(f=>f.x&&daysLeft(f.x)>=0&&daysLeft(f.x)<=2);if(!soon.length)return[];
+ const names=new Set(soon.map(f=>f.n));
+ const scored=recipes().map(r=>({r,n:r.i.filter(x=>names.has(x[0])).length})).filter(x=>x.n).sort((a,b)=>b.n-a.n||a.r.t-b.r.t);
+ if(!scored.length)return[];
+ const best=scored[0],used=soon.filter(f=>best.r.i.some(x=>x[0]===f.n)),d=Math.max(...used.map(f=>daysLeft(f.x)));
+ const items=used.map(f=>`${fmtQ(f.q,f.u)} ${f.n}`.trim());const list=items.length>1?items.slice(0,-1).join(", ")+" și "+items[items.length-1]:items[0];
+ return [{r:best.r,text:`Ai ${list} care ${used.length>1?"expiră":"expiră"} ${d===0?"azi":d===1?"mâine":`în ${d} zile`}. Gătește ${best.r.n}!`,more:scored.slice(1,3).map(x=>x.r)}]}
+function smartAlertCard(){const a=smartAlerts()[0];if(!a)return"";
+ return `<div class="smartalert">${I("alarm")}<span class="grow"><b>${esc(a.text)}</b>${a.more.length?`<span class="small"> Sau: ${a.more.map(r=>`<button class="link" onclick="openRecipe('${r.id}')">${esc(r.n)}</button>`).join(", ")}</span>`:""}</span>
+  <button class="btn sm honey" onclick="openRecipe('${a.r.id}')">${I("cook")}Vezi rețeta</button></div>`}
+
+/* ---------- Smart Kitchen Ultra: cumpărături pe magazine ---------- */
+const STORE_DEF={Legume:"Piață",Fructe:"Piață",Lactate:"Supermarket",Carne:"Măcelărie",Cereale:"Supermarket",Condimente:"Supermarket","Băuturi":"Supermarket",Altele:"Supermarket",house:"Supermarket",hyg:"Farmacie / drogherie"};
+const storeOf=k=>((S.stores||{})[k]||STORE_DEF[k]||"Supermarket");
+const shopKey=s=>{const k=itemKind(s);return k==="food"?prod(s.n).cat:k};
+function shopByStore(){const todo=S.shop.filter(s=>!s.d),g={};
+ todo.forEach(s=>{const st=storeOf(shopKey(s));(g[st]=g[st]||[]).push(s)});return g}
+function storeView(row){const g=shopByStore(),names=Object.keys(g).sort();
+ return `<div class="scols">${names.map(n=>`<div class="card slist"><div class="fcol-h" style="padding-top:12px">${I("cart")}${esc(n)}<span class="badge">${g[n].length}</span></div>
+  ${CATS.concat(["house","hyg"]).map(c=>{const it=g[n].filter(s=>shopKey(s)===c);return it.length?`<p class="small muted storecat">${esc(KIND_L[c]||c)}</p>${it.map(row).join("")}`:""}).join("")}</div>`).join("")}
+  ${(()=>{const done=S.shop.filter(s=>s.d);return done.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">În coș<span class="badge">${done.length}</span></div>${done.map(row).join("")}
+   <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 0"><button class="btn primary sm" onclick="routeDone()">${I("checkc")}Distribuie în locurile lor</button></div></div>`:""})()}</div>`}
+function storesModal(){if(!feat("shop_groups"))return featLocked("shop_groups");const keys=[...CATS,"house","hyg"];
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("cart")} Cumpărături pe magazine</p><h2 style="font-size:22px">De unde cumperi fiecare raion?</h2>
+  <p class="muted small">Lista se împarte automat pe magazine: de exemplu legumele de la piață, lactatele de la supermarket. Scrie numele magazinului tău.</p></div>
+  <div class="storegrid">${keys.map(k=>`<label class="lbl">${esc(KIND_L[k]||k)}<input class="field" data-k="${k}" maxlength="30" value="${esc(storeOf(k))}" list="storesug"></label>`).join("")}</div>
+  <datalist id="storesug">${["Piață","Supermarket","Linella","Nr. 1","Fourchette","Kaufland","Metro","Lidl","Mega Image","Măcelărie","Farmacie / drogherie"].map(x=>`<option value="${x}">`).join("")}</datalist>
+  <div class="rowacts"><button class="btn primary" onclick="storesSave()">Salvează</button><button class="btn" onclick="S.stores={};save();closeModal();draw()">Valorile inițiale</button></div></div>`,1)}
+function storesSave(){S.stores={};document.querySelectorAll(".storegrid input").forEach(i=>{const v=i.value.trim().slice(0,30);if(v&&v!==STORE_DEF[i.dataset.k])S.stores[i.dataset.k]=v});S.shopView="store";save();closeModal();draw();toast("Lista e împărțită pe magazine")}
+function listText(){const g=shopByStore();return Object.keys(g).sort().map(n=>`${n}:\n`+g[n].map(s=>`- ${s.n}${s.q?` (${fmtQ(s.q,s.u)})`:""}`).join("\n")).join("\n\n")}
+/* ---------- Smart Kitchen Ultra: mod de gătit „mâini libere” ---------- */
+const CKM={r:null,i:0,voice:true,lock:null,rec:null,listen:false};
+function cookStart(id){if(!feat("cook_mode"))return featLocked("cook_mode");const r=byId(id);if(!r)return;
+ if(!$("cookmode")){const d=document.createElement("div");d.id="cookmode";d.hidden=true;d.setAttribute("role","dialog");d.setAttribute("aria-label","Mod de gătit");document.body.appendChild(d)}
+ Object.assign(CKM,{r,i:0});closeModal();document.body.classList.add("cooking");$("cookmode").hidden=false;cookDraw();keepAwake(true);if(CKM.voice)cookSay()}
+function cookDraw(){const r=CKM.r,el=$("cookmode");if(!r||!el)return;const n=r.s.length,i=CKM.i;
+ el.innerHTML=`<div class="ck-top"><b>${esc(r.n)}</b><span class="ck-pr">Pasul ${i+1} din ${n}</span><button class="iconbtn ck-x" onclick="cookEnd()" aria-label="Închide modul de gătit">${I("x")}</button></div>
+  <div class="ck-bar"><span style="width:${Math.round((i+1)*100/n)}%"></span></div>
+  <div class="ck-step" aria-live="assertive">${esc(r.s[i])}</div>
+  <details class="ck-ing"><summary>${I("grid")}Ingrediente</summary><ul>${r.i.map(x=>`<li>${esc(x[0])}${x[1]?` · ${esc(fmtQ(x[1],x[2]))}`:""}</li>`).join("")}</ul></details>
+  <div class="ck-nav"><button class="btn ck-b" onclick="cookGo(-1)" ${i?"":"disabled"}>${I("back")}Înapoi</button><button class="btn ck-b" onclick="cookSay()" aria-label="Citește pasul">${I("chat")}Citește</button>
+   <button class="btn primary ck-b" onclick="${i<n-1?"cookGo(1)":"cookEnd(true)"}">${i<n-1?`Următorul ${I("arrow")}`:`${I("check")}Gata`}</button></div>
+  <div class="ck-opts"><label class="switch"><input type="checkbox" ${CKM.voice?"checked":""} onchange="CKM.voice=this.checked;if(!this.checked)speechStop()">Citește pașii automat</label>
+   ${speechRecOK()?`<label class="switch"><input type="checkbox" ${CKM.listen?"checked":""} onchange="cookListen(this.checked)">Comenzi vocale („înainte”, „înapoi”, „repetă”)</label>`:""}</div>
+  <p class="small ck-hint">Atinge oriunde în stânga sau dreapta textului ca să mergi înapoi sau înainte.</p>`}
+function cookGo(d){const n=CKM.r.s.length;CKM.i=Math.max(0,Math.min(n-1,CKM.i+d));cookDraw();if(CKM.voice)cookSay()}
+function cookSay(){const t=CKM.r&&CKM.r.s[CKM.i];if(t)speak(`Pasul ${CKM.i+1}. ${t}`)}
+function cookEnd(done){speechStop();cookListen(false);keepAwake(false);const r=CKM.r;CKM.r=null;$("cookmode").hidden=true;$("cookmode").innerHTML="";document.body.classList.remove("cooking");
+ if(done&&r){toast("Poftă bună!");if(ME())openRecipe(r.id)}}
+/* voce: în aplicația Android folosește vocea telefonului, altfel vocea browserului */
+function speak(t){if(window.GustoAndroid&&GustoAndroid.speak){GustoAndroid.speak(t);return}
+ if(!("speechSynthesis" in window))return toast("Telefonul nu poate citi cu voce în acest browser.");
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ro-RO";const v=speechSynthesis.getVoices().find(x=>/^ro/i.test(x.lang));if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u)}
+function speechStop(){if(window.GustoAndroid&&GustoAndroid.stopSpeaking)GustoAndroid.stopSpeaking();else if("speechSynthesis" in window)speechSynthesis.cancel()}
+const speechRecOK=()=>!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+function cookListen(on){CKM.listen=!!on;if(!on){try{CKM.rec&&CKM.rec.stop()}catch(e){}CKM.rec=null;return}
+ const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return;const rec=new R();rec.lang="ro-RO";rec.continuous=true;rec.interimResults=false;
+ rec.onresult=e=>{const t=e.results[e.results.length-1][0].transcript.toLowerCase();
+  if(/înainte|inainte|următor|urmator|mai departe|next/.test(t))cookGo(1);else if(/înapoi|inapoi|anterior|back/.test(t))cookGo(-1);else if(/repet|citeșt|citest/.test(t))cookSay();else if(/gata|închide|inchide|stop/.test(t))cookEnd(true)};
+ rec.onend=()=>{if(CKM.listen&&CKM.r)try{rec.start()}catch(e){}};rec.onerror=e=>{if(e.error==="not-allowed"){CKM.listen=false;toast("Permite microfonul ca să folosești comenzile vocale.");cookDraw()}};
+ CKM.rec=rec;try{rec.start()}catch(e){}}
+/* ecranul rămâne aprins cât gătești (browser: Wake Lock; aplicațiile au punte nativă) */
+async function keepAwake(on){try{if(window.GustoAndroid&&GustoAndroid.keepScreenOn){GustoAndroid.keepScreenOn(!!on);return}
+ if(window.webkit&&webkit.messageHandlers&&webkit.messageHandlers.gusto){webkit.messageHandlers.gusto.postMessage({keepAwake:!!on});return}
+ if(on&&navigator.wakeLock){CKM.lock=await navigator.wakeLock.request("screen")}else if(!on&&CKM.lock){await CKM.lock.release();CKM.lock=null}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&CKM.r)keepAwake(true)});
+document.addEventListener("keydown",e=>{if(!CKM.r)return;if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();cookGo(1)}else if(e.key==="ArrowLeft")cookGo(-1);else if(e.key==="Escape")cookEnd()});
+document.addEventListener("click",e=>{if(!CKM.r)return;const s=e.target.closest&&e.target.closest(".ck-step");if(!s)return;const b=s.getBoundingClientRect();cookGo(e.clientX<b.left+b.width/3?-1:1)});
+
+/* ======== Antrenor / Expert: progresul clientului, șabloane de meniuri, PDF cu logo, feedback prin mesaje.
+   Clientul (oricine are cont) își notează greutatea și ce a mâncat; antrenorul vede totul în panoul de progres. ======== */
+const PRG={me:null,loading:false,st:null,data:null,tpl:null,err:null};
+
+/* ---------- grafice mici, în SVG ---------- */
+function lineSVG(pts,unit){if(pts.length<1)return `<p class="small muted">Încă nu sunt date.</p>`;
+ const W=560,H=180,P=28,xs=pts.map((p,i)=>i),ys=pts.map(p=>p.v),mn=Math.min(...ys),mx=Math.max(...ys),pad=Math.max(.5,(mx-mn)*.15);
+ const lo=mn-pad,hi=mx+pad,X=i=>P+(pts.length<2?(W-2*P)/2:i*(W-2*P)/(pts.length-1)),Y=v=>H-P-(v-lo)*(H-2*P)/(hi-lo||1);
+ const d=pts.map((p,i)=>`${i?"L":"M"}${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(" ");
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evoluția: ${pts.map(p=>p.l+" "+p.v+" "+unit).join(", ")}">
+  <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" class="ax"/>${[hi,lo+(hi-lo)/2,lo].map(v=>`<text x="2" y="${Y(v)+4}" class="tk">${num(Math.round(v*10)/10)}</text>`).join("")}
+  <path d="${d}" class="ln"/>${pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="4.5" class="dt"><title>${esc(p.l)}: ${num(p.v)} ${unit}</title></circle>`).join("")}
+  ${pts.length>1?`<text x="${P}" y="${H-6}" class="tk">${esc(pts[0].l)}</text><text x="${W-P}" y="${H-6}" class="tk" text-anchor="end">${esc(pts[pts.length-1].l)}</text>`:""}</svg>`}
+function barsMini(rows,unit){if(!rows.length)return `<p class="small muted">Încă nu sunt date.</p>`;const mx=Math.max(...rows.map(r=>r.v),1);
+ return `<div class="mbars">${rows.map(r=>`<div class="mbar" title="${esc(r.l)}: ${num(r.v)} ${unit}"><span class="mbv" style="height:${Math.max(3,Math.round(r.v*100/mx))}%"></span><span class="mbl">${esc(r.s)}</span></div>`).join("")}</div>`}
+const dShort=d=>{const x=new Date(d+"T00:00");return `${x.getDate()}.${pad2(x.getMonth()+1)}`};
+function kcalDays(journal,n){const out=[];for(let i=n-1;i>=0;i--){const d=addDaysS(todayS(),-i),v=journal.filter(j=>j.day===d).reduce((a,j)=>a+(j.kcal||0),0);out.push({l:fmtDate(d),s:dShort(d),v})}return out}
+function progressBody(p,forCoach,sid){const w=p.weights.map(x=>({l:dShort(x.day),v:x.kg})),last=p.weights[p.weights.length-1],first=p.weights[0];
+ const diff=last&&first&&p.weights.length>1?Math.round((last.kg-first.kg)*10)/10:null,kd=kcalDays(p.journal,14),avg=Math.round(kd.reduce((a,x)=>a+x.v,0)/Math.max(1,kd.filter(x=>x.v).length));
+ const c=p.compliance||{},days=[...new Set(p.journal.map(j=>j.day))].sort().reverse().slice(0,10);
+ return `<div class="kpis"><div class="kpi"><span>Greutate</span><b>${last?num(last.kg)+" kg":"—"}</b><small>${diff!=null?`${diff>0?"+":""}${num(diff)} kg în perioadă`:"o singură măsurătoare"}</small></div>
+  <div class="kpi"><span>Calorii / zi</span><b>${avg?num(avg):"—"}</b><small>media zilelor notate (14 zile)</small></div>
+  <div class="kpi"><span>Respectarea planului</span><b>${c.pct!=null?c.pct+"%":"—"}</b><small>${c.planned?`${c.done} din ${c.planned} mese planificate`:"nicio masă planificată"}</small></div></div>
+ <div class="pgrid"><div class="card panel"><h3>Greutatea</h3>${lineSVG(w,"kg")}</div>
+  <div class="card panel"><h3>Calorii pe zi (ultimele 14 zile)</h3>${barsMini(kd,"kcal")}</div></div>
+ <div class="card panel"><h3>Jurnal alimentar</h3>${days.length?days.map(d=>{const l=p.journal.filter(j=>j.day===d),k=l.reduce((a,j)=>a+(j.kcal||0),0);
+   return `<div class="jday"><div class="jdh"><b>${esc(dateL(d))}</b><span class="small muted">${num(k)} kcal</span>${forCoach?`<button class="btn sm" onclick="coachFeedback('${sid}','${d}')">${I("chat")}Feedback</button>`:""}</div>
+    <ul class="jlist">${l.map(j=>`<li><span class="tag">${esc(SLOT_RO[j.slot]||"Masă")}</span><span class="grow">${j.recipe?`<button class="link" onclick="openRecipe('${esc(j.recipe)}')">${esc(j.title)}</button>`:esc(j.title)}${j.planned?` <span class="small muted">· din plan</span>`:""}</span><span class="small muted">${j.kcal!=null?num(j.kcal)+" kcal":""}</span>${forCoach?"":`<button class="iconbtn" onclick="journalDel(${j.id})" aria-label="Șterge">${I("x")}</button>`}</li>`).join("")}</ul></div>`}).join("")
+  :`<p class="small muted">${forCoach?"Clientul nu a notat încă nimic în jurnal.":"Încă nu ai notat nimic. Bifează mesele mâncate sau adaugă ce ai mâncat."}</p>`}</div>`}
+const SLOT_RO={breakfast:"Mic dejun",snack:"Gustare",lunch:"Prânz",afternoon:"Chindie",dinner:"Cină"};
+
+/* ---------- clientul: greutate + jurnal ---------- */
+async function myProgLoad(){if(!SRV||PRG.loading)return;PRG.loading=true;const r=await api("/me/progress?days=60");PRG.loading=false;if(r.ok){PRG.me=r.data;if(["antrenor","stats"].includes(S.page))draw()}}
+function myProgress(){if(!SRV)return `<div class="card panel"><p class="muted">Jurnalul și greutatea se salvează pe site, cu serverul conectat.</p></div>`;
+ if(!PRG.me){myProgLoad();return `<p class="muted">Se încarcă…</p>`}const td=todayS(),planned=daySlots(td).map(m=>({m,r:rec(S.plan[td+"|"+m])})).filter(x=>x.r);
+ const eaten=new Set(PRG.me.journal.filter(j=>j.day===td&&j.recipe).map(j=>j.recipe));
+ return `<div class="pgrid"><div class="card panel"><h3>Greutatea de azi</h3><form class="form" onsubmit="event.preventDefault();weightSave()"><label class="lbl">Kilograme<input id="wkg" class="field w120" inputmode="decimal" placeholder="ex. 72,5" value="${(PRG.me.weights.find(w=>w.day===td)||{}).kg??""}"></label>
+   <label class="lbl">Data<input id="wday" class="field" type="date" max="${td}" value="${td}"></label><button class="btn primary">Salvează</button></form></div>
+  <div class="card panel"><h3>Ce am mâncat azi</h3>${planned.length?`<ul class="jlist">${planned.map(x=>`<li><span class="tag">${esc(x.m)}</span><span class="grow">${esc(x.r.n)}</span>${eaten.has(x.r.id)?`<span class="compat small">${I("checkc")}Notat</span>`:`<button class="btn sm" onclick="journalAdd({day:'${td}',slot:'${esc(x.m)}',recipe:'${x.r.id}',planned:true})">${I("check")}Am mâncat</button>`}</li>`).join("")}</ul>`:`<p class="small muted">Nimic planificat pentru azi.</p>`}
+   <form class="form" onsubmit="event.preventDefault();journalAdd({day:'${td}',title:$('jt').value,kcal:$('jk').value,slot:$('js').value})"><label class="lbl grow">Altceva<input id="jt" class="field" maxlength="120" placeholder="ex. un măr, o cafea cu lapte"></label><label class="lbl">kcal<input id="jk" class="field w90" inputmode="numeric"></label><label class="lbl">Masa<select id="js" class="field">${["Mic dejun","Gustare","Prânz","Chindie","Cină"].map(x=>`<option>${x}</option>`).join("")}</select></label><button class="btn">${I("plus")}Adaugă</button></form></div></div>
+ ${progressBody(PRG.me,false)}`}
+async function weightSave(){const r=await api("/me/weight",{method:"PUT",body:{day:$("wday").value,kg:$("wkg").value}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");PRG.me=r.data;draw();toast("Greutatea a fost salvată")}
+async function journalAdd(b){if(!SRV)return;if(b.title!==undefined&&!String(b.title).trim())return toast("Scrie ce ai mâncat.");const r=await api("/me/journal",{method:"POST",body:b});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");PRG.me=r.data;draw();toast("Notat în jurnal")}
+async function journalDel(id){const r=await api("/me/journal/"+id,{method:"DELETE"});if(r.ok){PRG.me=r.data;draw()}}
+/* „Am gătit-o” se notează singur în jurnal (cu masa din planificator, dacă era planificată azi) */
+function journalCooked(id){if(!SRV||!ME())return;const td=todayS(),slot=daySlots(td).find(m=>S.plan[td+"|"+m]===id);
+ api("/me/journal",{method:"POST",body:{day:td,recipe:id,slot:slot||"",planned:!!slot}}).then(r=>{if(r.ok)PRG.me=r.data})}
+
+/* ---------- antrenorul: progresul unui client ---------- */
+async function coachProg(sid){if(!feat("coach_progress"))return featLocked("coach_progress");PRG.st=sid;PRG.data=null;PRG.err=null;CTAB="prog";draw();scrollTo({top:0});
+ const r=await api("/coach/students/"+encodeURIComponent(sid)+"/progress?days=90");if(PRG.st!==sid)return;
+ if(!r.ok)PRG.err=(r.data&&r.data.error)||"Progresul nu a putut fi încărcat.";else PRG.data=r.data;draw()}
+function coachProgTab(){const st=myStudents();if(!PRG.st)return st.length?`<div class="card panel"><h3>Alege un client</h3><div class="chips">${st.map(u=>`<button class="chip" onclick="coachProg('${u.id}')">${esc(u.name)}</button>`).join("")}</div></div>`:`<div class="empty">Adaugă întâi un student în grup.</div>`;
+ const u=acct(PRG.st);
+ return `<div class="card panel menuhead"><div class="grow"><p class="eyebrow">Progresul clientului</p><h2>${esc(u?u.name:(PRG.data&&PRG.data.student.name)||"")}</h2></div>
+  <div class="rowacts"><select class="field" onchange="coachProg(this.value)">${st.map(x=>`<option value="${x.id}" ${x.id===PRG.st?"selected":""}>${esc(x.name)}</option>`).join("")}</select><button class="btn sm" onclick="openChat('${PRG.st}')">${I("chat")}Mesaj</button></div></div>
+ ${PRG.err?`<div class="box aierr">${esc(PRG.err)}</div>`:!PRG.data?`<p class="muted">Se încarcă…</p>`:progressBody(PRG.data,true,PRG.st)}`}
+function coachFeedback(sid,day){const l=(PRG.data&&PRG.data.journal||[]).filter(j=>j.day===day),k=l.reduce((a,j)=>a+(j.kcal||0),0);
+ if(MSG.uid!==S.uid)Object.assign(MSG,{uid:S.uid,threads:null,err:null,draft:{}});
+ MSG.draft[sid]=`Feedback pentru jurnalul din ${fmtDate(day)} (${num(k)} kcal: ${l.map(j=>j.title).join(", ")}):\n`;openChat(sid)}
+
+/* ---------- șabloane de meniuri (ex. „Keto 2000 kcal”) trimise la mai mulți clienți ---------- */
+async function tplLoad(){const r=await api("/coach/templates");PRG.tpl=r.ok?r.data.templates:{err:(r.data&&r.data.error)||"Șabloanele nu au putut fi încărcate."};if(CTAB==="tpl")draw()}
+function tplTab(){if(!feat("coach_templates"))return `<div class="card gate"><span class="ic h">${I("lock")}</span><h1>Șabloanele sunt în ${PK_PRO}</h1><p class="muted">Creezi un meniu standard o singură dată și îl trimiți instant la zeci de clienți.</p><button class="btn honey" onclick="go('premium')">Vezi pachetul</button></div>`;
+ if(!SRV)return `<div class="card panel"><p class="muted">Șabloanele funcționează pe site, cu serverul conectat.</p></div>`;
+ if(!PRG.tpl){tplLoad();return `<p class="muted">Se încarcă…</p>`}if(PRG.tpl.err)return `<div class="box aierr">${esc(PRG.tpl.err)}</div>`;
+ return `<p class="small muted">Un șablon se face dintr-un meniu existent: deschide meniul și apasă „Salvează ca șablon”. Apoi îl trimiți cu un clic la oricâți clienți.</p>
+ ${PRG.tpl.length?`<div class="mcards">${PRG.tpl.map(t=>`<div class="card mcard"><div><p class="eyebrow">Șablon${t.kcal?` · ${num(t.kcal)} kcal`:""}</p><h3>${esc(t.title)}</h3><p class="small muted">${t.days} ${t.days===1?"zi":"zile"} · ${t.meals} mese · actualizat ${fmtDate(t.updated)}</p></div>
+  <div class="rowacts"><button class="btn sm primary" onclick="sendModal('tpl','${t.id}')">${I("users")}Trimite la clienți</button><button class="btn sm" onclick="tplEdit('${t.id}')">${I("edit")}</button><button class="btn sm danger" onclick="tplDel('${t.id}')" aria-label="Șterge șablonul">${I("trash")}</button></div></div>`).join("")}</div>`
+  :`<div class="empty">Nu ai încă șabloane.</div>`}${brandPanel()}`}
+function tplSaveModal(mid){if(!feat("coach_templates"))return featLocked("coach_templates");const m=ownMenu(mid);if(!m)return;
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("copy")} Șablon nou</p><h2 style="font-size:22px">Salvează „${esc(m.title)}” ca șablon</h2></div>
+  <form class="stack" onsubmit="event.preventDefault();tplSave('${mid}')"><label class="lbl">Numele șablonului<input id="tpt" class="field" maxlength="80" value="${esc(m.title)}" placeholder="ex. Keto 2000 kcal"></label>
+  <label class="lbl">Calorii pe zi (opțional)<input id="tpk" class="field w120" inputmode="numeric" placeholder="ex. 2000"></label>
+  <div class="rowacts"><button class="btn primary">Salvează șablonul</button><button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,1,"#tpt")}
+async function tplSave(mid){const r=await api("/coach/templates",{method:"POST",body:{fromMenu:mid,title:$("tpt").value,kcal:$("tpk").value}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva șablonul.");PRG.tpl=r.data.templates;closeModal();toast("Șablonul a fost salvat");CTAB="tpl";CMENU=null;draw()}
+function tplEdit(id){const t=PRG.tpl.find(x=>x.id===id);if(!t)return;
+ openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Detaliile șablonului</h2><form class="stack" onsubmit="event.preventDefault();tplPatch('${id}')"><label class="lbl">Nume<input id="tpt" class="field" maxlength="80" value="${esc(t.title)}"></label><label class="lbl">Calorii pe zi<input id="tpk" class="field w120" inputmode="numeric" value="${t.kcal??""}"></label><label class="lbl">Notă pentru clienți<textarea id="tpn" class="field" rows="3" maxlength="600">${esc(t.note||"")}</textarea></label><div class="rowacts"><button class="btn primary">Salvează</button></div></form></div>`,1,"#tpt")}
+async function tplPatch(id){const r=await api("/coach/templates/"+id,{method:"PATCH",body:{title:$("tpt").value,kcal:$("tpk").value,note:$("tpn").value}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");PRG.tpl=r.data.templates;closeModal();draw();toast("Șablonul a fost actualizat")}
+function tplDel(id){ask("Ștergi șablonul?","Meniurile deja trimise clienților rămân la ei.","Șterge",async()=>{const r=await api("/coach/templates/"+id,{method:"DELETE"});if(r.ok){PRG.tpl=r.data.templates;draw();toast("Șablon șters")}},true)}
+/* alegerea clienților: pentru un șablon sau pentru un meniu existent */
+function sendModal(kind,id){if(!feat("coach_templates"))return featLocked("coach_templates");const st=myStudents().filter(u=>kind==="tpl"||u.id!==(ownMenu(id)||{}).st);
+ if(!st.length)return toast("Nu ai alți clienți în grup.");const t=kind==="tpl"?PRG.tpl.find(x=>x.id===id):ownMenu(id);
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("users")} Trimite</p><h2 style="font-size:22px">„${esc(t.title)}” la clienți</h2><p class="small muted">Fiecare client primește propriul meniu, pe care îl poți ajusta apoi separat.</p></div>
+  <label class="switch"><input type="checkbox" onchange="document.querySelectorAll('.sendl input').forEach(i=>i.checked=this.checked)"><b>Toți (${st.length})</b></label>
+  <div class="sendl">${st.map(u=>`<label class="switch"><input type="checkbox" value="${u.id}"><span>${esc(u.name)}</span></label>`).join("")}</div>
+  <div class="rowacts"><button class="btn primary" onclick="sendGo('${kind}','${id}')">${I("send")}Trimite</button><button class="btn" onclick="closeModal()">Renunță</button></div></div>`,1)}
+async function sendGo(kind,id){const ids=[...document.querySelectorAll(".sendl input:checked")].map(i=>i.value);if(!ids.length)return toast("Alege cel puțin un client.");
+ const r=await api(kind==="tpl"?`/coach/templates/${id}/send`:`/coach/menus/${id}/send`,{method:"POST",body:{students:ids}});
+ if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut trimite.");if(r.data.social)socApply(r.data.social);closeModal();draw();toast(`Trimis la ${ids.length} ${ids.length===1?"client":"clienți"}`)}
+
+/* ---------- identitatea antrenorului și PDF-ul profesional ---------- */
+const myBrand=()=>Object.assign({name:"",color:"#477653",contact:"",logo:null},(ME()||{}).brand||{});
+function brandPanel(){if(!feat("coach_pdf"))return"";const b=myBrand();
+ return `<div class="card panel"><h3>Logo și date pentru PDF</h3><p class="small muted">Apar în antetul meniurilor exportate în PDF.</p>
+  <div class="brandrow"><div class="brandlogo">${b.logo?`<img src="${IM(b.logo)}" alt="Logo">`:I("image")}</div><label class="btn sm">${I("upload")}Încarcă logo<input type="file" accept="image/*" hidden onchange="brandLogo(this)"></label>${b.logo?`<button class="btn sm ghost" onclick="brandSave({logo:null})">Scoate logo</button>`:""}</div>
+  <form class="form" onsubmit="event.preventDefault();brandSave({name:$('bn').value,contact:$('bc').value,color:$('bcol').value})"><label class="lbl grow">Numele afacerii<input id="bn" class="field" maxlength="60" value="${esc(b.name)}" placeholder="${esc((ME()||{}).name||"")}"></label>
+  <label class="lbl grow">Contact (telefon, email, site)<input id="bc" class="field" maxlength="80" value="${esc(b.contact)}"></label><label class="lbl">Culoare<input id="bcol" type="color" value="${esc(b.color)}"></label><button class="btn primary">Salvează</button></form></div>`}
+function brandLogo(inp){optimizeImg(inp.files[0],600,async u=>{const up=await api("/images",{method:"POST",body:{data:u}});if(!up.ok)return toast((up.data&&up.data.error)||"Logo-ul nu a putut fi încărcat.");brandSave({logo:up.data.url})})}
+async function brandSave(ch){const b={...myBrand(),...ch};const r=await api("/coach/brand",{method:"PUT",body:b});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");const m=ME();if(m)m.brand=r.data.brand;persist();draw();toast("Datele pentru PDF au fost salvate")}
+async function menuPDF(id){if(!feat("coach_pdf"))return featLocked("coach_pdf");const m=ownMenu(id);if(!m)return;const b=myBrand(),st=acct(m.st),me=ME();toast("Pregătesc PDF-ul…");
+ let H2C,JS;try{[H2C,JS]=await Promise.all([loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js","html2canvas"),loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js","jspdf")])}
+ catch(e){return toast("Nu am putut încărca generatorul de PDF. Verifică internetul.")}
+ const kc=d=>menuSlots(d).reduce((a,x)=>{const v=d.m[x],r=v&&v.r&&rec(v.r);return a+(r&&r.k?+r.k:0)},0);
+ const el=document.createElement("div");el.className="pdfsheet";el.style.setProperty("--bc",b.color);
+ el.innerHTML=`<header><div class="pl">${b.logo?`<img src="${IM(b.logo)}" crossorigin="anonymous" alt="">`:""}<div><b>${esc(b.name||me.name)}</b><span>${esc(b.contact||"")}</span></div></div><div class="pr"><span>Plan alimentar</span><b>${esc(fmtDate(todayS()))}</b></div></header>
+  <h1>${esc(m.title)}</h1><p class="pf">Pentru: <b>${esc(st?st.name:"")}</b> · ${m.days.length} ${m.days.length===1?"zi":"zile"}</p>${m.note?`<p class="pn">${esc(m.note)}</p>`:""}
+  ${m.days.map((d,di)=>`<section><h2>Ziua ${di+1}${kc(d)?` <small>${num(kc(d))} kcal</small>`:""}</h2><table>${menuSlots(d).map(x=>{const v=d.m[x],r=v&&v.r&&rec(v.r);if(!v)return"";
+   return `<tr><th>${esc(x)}</th><td>${esc(r?r.n:v.t||"")}${r&&r.k?` <span>${num(r.k)} kcal</span>`:""}</td></tr>`}).join("")}</table></section>`).join("")}
+  <footer>${esc(b.name||me.name)} · plan personalizat · generat cu ${esc(S.theme.brand||"Gusto")}</footer>`;
+ document.body.appendChild(el);
+ try{await Promise.all([...el.querySelectorAll("img")].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r})));
+  const cv=await H2C(el,{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false});
+  const pdf=new JS.jsPDF({unit:"mm",format:"a4"}),pw=210,ph=297,ih=cv.height*pw/cv.width;
+  for(let y=0,pg=0;y<ih;y+=ph,pg++){if(pg)pdf.addPage();pdf.addImage(cv,"JPEG",0,-y,pw,ih,undefined,"FAST")}
+  const name=`meniu-${String(m.title).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"gusto"}.pdf`;
+  const blob=pdf.output("blob"),file=new File([blob],name,{type:"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})&&/Android|iPhone|iPad/i.test(navigator.userAgent)&&!window.GustoAndroid){try{await navigator.share({files:[file],title:m.title});return}catch(e){if(e&&e.name==="AbortError")return}}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF-ul a fost descărcat")}
+ catch(e){toast("PDF-ul nu a putut fi generat: "+(e&&e.message||e))}
+ finally{el.remove()}}
+
+/* ---------- Parola uitată, link de resetare, pagini legale (GDPR, App Store, Google Play) ---------- */
+let RESET_TOKEN=null,LEGAL_TAB="confidentialitate";
+function forgotModal(email){if(!SRV)return toast("Resetarea parolei funcționează pe site, cu serverul conectat.");
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("key")} Parola uitată</p><h2 style="font-size:22px">Primește un link de resetare</h2>
+  <p class="muted small">Scrie emailul contului. Dacă există, îți trimitem un link valabil o oră.</p></div>
+  <form class="stack" onsubmit="event.preventDefault();forgotGo()"><label class="lbl">Email<input id="fe" class="field" type="email" autocomplete="username" value="${esc(email||"")}"></label>
+  <p class="small" id="fmsg" role="status"></p><div class="rowacts"><button class="btn primary" id="fbtn">Trimite linkul</button><button type="button" class="btn" onclick="authModal('login')">Înapoi</button></div></form></div>`,1,"#fe")}
+async function forgotGo(){const e=$("fe").value.trim().toLowerCase();if(!EMAIL_RE.test(e)){$("fmsg").textContent="Scrie o adresă de email validă.";return}
+ $("fbtn").disabled=true;const r=await api("/auth/forgot",{method:"POST",body:{email:e}});$("fbtn").disabled=false;
+ $("fmsg").textContent=(r.data&&(r.data.message||r.data.error))||"Ceva nu a mers. Încearcă din nou."}
+function resetModal(){openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("key")} Parolă nouă</p><h2 style="font-size:22px">Alege o parolă nouă</h2><p class="muted small">După schimbare, ieși automat din cont pe celelalte dispozitive.</p></div>
+  <form class="stack" onsubmit="event.preventDefault();resetGo()"><label class="lbl">Parola nouă<input id="rp1" class="field" type="password" autocomplete="new-password"><small class="muted">Cel puțin 8 caractere.</small></label>
+  <label class="lbl">Repetă parola<input id="rp2" class="field" type="password" autocomplete="new-password"></label><p class="err" id="rerr" role="alert"></p>
+  <div class="rowacts"><button class="btn primary" id="rbtn">Salvează parola</button></div></form></div>`,1,"#rp1")}
+async function resetGo(){const a=$("rp1").value,b=$("rp2").value,er=$("rerr");er.textContent="";
+ if(a.length<8)return er.textContent="Parola trebuie să aibă cel puțin 8 caractere.";if(a!==b)return er.textContent="Parolele nu coincid.";
+ $("rbtn").disabled=true;const r=await srvAuth("/auth/reset",{token:RESET_TOKEN,password:a});$("rbtn").disabled=false;
+ if(r.err)return er.textContent=r.err;RESET_TOKEN=null;closeModal();draw();toast("Parola a fost schimbată. Ești în cont.")}
+/* administratorul generează un link de resetare pe care îl trimite utilizatorului (WhatsApp, SMS, email) */
+async function resetLinkUI(id){const t=acct(id);if(!t)return;const r=await api("/admin/users/"+encodeURIComponent(id)+"/reset-link",{method:"POST"});
+ if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut genera linkul.");
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("key")} Resetare parolă</p><h2 style="font-size:22px">${esc(t.name)}</h2>
+  <p class="muted small">Trimite-i acest link (valabil o oră, o singură folosire). Cu el își alege singur o parolă nouă; tu nu o vezi.</p></div>
+  <textarea id="rlink" class="field mono" rows="3" readonly>${esc(r.data.link)}</textarea>
+  <div class="rowacts"><button class="btn primary" onclick="copyTxt('rlink')">${I("copy")}Copiază</button>${navigator.share?`<button class="btn" onclick="navigator.share({text:$('rlink').value}).catch(()=>{})">${I("share")}Trimite</button>`:""}<button class="btn" onclick="closeModal()">Gata</button></div></div>`,1)}
+
+function openLegal(tab){LEGAL_TAB=tab;closeModal();go("legal")}
+PAGES.legal=function(){const co=esc(txt("legalCompany")),em=esc(txt("legalEmail")),site=esc(S.theme.brand||"Gusto"),upd="28.10.2026";
+ const P=t=>`<p>${t}</p>`,H=t=>`<h2>${t}</h2>`,L=a=>`<ul>${a.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+ const priv=H("Cine suntem")+P(`${site} este administrat de ${co}. Pentru orice întrebare despre datele tale scrie-ne la ${em}.`)+
+  H("Ce date colectăm")+L(["<b>Contul:</b> numele, emailul, parola (stocată doar criptat), rolul și abonamentul.","<b>Ce adaugi tu:</b> frigiderul, listele de cumpărături, planificatorul, favoritele, cheltuielile, bonurile scanate, greutatea și jurnalul alimentar, alergiile, poza de profil și galeria.","<b>Mesajele private</b> dintre utilizatori, vizibile doar celor doi participanți.","<b>Date tehnice:</b> adresa IP și browserul, pentru securitate (blocarea încercărilor de spargere a contului)."])+
+  H("De ce le folosim")+L(["ca să funcționeze serviciile pe care le alegi (rețete, frigider, planificare, familie, antrenor);","ca să protejăm conturile și site-ul;","ca să gestionăm abonamentele Premium."])+P("Nu vindem datele și nu le folosim pentru reclame.")+
+  H("Cine le mai vede")+L(["membrii familiei tale, doar pentru ce alegi să împarți (frigider, cheltuieli, casă și igienă);","antrenorul tău, dacă ești în grupul lui: meniurile, greutatea și jurnalul alimentar;","furnizorii tehnici: găzduirea serverului și a bazei de date (Railway), a site-ului (GitHub Pages) și, când folosești funcțiile cu AI, serviciul de AI care citește bonul sau rețeta;","Open Food Facts, când cauți un produs după nume sau cod de bare (se trimite doar textul căutat)."])+
+  H("Cât timp le păstrăm")+P("Cât timp ai cont. Când îți ștergi contul (Contul meu → Șterge contul), datele tale se șterg definitiv, cu excepția celor pe care legea ne obligă să le păstrăm.")+
+  H("Drepturile tale")+L(["să îți vezi și să îți descarci datele (Contul meu → Descarcă datele mele);","să le corectezi sau să le ștergi;","să ne scrii la "+em+" sau să depui o plângere la autoritatea pentru protecția datelor (în Republica Moldova: CNPDCP; în România: ANSPDCP)."])+
+  H("Cookie-uri și stocare locală")+P("Folosim doar stocarea locală a browserului, ca să rămâi autentificat și să-ți păstrăm preferințele. Nu folosim cookie-uri de urmărire sau reclame.")+
+  H("Camera, microfonul și fotografiile")+P("În aplicație, camera se folosește doar când fotografiezi un bon, o rețetă sau scanezi un cod de bare; microfonul doar pentru comenzile vocale din modul de gătit. Pozele se trimit pe server doar când apeși tu pe încărcare.");
+ const terms=H("Despre serviciu")+P(`${site} te ajută să găsești rețete după ce ai în frigider, să îți planifici mesele, să îți ții listele și cheltuielile. Serviciul este administrat de ${co}.`)+
+  H("Contul tău")+L(["răspunzi de păstrarea parolei;","nu folosi contul pentru conținut ilegal, jignitor sau spam (inclusiv în mesajele private);","putem suspenda conturile care încalcă aceste reguli."])+
+  H("Abonamentele Premium")+P("Funcțiile fiecărui pachet sunt cele afișate pe pagina Abonament Premium. Abonamentul este valabil pentru perioada aleasă; zilele noi se adaugă la cele rămase. Pachetele oferite de administrator pot fi modificate sau oprite de acesta.")+
+  H("Rețete, valori nutriționale și sănătate")+P("Rețetele, caloriile, filtrele pentru alergii și informațiile despre produse sunt orientative și pot conține greșeli. Verifică întotdeauna eticheta produselor, mai ales dacă ai alergii. Informațiile nu înlocuiesc sfatul unui medic sau nutriționist.")+
+  H("Conținutul tău")+P("Rămâi proprietarul rețetelor, pozelor și textelor pe care le adaugi. Ne permiți să le afișăm în serviciu, după setările tale (de ex. rețetele publice după aprobare).")+
+  H("Răspundere")+P("Facem tot posibilul ca serviciul să funcționeze fără întreruperi, dar nu putem garanta asta. Nu răspundem pentru pierderi indirecte din folosirea serviciului.")+
+  H("Contact")+P(`Întrebări: ${em}.`);
+ return pagehead(LEGAL_TAB==="termeni"?"Termeni de utilizare":"Politica de confidențialitate",`Actualizat la ${upd}`)+
+  `<div class="atabs" role="tablist"><button role="tab" aria-selected="${LEGAL_TAB!=="termeni"}" onclick="LEGAL_TAB='confidentialitate';draw()">${I("shield")}Confidențialitate</button><button role="tab" aria-selected="${LEGAL_TAB==="termeni"}" onclick="LEGAL_TAB='termeni';draw()">${I("info")}Termeni</button></div>
+  <article class="card legal">${LEGAL_TAB==="termeni"?terms:priv}</article>
+  ${/^\[/.test(txt("legalCompany"))&&can("frontend")?`<div class="box honey small">Administrator: completează numele firmei și emailul în Administrare → Aspect → Texte (câmpurile „Pagini legale”). Textul este un model general; verifică-l cu un jurist.</div>`:""}`};
+
 /* ---------- Pornire ---------- */
 load();
+{const h=location.hash||"",rs=/^#reset=([A-Za-z0-9_-]{20,100})$/.exec(h),lg=/^#(confidentialitate|termeni)$/.exec(h);
+ if(rs){RESET_TOKEN=rs[1];try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
+ if(lg){S.page="legal";LEGAL_TAB=lg[1]}}
 {const m=/^#join=([A-Za-z0-9-]{6,14})$/.exec(location.hash||"");if(m){S.joinCode=m[1].toUpperCase().replace(/[^A-Z0-9]/g,"");S.page="familie";try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}}
 // reparație: o versiune anterioară a putut pune produse de casă în locul blocurilor paginii principale
 if(!Array.isArray(S.home)||S.home.some(b=>!b||!b.type)){S.home=clone(DEF_HOME);try{save()}catch(e){}}
@@ -3935,6 +4741,7 @@ applyTheme(S.theme);
 HASHREADY=ensureHashes();
 draw();
 if(SRV)srvBoot();
+if(RESET_TOKEN)setTimeout(resetModal,400);
 
 </script>
 </body>
