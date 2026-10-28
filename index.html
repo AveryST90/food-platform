@@ -3359,7 +3359,7 @@ function uOpts(a,mg,self){const me=ME(),sw=[],bt=[];
  if(RANK[a.role]<2&&a.id!==ME().id&&(isRecStaff()||canTgl(a))){sw.push(tgl(uFeat(a,"recipe_author"),"Poate adăuga rețete",`setUserFeature('${a.id}','recipe_author',this.checked)`));
   sw.push(tgl(uFeat(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(și din pachet)":""));
   sw.push(tgl(uFeat(a,"coach_cabinet"),"Cabinet de antrenor",`setUserFeature('${a.id}','coach_cabinet',this.checked)`,uFeatPlan(a,"coach_cabinet")?"(și din pachet)":a.role!=="trainer"?"(contul devine Antrenor)":""))}
- if(me.role==="super"&&!self)bt.push(`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Pachet și funcții</button>`);
+ if(me.role==="super"&&!self)bt.push(`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Funcții</button>`);
  if(mg&&SRV)bt.push(`<button class="btn sm" onclick="resetLinkUI('${a.id}')">${I("key")}Link resetare parolă</button>`);
  if(mg&&RANK[a.role]<2&&canPlans())bt.push(`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button>`);
  if(mg&&extraTarget(a)&&(GRANT[me.role]||[]).length)bt.push(`<button class="btn sm" onclick="permModal('${a.id}')">${I("key")}Drepturi</button>`);
@@ -3383,21 +3383,13 @@ async function setUserFeature(id,f,on){const t=acct(id)||(PROF.data&&PROF.data.i
  draw();toast(on?"Funcția a fost activată":"Funcția a fost dezactivată")}
 const pkgList=a=>a.packages&&a.packages.length?a.packages:a.planName?[{name:a.planName,until:a.until,gift:!1}]:[];
 const pkgTags=a=>pkgList(a).map(x=>`<span class="tag pk">${esc(x.name)}</span>${x.gift?`<span class="tag gift">Oferit de admin</span>`:""}`).join(" ");
-function pkgModal(id){const t=acct(id);if(!t||ME().role!=="super")return deny();const pl=S.plans||[],cur=pkgList(t);
- openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Pachet și funcții</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email)} · ${esc(ROLE_L[t.role])}</p></div>
- ${cur.length?`<div class="box"><p class="h3" style="font-size:15px">Pachete active</p><ul class="pklist">${cur.map(x=>`<li><b>${esc(x.name)}</b>${x.gift?` <span class="tag gift">Oferit de admin</span>`:""}<span class="small muted">${esc(untilTxt(x.until))}${x.later?" · începe după cel curent":""}</span></li>`).join("")}</ul></div>`:""}
- <div class="box"><p class="h3" style="font-size:15px">Oferă un pachet</p><p class="small muted">Utilizatorul primește toate funcțiile pachetului (și pe cele moștenite), fără plată, cu statusul „Oferit de admin”. Pachete diferite merg în paralel; același pachet se prelungește.</p>
-  ${pl.length?`<form class="form" onsubmit="event.preventDefault();pkgGive('${id}')"><label class="lbl grow">Pachet<select id="pkgp" class="field" onchange="$('pkgf').innerHTML=pkgFeatsLine(this.value)">${pl.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.days} zile${p.on?"":" · inactiv pe site"}</option>`).join("")}</select></label>
-  <label class="lbl">Zile<input id="pkgd" class="field w90" type="number" min="1" max="3650" placeholder="implicit"></label><button class="btn primary">${I("spark")}Oferă</button></form><p class="small muted" id="pkgf">${pkgFeatsLine(pl[0].id)}</p>`:`<p class="small muted">Nu există pachete. Le creezi în fila Monetizare.</p>`}</div>
+function pkgModal(id){const t=acct(id);if(!t||ME().role!=="super")return deny();
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Funcții</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email)} · ${esc(ROLE_L[t.role])}</p></div>
+ <p class="small muted">Pachetele Premium se acordă din butonul „Premium”.</p>
  <div class="box"><p class="h3" style="font-size:15px">Funcții activate manual</p><p class="small muted">Independent de pachet. Pentru antrenori, Moderatorii și Administratorii pot activa doar AI, rețetele proprii și cabinetul.</p>
   ${FEAT_G.map(([g,fs])=>`<div class="pfgroup"><b class="small">${esc(g)}</b>${fs.map(f=>`<label class="switch"><input type="checkbox" ${uFeat(t,f)?"checked":""} onchange="setUserFeature('${id}','${f}',this.checked)"><span>${esc(FEAT_L[f])}${uFeatPlan(t,f)?` <span class="small muted">(inclusă și în pachet)</span>`:""}</span></label>`).join("")}</div>`).join("")}</div>
  <div class="rowacts"><button class="btn" onclick="closeModal()">Gata</button></div></div>`,1)}
 function pkgFeatsLine(pid){const p=(S.plans||[]).find(x=>x.id===pid);if(!p)return"";const a=planAll(p);return a.length?"Include: "+a.map(f=>esc((FEAT_L[f]||f).split(" (")[0])).join(", "):"Pachetul nu are încă funcții bifate."}
-async function pkgGive(id){const pid=$("pkgp").value,d=$("pkgd").value?Math.round(+$("pkgd").value):null,t=acct(id),p=S.plans.find(x=>x.id===pid);
- if(d!==null&&!(d>=1&&d<=3650))return toast("Perioada trebuie să fie între 1 și 3650 de zile.");
- if(SRV){const r=await api("/admin/users/"+encodeURIComponent(id)+"/plan",{method:"POST",body:{planId:pid,days:d}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut atașa pachetul.");admApply(r.data.admin);persist()}
- else{const base=(t.plan==="premium"&&t.until&&t.until>todayS())?t.until:todayS();t.plan="premium";t.until=addDaysS(base,d||p.days);t.planId=p.id;t.planFeatures=planAll(p);t.packages=[{name:p.name,until:t.until,gift:true}];audit(`A oferit pachetul „${p.name}” lui ${t.name}`);save()}
- closeModal();draw();toast(`Pachetul „${p?p.name:""}” a fost oferit lui ${t?t.name:""}`)}
 
 /* ---------- Pachetele active ale unui utilizator: modificare dată / dezactivare (moderator în sus, și pentru pachetele cadou) ---------- */
 const SUBX={list:{},edit:null,ctx:{}};
