@@ -1449,6 +1449,11 @@ body.cooking .scrim{z-index:80}
 .sheet-top .rtile.fit .fitbg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(18px) brightness(.85);transform:scale(1.1)}
 .sheet-top .rtile.fit img.photo{position:relative;width:100%;height:100%;object-fit:contain;object-position:center}
 .rtile img.photo{object-position:center}
+.rfocus{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.rfbox{position:relative;align-self:flex-start;max-width:min(100%,360px);border-radius:12px;overflow:hidden;cursor:crosshair;line-height:0;background:#1d2a22;outline-offset:3px}
+.rfbox img{max-width:100%;max-height:260px;display:block;user-select:none}
+.rfdot{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px rgb(0 0 0/.45),0 2px 8px rgb(0 0 0/.4);pointer-events:none}
+.rfdot::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#fff}
 
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -2396,7 +2401,7 @@ async function catLoad(force){
  if(!Array.isArray(r.data.recipes)||!r.data.recipes.length&&S.recipes.length>0&&!force)return false;
  S.recipes=r.data.recipes.map(recMap);S.catV=r.data.version;persist();return true}
 function recPut(r){if(!r)return;
- socOp("PUT","/recipes/"+encodeURIComponent(r.id),{recipe:{n:r.n,d:r.d,t:r.t,por:r.por,dif:r.dif,status:r.status,cat:r.cat,veg:r.veg,k:r.k,p:r.p,c:r.c,f:r.f,i:r.i,s:r.s,ph:r.ph,img:r.img,photo:r.photo}})}
+ socOp("PUT","/recipes/"+encodeURIComponent(r.id),{recipe:{n:r.n,d:r.d,t:r.t,por:r.por,dif:r.dif,status:r.status,cat:r.cat,veg:r.veg,k:r.k,p:r.p,c:r.c,f:r.f,i:r.i,s:r.s,ph:r.ph,img:r.img,photo:r.photo,fp:r.fp}})}
 if(SRV){
  {const o=globalThis.recSave;
   globalThis.recSave=function(id){const n0=S.recipes.length,b=id?JSON.stringify(byId(id)):"";o.call(this,id);
@@ -2420,7 +2425,10 @@ const planL=u=>RANK[u.role]>=2?ROLE_L[u.role]:u.role==="trainer"?"Antrenor"+(has
 
 function thumb(n,cls=""){const p=prod(n);return p.img?`<img class="${cls}" src="${IM("img/"+p.img+".png")}" alt="" loading="lazy" width="40" height="40">`:`<span class="tph ${cls}">${esc((n||"?")[0].toUpperCase())}</span>`}
 function rsrc(r){if(r.photo)return{u:r.photo,photo:true};if(r.ph)return{u:IM(`photo/${r.ph}.jpg`),photo:true};if(r.img)return{u:IM(`img/${r.img}.png`),photo:false};return null}
-function tile(r){const s=rsrc(r);return `<div class="rtile">${!s?`<span class="ph">${esc((r.n||"?")[0])}</span>`:s.photo?`<img class="photo" src="${s.u}" alt="${esc(r.n)}" loading="lazy">`:`<img class="ill" src="${s.u}" alt="${esc(r.n)}" loading="lazy">`}</div>`}
+/* centrul fotografiei ales de autor (încadrare): „x,y” în procente */
+function fpOf(r){const v=r&&(r.fp||((/[?&]fp=(\d{1,3}),(\d{1,3})/.exec(String(r.photo||""))||[]).slice(1,3).join(",")));return /^\d{1,3},\d{1,3}$/.test(v||"")?v:""}
+const fpStyle=r=>{const v=fpOf(r);return v?` style="object-position:${v.replace(",","% ")}%"`:""};
+function tile(r){const s=rsrc(r);return `<div class="rtile">${!s?`<span class="ph">${esc((r.n||"?")[0])}</span>`:s.photo?`<img class="photo" src="${s.u}" alt="${esc(r.n)}" loading="lazy"${fpStyle(r)}>`:`<img class="ill" src="${s.u}" alt="${esc(r.n)}" loading="lazy">`}</div>`}
 const UPL={pachet:"pachete",sticlă:"sticle",rolă:"role",tub:"tuburi",cutie:"cutii",conservă:"conserve"};
 const fmtQ=(q,u)=>q===""||q==null?esc(u||""):`${num(q)} ${esc(+q!==1&&UPL[u]?UPL[u]:u||"")}`;
 function expLabel(x){const d=daysLeft(x);if(d==null)return"";const c=d<=2?"d":d<=5?"w":"o";
@@ -3537,11 +3545,11 @@ ATAB_FN.rec=function(){const q=AQ.trim().toLowerCase();
 function recToggle(id){if(!need("recipes"))return;const r=byId(id);if(!r)return;r.status=r.status==="hid"?"pub":"hid";audit(`A ${r.status==="hid"?"ascuns":"publicat"} rețeta „${r.n}”`);save();draw();toast(r.status==="hid"?"Rețeta este ascunsă":"Rețeta este publică")}
 function recDel(id){const r=byId(id);if(!r)return;if(!canEditRec(r))return deny();
  ask("Ștergi rețeta?",`„${esc(r.n)}” se șterge definitiv. Dacă vrei doar să nu fie vizibilă, folosește „Ascunde”.`,"Șterge rețeta",()=>{if(!canEditRec(r))return;S.recipes=S.recipes.filter(x=>x.id!==id);audit(`A șters rețeta „${r.n}”`);save();draw();toast("Rețeta a fost ștearsă")},true)}
-let RIMG={ph:null,img:"cooking",photo:null};
+let RIMG={ph:null,img:"cooking",photo:null,fp:""};
 const ingText=r=>(r?r.i:[]).map(([n,q,u])=>`${n}${q!==""&&q!=null?" "+q:""}${u?" "+u:""}`).join("\n");
 function parseIng(t){return String(t||"").split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(.*)$/);return m?[m[1].trim().toLowerCase(),+m[2].replace(",","."),m[3].trim()]:[l.toLowerCase(),"",""]})}
 function recEdit(id){const r=id?byId(id):null;if(id&&!r)return;if(!canEditRec(r))return deny(canAuthor()?"Poți modifica doar rețetele adăugate de tine.":"Nu ai dreptul să adaugi rețete.");
- RIMG=r?{ph:r.ph||null,img:r.img||null,photo:r.photo||null}:{ph:null,img:"cooking",photo:null};
+ RIMG=r?{ph:r.ph||null,img:r.img||null,photo:r.photo||null,fp:fpOf(r)}:{ph:null,img:"cooking",photo:null,fp:""};
  const sel=(k,v)=>RIMG[k]===v;
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${r?"Editezi rețeta":"Rețetă nouă"}</p><h2 style="font-size:22px">${r?esc(r.n):"Adaugă o rețetă"}</h2></div>
  <form class="stack" onsubmit="event.preventDefault();recSave(${r?`'${r.id}'`:"null"})" novalidate>
@@ -3553,6 +3561,7 @@ function recEdit(id){const r=id?byId(id):null;if(id&&!r)return;if(!canEditRec(r)
      ${canPhoto(r)?`<label class="btn sm">${I("upload")}Încarcă o fotografie<input type="file" accept="image/*" hidden onchange="rUp(this)"></label>`:""}
      ${canGallery(r)?`<button type="button" class="btn sm" id="remobtn" aria-expanded="false" aria-controls="rgal" onclick="rEmoji()">${I("image")}Alege un emoji</button>`:""}</div>
      <span class="small muted" id="rphn">${!canGallery(r)?"Imaginea rețetelor adăugate de alții o pot schimba doar moderatorii și administratorii.":!canPhoto(r)?"Fotografii noi poți încărca doar la rețetele adăugate de tine; poți alege un emoji.":r&&r.photo?"Acum este folosită o fotografie încărcată.":""}</span></div></div>
+   ${rFocusHTML()}
    ${canGallery(r)?`<div class="gallery big emojis" id="rgal" hidden>${ICON_LIST.map(g=>`<button type="button" class="ic" data-k="img" data-v="${g}" aria-pressed="${sel("img",g)&&!RIMG.photo&&!RIMG.ph}" onclick="rPick('img','${g}',this)" aria-label="${g.replace(/_/g," ")}"><img src="${IM("img/"+g+".png")}" alt="" loading="lazy"></button>`).join("")}</div>`:""}</div>
   <div class="form"><label class="lbl">Minute<input id="rt" class="field w90" type="number" min="1" max="1440" value="${r?r.t:30}"></label><label class="lbl">Porții<input id="rp2" class="field w90" type="number" min="1" max="50" value="${r?r.por:4}"></label>
    <label class="lbl">Dificultate<select id="rdf" class="field">${["Ușor","Mediu","Avansat"].map(d=>`<option ${r&&r.dif===d?"selected":""}>${d}</option>`).join("")}</select></label>
@@ -3566,11 +3575,20 @@ function recEdit(id){const r=id?byId(id):null;if(id&&!r)return;if(!canEditRec(r)
   <p class="err" id="rerr" role="alert"></p>
   <div class="rowacts"><button class="btn primary">${r?"Salvează modificările":"Publică rețeta"}</button><button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,0,"#rn");recKcalLive()}
 // previzualizarea imaginii alese (fotografie încărcată, fotografie din galerie sau emoji)
-function rPrev(n){return tile({n:n||($("rn")&&$("rn").value)||"?",...(RIMG.photo?{photo:RIMG.photo}:RIMG.ph?{ph:RIMG.ph}:RIMG.img?{img:RIMG.img}:{})})}
-function rShowPrev(){const p=$("rprev");if(p)p.innerHTML=rPrev()}
+function rPrev(n){return tile({n:n||($("rn")&&$("rn").value)||"?",...(RIMG.photo?{photo:RIMG.photo,fp:RIMG.fp||"50,50"}:RIMG.ph?{ph:RIMG.ph}:RIMG.img?{img:RIMG.img}:{})})}
+function rShowPrev(){const p=$("rprev");if(p)p.innerHTML=rPrev();const f=$("rfocus");if(f)f.outerHTML=rFocusHTML()}
+/* încadrarea fotografiei: atingi locul care trebuie să fie în centru (se vede în carduri și în previzualizare) */
+function rFocusHTML(){if(!RIMG.photo)return `<div id="rfocus" hidden></div>`;const [x,y]=(RIMG.fp||"50,50").split(",");
+ return `<div id="rfocus" class="rfocus"><p class="small"><b>Încadrare:</b> atinge pe fotografie locul care trebuie să fie în centru (ex. farfuria). Cardul din stânga arată rezultatul.</p>
+  <div class="rfbox" onclick="rFocusSet(event)" role="button" tabindex="0" aria-label="Alege centrul fotografiei" onkeydown="rFocusKey(event)"><img src="${RIMG.photo}" alt="" draggable="false"><span class="rfdot" style="left:${x}%;top:${y}%"></span></div>
+  <div class="rowacts"><button type="button" class="btn sm" onclick="RIMG.fp='50,50';rShowPrev()">Centrul pozei</button><button type="button" class="btn sm" onclick="RIMG.fp='50,30';rShowPrev()">Sus</button><button type="button" class="btn sm" onclick="RIMG.fp='50,75';rShowPrev()">Jos</button></div></div>`}
+function rFocusSet(e){const img=e.currentTarget.querySelector("img"),b=img.getBoundingClientRect();
+ const x=Math.round(Math.max(0,Math.min(100,(e.clientX-b.left)/b.width*100))),y=Math.round(Math.max(0,Math.min(100,(e.clientY-b.top)/b.height*100)));RIMG.fp=x+","+y;rShowPrev()}
+function rFocusKey(e){const m={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[e.key];if(!m)return;e.preventDefault();let [x,y]=(RIMG.fp||"50,50").split(",").map(Number);
+ RIMG.fp=Math.max(0,Math.min(100,x+m[0]))+","+Math.max(0,Math.min(100,y+m[1]));rShowPrev();setTimeout(()=>{const b=document.querySelector(".rfbox");b&&b.focus()})}
 function rEmoji(){const g=$("rgal"),b=$("remobtn");if(!g)return;g.hidden=!g.hidden;if(b)b.setAttribute("aria-expanded",String(!g.hidden));if(!g.hidden){const c=g.querySelector('[aria-pressed="true"]');(c||g.querySelector("button")).focus()}}
-function rPick(k,v,btn){RIMG={ph:null,img:null,photo:null};RIMG[k]=v;$("rgal").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn));$("rphn").textContent="Emoji ales.";rShowPrev();rEmoji();$("remobtn")&&$("remobtn").focus()}
-function rUp(inp){optimizeImg(inp.files[0],1200,u=>{RIMG={ph:null,img:null,photo:u};const g=$("rgal");if(g){g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false"));g.hidden=true}$("rphn").textContent="Fotografia încărcată va fi folosită după salvare.";rShowPrev()})}
+function rPick(k,v,btn){RIMG={ph:null,img:null,photo:null,fp:""};RIMG[k]=v;$("rgal").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn));$("rphn").textContent="Emoji ales.";rShowPrev();rEmoji();$("remobtn")&&$("remobtn").focus()}
+function rUp(inp){optimizeImg(inp.files[0],1200,u=>{RIMG={ph:null,img:null,photo:u,fp:"50,50"};const g=$("rgal");if(g){g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false"));g.hidden=true}$("rphn").textContent="Fotografia încărcată va fi folosită după salvare.";rShowPrev()})}
 function recSave(id){if(!canEditRec(id?byId(id):null))return deny();const er=$("rerr");er.textContent="";
  const n=$("rn").value.trim(),i=parseIng($("ri").value).map(([a,q,u])=>[canonProd(a),q,u]),s=$("rs").value.split("\n").map(x=>x.trim()).filter(Boolean),t=Math.round(+$("rt").value),por=Math.round(+$("rp2").value);
  if(n.length<2){er.textContent="Scrie numele rețetei.";return}
@@ -3580,7 +3598,7 @@ function recSave(id){if(!canEditRec(id?byId(id):null))return deny();const er=$("
  const nums=["rk","rp","rc","rf"].map(k=>Math.max(0,Math.round(+$(k).value||0)));
  if($("rk").value.trim()==="")nums[0]=recipeKcal(i,por).per;   // câmp gol: caloriile calculate din ingrediente
  const data={n,d:$("rd").value.trim(),t,por,dif:$("rdf").value,status:$("rst").value,cat:[...document.querySelectorAll(".rcat:checked")].map(x=>x.value),veg:$("rveg").checked?1:0,
-  k:nums[0],p:nums[1],c:nums[2],f:nums[3],i,s:s.length?s:["Pașii vor fi adăugați în curând."],ph:RIMG.ph||undefined,img:RIMG.img||undefined,photo:RIMG.photo||undefined};
+  k:nums[0],p:nums[1],c:nums[2],f:nums[3],i,s:s.length?s:["Pașii vor fi adăugați în curând."],ph:RIMG.ph||undefined,img:RIMG.img||undefined,photo:RIMG.photo||undefined,fp:RIMG.photo?(RIMG.fp||"50,50"):undefined};
  let r=id&&byId(id);
  if(r){Object.keys(data).forEach(k=>{if(data[k]===undefined)delete r[k];else r[k]=data[k]});audit(`A modificat rețeta „${n}”`)}
  else{r={id:"c-"+Date.now().toString(36),created:todayS(),by:S.uid,...data};Object.keys(r).forEach(k=>r[k]===undefined&&delete r[k]);S.recipes.unshift(r);audit(`A adăugat rețeta „${n}”`)}
