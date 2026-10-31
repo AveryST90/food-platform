@@ -1444,6 +1444,12 @@ body.cooking .scrim{z-index:80}
 .side{overflow:hidden}
 .side #sidenav,.side .nav{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 
+/* poza rețetei în fișă: se vede întreagă și centrată (fără tăiere), pe un fundal estompat din aceeași poză */
+.sheet-top .rtile.fit{position:relative;overflow:hidden;background:#1d2a22;display:grid;place-items:center}
+.sheet-top .rtile.fit .fitbg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(18px) brightness(.85);transform:scale(1.1)}
+.sheet-top .rtile.fit img.photo{position:relative;width:100%;height:100%;object-fit:contain;object-position:center}
+.rtile img.photo{object-position:center}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -2931,7 +2937,7 @@ function openRecipeCore(id,g){const r=byId(id);if(!r||(!recVisible(r)&&!isStaff(
    <select id="pmeal" class="field" aria-label="Masă">${[...MEALS,...EXTRA_MEALS].map(m=>`<option ${(r.cat||[]).includes(m)?"selected":""}>${m}</option>`).join("")}</select><button class="btn sm" onclick="planPut($('pday').value,$('pmeal').value,'${id}')&&toast('Adăugată în planificator')">${I("cal")}Adaugă</button></div></div>`:guest}</div>
   <div style="display:flex;flex-direction:column;gap:12px"><div class="prephead"><p class="h3">Preparare</p>${r.s.length?(feat("cook_mode")?`<button class="btn sm honey" onclick="cookStart('${id}')">${I("cook")}Mod gătire</button>`:ME()?lockBtn("cook_mode","Mod gătire",""):""):""}</div><ol class="steps">${r.s.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ol>
    ${me?`<div id="cookbox">${CD?`<button class="btn primary" onclick="cookAsk('${id}')">${I("cook")}Am gătit-o</button><p class="small muted" style="margin-top:6px">Scădem ingredientele folosite din frigider, după confirmare.</p>`:`${lockBtn("cooked_deduct","Am gătit-o")}<p class="small muted" style="margin-top:6px">Scăderea automată din frigider este inclusă în Smart Kitchen Ultra.</p>`}</div>`:""}</div></div>`;
- openModal(`<div class="sheet-top"><div class="media">${tile(r)}${heartBtn(id)}</div>
+ openModal(`<div class="sheet-top"><div class="media">${(()=>{const s=rsrc(r);return s&&s.photo?`<div class="rtile fit"><span class="fitbg" style="background-image:url('${String(s.u).replace(/'/g,"%27")}')" aria-hidden="true"></span><img class="photo" src="${s.u}" alt="${esc(r.n)}"></div>`:tile(r)})()}${heartBtn(id)}</div>
   <div style="display:flex;flex-direction:column;gap:10px;padding-right:36px"><p class="eyebrow">${(r.cat||[]).join(" · ")}${r.veg?" · Vegetarian":""}${r.status==="hid"?" · Ascunsă":""}</p><h2>${esc(r.n)}</h2><p class="muted">${esc(r.d||"")}</p>${authorChip(r,"Rețetă de")}${allergyWarn(r)}
   <div class="ratebox" id="ratebox">${rateBox(r)}</div>
   <div class="facts"><span class="fact">${I("clock")}${r.t} min</span><span class="fact">${I("level")}${esc(r.dif)}</span><span class="fact">${I("users")}${r.por} porții</span><span class="fact" style="color:var(--green)">${I("checkc")}${r.i.length-miss.length} din ${r.i.length} în stoc</span></div>
