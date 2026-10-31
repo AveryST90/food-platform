@@ -15,7 +15,7 @@
 <meta name="theme-color" content="#f7f6f0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700&family=Arvo:wght@400;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,600&family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@500;700&display=swap">
 <style>
 
 /* Layout: bară laterală fixă + conținut pe fundal ivory, carduri albe rotunjite. Pe telefon bara laterală devine meniu jos.
@@ -26,7 +26,11 @@
   --honey:#e7b96b; --honey-soft:#fbf2df; --honey-ink:#7a5310;
   --danger:#c2452d; --danger-soft:#fbe9e4; --warn:#c98a1b; --warn-soft:#fdf3e1;
   --premium:#1f3a2b; --premium-2:#162a1f;
-  --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font:"Bitter",Georgia,Cambria,"Times New Roman",serif;
+  --f-head:"Arvo","Bitter",Georgia,serif;
+  --f-display:"Playfair Display",Georgia,serif;
+  --f-ui:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-script:"Caveat","Bradley Hand",cursive;
   --r:18px; --shadow:0 1px 2px rgb(41 54 45 / .04),0 4px 16px rgb(41 54 45 / .05);
   color-scheme:light;
 }
@@ -1315,6 +1319,27 @@ body.cooking{overflow:hidden}
 .kchip{border:1px solid var(--line);background:var(--soft);color:var(--muted);border-radius:999px;font-size:11.5px;padding:1px 8px;cursor:pointer;margin-left:2px;white-space:nowrap}
 .kchip.mine{border-color:var(--honey);color:#8a5a00;background:#fff5df}
 .kline{margin-top:6px}
+
+
+/* ===== Fonturi (Bitter, Arvo, Playfair Display, Outfit, Caveat) ===== */
+:root body{font-size:16px;line-height:1.6}
+:root h1,:root h2,:root h3,:root h4,:root .h3{font-family:var(--f-head);font-weight:700;letter-spacing:-.01em}
+:root .hero h1,:root .phero h1,:root .pagehead h1,:root .banner h2,:root .gate h1,:root .lockcard h1,
+:root .sheet-top h2,:root .sheet-b h2,:root .detail-b h2,:root .rbody h3,:root .plist b,:root .slot .pick span{font-family:var(--f-display);font-weight:700;letter-spacing:-.015em}
+:root .hero h1,:root .phero h1{font-weight:800;line-height:1.05}
+:root .hero h1 span+span,:root .phero h1 span+span{font-family:var(--f-script);font-weight:700;font-size:1.18em;line-height:1;letter-spacing:0;color:var(--green)}
+:root .phero h1 span+span,:root .hero.tone-dark h1 span+span{color:var(--honey)}
+:root .rbody h3{font-size:17px;line-height:1.25}
+:root .sechead h2{font-family:var(--f-display);font-weight:700;letter-spacing:-.015em;font-size:24px}
+:root .logo{font-family:var(--f-display);font-weight:800;font-style:italic;letter-spacing:-.02em;font-size:26px}
+:root .btn,:root .chip,:root .nav button,:root .bottomnav button,:root .link,:root .eyebrow,:root .badge,:root .tag,:root .ribbon,
+:root .seg button,:root .dchip,:root .dtag,:root .demobar,:root .fact,:root .etag,:root .exp,:root .lbl,:root .compat,:root .meta,
+:root .slot small,:root .meal small,:root .cmp th,:root .cells span,:root .search input,:root .hero-search input,:root .pop .menu,
+:root .toast,:root .freebar,:root .stat small,:root .day-h,:root .fcol-h,:root .choice b,:root .me b{font-family:var(--f-ui)}
+:root .eyebrow{letter-spacing:.14em;font-weight:600}
+:root .stat b,:root .cells b,:root .plan .price b{font-family:var(--f-head);font-weight:700}
+:root .hero p.lede,:root .textblock p{font-style:italic}
+:root .steps li::before{font-family:var(--f-head)}
 
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
