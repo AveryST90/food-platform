@@ -1455,6 +1455,19 @@ body.cooking .scrim{z-index:80}
 .rfdot{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px rgb(0 0 0/.45),0 2px 8px rgb(0 0 0/.4);pointer-events:none}
 .rfdot::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#fff}
 
+/* ===== Rețete recomandate + editorul de meniu ===== */
+.recotag{display:inline-flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--honey) 28%,var(--surface));color:var(--honey-ink);font-weight:700;margin-bottom:4px}
+.recotag svg{width:13px;height:13px}
+.recohome .sechead h2{display:flex;align-items:center;gap:8px}
+.recohome .sechead h2 svg{color:var(--honey)}
+.recotable .recorow{display:flex;align-items:center;gap:10px}
+.recotable .thumb{width:56px;height:42px;border-radius:8px;overflow:hidden;flex:none}
+.recotable .thumb .rtile{aspect-ratio:auto;height:100%}
+.recotable .tgl{min-width:220px}
+.nvi.nvoff>.nvrow{opacity:.5}
+.nvact{margin-left:6px;white-space:nowrap}
+.nvurl{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -2438,7 +2451,7 @@ function compatLine(r){const A=avail(),c=compat(r,A),n=r.i.length;return `<p cla
 function heartBtn(id){return `<button class="heart" data-fav="${id}" aria-pressed="${S.fav.includes(id)}" aria-label="Salvează la favorite" onclick="event.stopPropagation();togFav('${id}')">${I("heart")}</button>`}
 function rcard(r,cur){return `<article class="rcard" tabindex="0" ${cur?'aria-current="true"':""} onclick="pick('${r.id}')" onkeydown="if(event.key=='Enter')pick('${r.id}')">
  <div style="position:relative">${tile(r)}${heartBtn(r.id)}</div>
- <div class="rbody">${r.status==="hid"?`<span class="tag privtag">${ownRec(r)?"Doar pentru tine · neaprobată":"Din meniul antrenorului"}</span>`:""}<h3>${esc(r.n)}</h3><p class="meta">${I("clock")}${r.t} min <span aria-hidden="true">·</span> ${I("level")}${esc(r.dif)}${ratingLine(r)?` <span aria-hidden="true">·</span> ${ratingLine(r)}`:""}</p>${compatLine(r)}${authorChip(r)}</div></article>`}
+ <div class="rbody">${r.reco?`<span class="tag recotag">${I("star")}Recomandată</span>`:""}${r.status==="hid"?`<span class="tag privtag">${ownRec(r)?"Doar pentru tine · neaprobată":"Din meniul antrenorului"}</span>`:""}<h3>${esc(r.n)}</h3><p class="meta">${I("clock")}${r.t} min <span aria-hidden="true">·</span> ${I("level")}${esc(r.dif)}${ratingLine(r)?` <span aria-hidden="true">·</span> ${ratingLine(r)}`:""}</p>${compatLine(r)}${authorChip(r)}</div></article>`}
 const pagehead=(t,s,acts="")=>`<div class="pagehead"><div><h1>${t}</h1>${s?`<p>${s}</p>`:""}</div>${acts?`<div class="acts">${acts}</div>`:""}</div>`;
 
 /* ---------- Acțiuni comune ---------- */
@@ -2468,7 +2481,11 @@ const navLabel=it=>it.l||(it.p==="antrenor"&&!isTrainer()?"Antrenorul meu":(PAGE
 const navOpen=g=>{const o=(S.navOpen||{})[g.id];return o===undefined?g.open!==false:!!o};
 function navTog(id){S.navOpen={...(S.navOpen||{}),[id]:!navOpen(navTree().find(x=>x.id===id)||{})};save();draw()}
 /* lista pentru meniu: [{g:grup|null, items:[pagini vizibile]}] */
-function navModel(){return navTree().map(x=>x.t==="g"?{g:x,items:(x.c||[]).filter(c=>navVisible(c.p))}:navVisible(x.p)?{g:null,items:[x]}:null).filter(x=>x&&(x.g?x.items.length:1))}
+/* elementele active (o categorie sau o pagină „inactivă” rămâne în editor, dar nu apare în meniu) */
+const navItemOk=x=>!x.off&&(x.t==="l"?true:navVisible(x.p));
+function navModel(){return navTree().filter(x=>!x.off).map(x=>x.t==="g"?{g:x,items:(x.c||[]).filter(navItemOk)}:navItemOk(x)?{g:null,items:[x]}:null).filter(x=>x&&(x.g?x.items.length:1))}
+const navIc=it=>it.ic||(it.t==="l"?(String(it.u||"").startsWith("#")?(PAGE_META[it.u.slice(1)]||[])[1]||"arrow":"share"):(PAGE_META[it.p]||[])[1]||"grid");
+const navGo=it=>it.t!=="l"?`go('${it.p}')`:String(it.u).startsWith("#")?`go('${String(it.u).slice(1)}')`:`window.open(${jsq(it.u)},'_blank','noopener')`;
 const PAGES={};
 const GATE={bani:["wallet","Cheltuielile tale, lună de lună","Adaugă cheltuieli, scanează bonuri și vezi pe ce se duc banii, singur sau împreună cu familia. Ai nevoie de un cont gratuit."],casa:["spray","Casă și igienă","Detergenții, hârtia igienică, șamponul și pasta de dinți, ținute la zi. Le bifezi în lista de cumpărături și ajung singure aici. Ai nevoie de un cont gratuit."],frigider:["fridge","Frigiderul tău, mereu la îndemână","Adaugă ingredientele, urmărește datele de expirare și vezi imediat ce poți găti. Ai nevoie de un cont gratuit."],
  lista:["cart","Liste de cumpărături inteligente","Adaugă ce îți lipsește direct din rețete și mută cumpărăturile în frigider. Ai nevoie de un cont gratuit."],
@@ -2500,7 +2517,7 @@ function draw(){
  const ni=m?invitesTo(m.id).length:0,nm=m?(S.msgUnread||0):0;
  const cnt=k=>k==="lista"&&m?sh:k==="frigider"?ex:k==="familie"?ni:k==="mesaje"?nm:0;
  const bd=k=>{const n=cnt(k);return !n?"":`<span class="badge ${k==="lista"?"":"red"}">${n}</span>`};
- const pbtn=(it,sub)=>`<button class="${sub?"navsub":""}" ${S.page===it.p?'aria-current="page"':""} onclick="go('${it.p}')">${I((PAGE_META[it.p]||[])[1]||"grid")}${esc(navLabel(it))}${bd(it.p)}</button>`;
+ const pbtn=(it,sub)=>`<button class="${sub?"navsub":""}" ${it.t!=="l"&&S.page===it.p?'aria-current="page"':""} onclick="${navGo(it)}">${I(navIc(it))}${esc(navLabel(it))}${bd(it.p)}</button>`;
  $("sidenav").innerHTML=navModel().map(({g,items})=>{if(!g)return pbtn(items[0]);
   const open=navOpen(g)||items.some(x=>x.p===S.page),sum=items.reduce((a,x)=>a+cnt(x.p),0);
   return `<div class="navgrp"><button class="navg" aria-expanded="${open}" onclick="navTog('${g.id}')">${I(g.ic||"folder")}<span class="grow">${esc(g.l)}</span>${!open&&sum?`<span class="badge red">${sum}</span>`:""}<span class="navchev">${I("down")}</span></button>
@@ -2546,8 +2563,8 @@ function drawPop(){const p=$("pop");if(!POP){p.hidden=true;p.innerHTML="";return
   <span class="menulegal"><button class="link mutedlink" onclick="openLegal('confidentialitate')">Confidențialitate</button> · <button class="link mutedlink" onclick="openLegal('termeni')">Termeni</button></span>
   ${SRV?"":`<button class="link mutedlink" onclick="toggleDemo()">${S.hideDemo?"Arată":"Ascunde"} bara demonstrativă</button><button class="link mutedlink" onclick="askReset()">${I("reset")}Resetează demonstrația</button>`}</div>`}
 function acctMenuPages(){const skip=new Set([...BNAV.map(x=>x[0]),"admin","cont","premium"]);
- return navModel().map(({g,items})=>{const l=items.filter(x=>!skip.has(x.p));if(!l.length)return "";
-  return (g?`<span class="menuhead">${esc(g.l)}</span>`:"")+l.map(x=>`<button class="menu" onclick="go('${x.p}')">${I((PAGE_META[x.p]||[])[1]||"grid")}${esc(navLabel(x))}${x.p==="mesaje"&&S.msgUnread?`<span class="badge red">${S.msgUnread}</span>`:""}</button>`).join("")}).join("")}
+ return navModel().map(({g,items})=>{const l=items.filter(x=>x.t==="l"||!skip.has(x.p));if(!l.length)return "";
+  return (g?`<span class="menuhead">${esc(g.l)}</span>`:"")+l.map(x=>`<button class="menu" onclick="POP=null;${navGo(x)}">${I(navIc(x))}${esc(navLabel(x))}${x.p==="mesaje"&&S.msgUnread?`<span class="badge red">${S.msgUnread}</span>`:""}</button>`).join("")}).join("")}
 function toggleDemo(){S.hideDemo=!S.hideDemo;POP=null;save();draw()}
 function doLogout(){logoutNow();draw();toast("Ai ieșit din cont");scrollTo({top:0})}
 function askReset(){POP=null;drawPop();ask("Resetezi demonstrația?","Toate datele din acest browser (conturi create, rețete modificate, setări, frigider) revin la valorile inițiale.","Resetează",()=>{resetAll();draw();toast("Demonstrația a fost resetată")},true)}
@@ -2580,7 +2597,7 @@ setTimeout(()=>expiryPush(),6000);
 /* ---------- Pagina principală: blocuri ---------- */
 const AUD_L={all:"Toți vizitatorii",guest:"Doar vizitatori (neconectați)",member:"Doar utilizatori conectați",nopremium:"Doar cei fără Premium",premium:"Doar utilizatori Premium"};
 const TONES=[["sage","Verde deschis"],["cream","Crem"],["white","Alb"],["dark","Verde închis"]];
-const SRC_L=[["compat","Potrivite cu ce ai în frigider"],["new","Cele mai noi"],["quick","Rapide (până în 20 min)"],["veg","Vegetariene"],["fav","Favoritele tale"]];
+const SRC_L=[["reco","Rețete recomandate (alese de echipă)"],["compat","Potrivite cu ce ai în frigider"],["new","Cele mai noi"],["quick","Rapide (până în 20 min)"],["veg","Vegetariene"],["fav","Favoritele tale"]];
 const BLOCK_DEF={
  hero:{label:"Hero cu căutare",icon:"search",desc:"Titlu mare, căutare după ingrediente și o imagine.",f:[["eyebrow","Etichetă"],["t1","Titlu, rândul 1"],["t2","Titlu, rândul 2"],["text","Text","area"],["ph","Text în câmpul de căutare"],["btn","Text buton"],["chips","Ingrediente rapide, separate prin virgulă"],["img","Imagine","img"],["tone","Fundal","tone"]]},
  recipes:{label:"Rețete recomandate",icon:"grid",desc:"O grilă de rețete: potrivite, noi, rapide sau vegetariene.",f:[["title","Titlu"],["count","Număr de rețete (1–12)","num"],["source","Alege rețetele","src"],["link","Text link"]]},
@@ -2608,7 +2625,8 @@ const BLK={
   <div class="chips">${all.map(n=>`<button class="chip" aria-pressed="${S.sel.includes(n)}" onclick="togSel(${jsq(n)})">${thumb(n)}${esc(n[0].toUpperCase()+n.slice(1))}</button>`).join("")}</div></div>
   ${b.img?`<div class="hero-photo"><img src="${IM(b.img)}" alt=""></div>`:""}</section>`},
  recipes(b){const A=avail(),n=Math.max(1,Math.min(12,+b.count||4));let l=recipes().slice();
-  if(b.source==="new")l.sort((a,c)=>(c.created||"").localeCompare(a.created||""));
+  if(b.source==="reco")l=recoList();
+  else if(b.source==="new")l.sort((a,c)=>(c.created||"").localeCompare(a.created||""));
   else if(b.source==="quick")l=l.filter(r=>r.t<=20).sort((a,c)=>a.t-c.t);
   else if(b.source==="veg")l=l.filter(r=>r.veg);
   else if(b.source==="fav"&&ME())l=l.filter(r=>S.fav.includes(r.id));
@@ -2640,7 +2658,7 @@ function homePage(){const blocks=ED?ED.blocks:S.home;const out=[];
   out.push(`<button class="addblock" onclick="edAddAt(${blocks.length})">${I("plus")}Adaugă un bloc</button>`)}
  else{   // banerele stau în zona lor: Sus, Lateral (lângă conținut) sau Jos
   const vis=blocks.filter(b=>b.show!==false&&audOK(b.aud)),R=b=>{const f=BLK[b.type];return f?f(b):""};
-  const ban=z=>vis.filter(b=>b.type==="banner"&&zoneOf(b)===z).map(R).join(""),main=vis.filter(b=>b.type!=="banner").map(R).join("");
+  const ban=z=>vis.filter(b=>b.type==="banner"&&zoneOf(b)===z).map(R).join(""),main=recoHome(vis)+vis.filter(b=>b.type!=="banner").map(R).join("");
   const top=ban("top"),side=ban("side"),bottom=ban("bottom");
   if(top)out.push(`<div class="hzone ztop">${top}</div>`);
   if(side)out.push(`<div class="homegrid"><div class="hzone">${main}</div><aside class="hzone zside" aria-label="Banere">${side}</aside></div>`);else if(main)out.push(main);
@@ -2883,13 +2901,13 @@ function banAdd(){if(!need("frontend"))return;const b={id:"b"+uid8(),type:"banne
 PATHS.grip='<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/>';
 
 /* ---------- Rețete ---------- */
-const RCATS=["Toate","Favorite","Mic dejun","Prânz","Cină","Desert","Vegetarian","Rapid"];
+const RCATS=["Toate","Recomandate","Favorite","Mic dejun","Prânz","Cină","Desert","Vegetarian","Rapid"];
 PAGES.retete=function(){
  ensureMonth();const opened=Math.min(usedN(),S.limit),P=feat("unlimited_recipes");
  return pagehead(esc(txt("recTitle")),esc(txt("recSub")),ME()?allergyBtn()+(canAI()?`<button class="btn" onclick="aiImport()">${I("spark")}Adaugă rețetă prin AI</button>`:lockBtn("ai_import","Adaugă rețetă prin AI",""))+(canAuthor()?`<button class="btn" onclick="recEdit(null)">${I("plus")}Adăugare manuală rețetă</button>`:""):"")+allergyBar()+
  `${P?"":`<div class="freebar">${I("lock")}${ME()?"Plan gratuit":"Fără cont"}: ai deschis ${opened} din ${S.limit} rețete luna aceasta. Rețetele nelimitate și valorile nutriționale sunt în Premium Essential.<button class="link" onclick="go('premium')">Vezi Premium ${I("arrow")}</button></div>`}
  <div class="rlayout"><div style="display:flex;flex-direction:column;gap:16px;min-width:0">
-  <div class="toolbar"><div class="chips">${RCATS.filter(c=>c!=="Favorite"||ME()).map(c=>`<button class="chip" aria-pressed="${S.rcat===c}" onclick="S.rcat='${c}';save();draw()">${c}</button>`).join("")}</div>
+  <div class="toolbar"><div class="chips">${RCATS.filter(c=>(c!=="Favorite"||ME())&&(c!=="Recomandate"||recoList().length)).map(c=>`<button class="chip" aria-pressed="${S.rcat===c}" onclick="S.rcat='${c}';save();draw()">${c}</button>`).join("")}</div>
    <label class="chip" style="padding-right:6px">${I("filter")}<select aria-label="Sortează" class="bare" onchange="S.sort=this.value;save();renderRecipes()">${[["compat","Compatibilitate"],["time","Timp de preparare"],["dif","Dificultate"]].map(([v,l])=>`<option value="${v}" ${S.sort===v?"selected":""}>${l}</option>`).join("")}</select></label></div>
   <div class="selbar"><span class="small muted">Ingredientele tale:</span>${S.sel.length?S.sel.map(n=>`<button class="chip x" onclick="togSel(${jsq(n)})" aria-label="Elimină ${esc(n)}">${thumb(n)}${esc(n)} ${I("x")}</button>`).join("")+`<button class="link" onclick="S.sel=[];save();draw()">Șterge</button>`:`<span class="small">${ME()?`tot ce ai în frigider (${S.fridge.length} produse)`:"alege ingredientele pe care le ai"}</span>`}
    <form onsubmit="addSel(event)" style="display:flex;gap:6px"><input id="selq" class="field" style="height:34px;width:170px" list="dlp2" placeholder="+ ingredient" aria-label="Adaugă ingredient"><datalist id="dlp2">${allProducts().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></form></div>
@@ -2900,6 +2918,7 @@ function addSel(e){e.preventDefault();const v=$("selq").value.trim().toLowerCase
 function filtered(){const A=avail(),q=Q.trim().toLowerCase();
  let l=recipes().filter(r=>{
   if(S.rcat==="Favorite"&&!S.fav.includes(r.id))return false;
+  if(S.rcat==="Recomandate"&&!r.reco)return false;
   if(S.rcat==="Vegetarian"&&!r.veg)return false;
   if(S.rcat==="Rapid"&&r.t>20)return false;
   if(RCATS_ALL.includes(S.rcat)&&!(r.cat||[]).includes(S.rcat))return false;
@@ -2907,6 +2926,7 @@ function filtered(){const A=avail(),q=Q.trim().toLowerCase();
   if(S.sel.length&&!r.i.some(x=>S.sel.includes(x[0])))return false;return true});
  const D={"Ușor":1,"Mediu":2,"Avansat":3};
  l.sort(S.sort==="time"?(a,b)=>a.t-b.t:S.sort==="dif"?(a,b)=>D[a.dif]-D[b.dif]||a.t-b.t:(a,b)=>compat(b,A)/b.i.length-compat(a,A)/a.i.length||compat(b,A)-compat(a,A)||a.t-b.t);
+ if(S.sort!=="time"&&S.sort!=="dif")l.sort((a,b)=>!!b.reco-!!a.reco);   // recomandatele primele (sortarea e stabilă)
  return l}
 function renderRecipes(){if(!$("rlist"))return;const l=filtered();
  if(!l.find(r=>r.id===S.detail)&&l[0])S.detail=l[0].id;
@@ -3501,11 +3521,11 @@ function famOffUI(off){if(!off){famSetOff(false);draw();toast("Funcția de famil
  ask("Dezactivezi funcția de familie?",`Ieși din ${esc(f.name)} și revii la frigiderul tău personal. O poți activa oricând din nou.`,"Dezactivează",()=>{famSetOff(true);draw();toast("Funcția de familie a fost dezactivată")},true);draw()}
 
 /* ---------- Administrare: structură ---------- */
-const ATABS=[["ov","Prezentare","chart",null],["rec","Rețete","grid","recipes"],["prod","Produse","tag","products"],["usr","Utilizatori","users","users"],["mon","Monetizare","coin","monetization"],["sec","Securitate","shield","security"],["look","Aspect","palette","frontend"],["sys","Sistem","database","system"]];
+const ATABS=[["ov","Prezentare","chart",null],["rec","Rețete","grid","recipes"],["prod","Produse","tag","products"],["usr","Utilizatori","users","users"],["mon","Monetizare","coin","monetization"],["sec","Securitate","shield","security"],["reco","Recomandate","star",()=>RANK[(ME()||{}).role]>=2],["nav","Meniu","folder",()=>navCan()],["look","Aspect","palette","frontend"],["sys","Sistem","database","system"]];
 const ATAB_FN={};
 let AQ="",AST="all",UQ="",UF="all",PQ="",PCAT="Toate",PLIM=60;
 const need=p=>can(p)?true:deny("Nu ai dreptul să faci această acțiune.");
-PAGES.admin=function(){const tabs=ATABS.filter(t=>!t[3]||can(t[3]));if(!tabs.some(t=>t[0]===S.atab))S.atab="ov";
+PAGES.admin=function(){const tabs=ATABS.filter(t=>!t[3]||(typeof t[3]==="function"?t[3]():can(t[3])));if(!tabs.some(t=>t[0]===S.atab))S.atab="ov";
  return pagehead("Administrare",`${esc(ROLE_L[role()])} · ${esc(ME().name)}`)+(SRV&&["prod"].includes(S.atab)?`<div class="freebar">${I("alarm")}<span>Această filă funcționează deocamdată doar în acest browser: modificările de aici nu ajung în baza de date și nu le văd alți utilizatori. Utilizatorii, blocările, planurile și setările sunt deja pe server.</span></div>`:"")+
  `<div class="atabs" role="tablist">${tabs.map(([k,l,ic])=>`<button role="tab" aria-selected="${S.atab===k}" onclick="S.atab='${k}';save();draw()">${I(ic)}${l}</button>`).join("")}</div>`+ATAB_FN[S.atab]()};
 const auditRows=l=>l.length?`<ul class="alist audit">${l.map(a=>`<li><span class="small muted nowrap">${fmtTs(a.t)}</span><span class="grow"><b>${esc(a.by)}</b> <span class="tag">${esc(ROLE_L[a.r]||a.r)}</span><br>${esc(a.m)}</span></li>`).join("")}</ul>`:`<p class="muted">Nicio activitate înregistrată.</p>`;
@@ -3566,6 +3586,7 @@ function recEdit(id){const r=id?byId(id):null;if(id&&!r)return;if(!canEditRec(r)
   <div class="form"><label class="lbl">Minute<input id="rt" class="field w90" type="number" min="1" max="1440" value="${r?r.t:30}"></label><label class="lbl">Porții<input id="rp2" class="field w90" type="number" min="1" max="50" value="${r?r.por:4}"></label>
    <label class="lbl">Dificultate<select id="rdf" class="field">${["Ușor","Mediu","Avansat"].map(d=>`<option ${r&&r.dif===d?"selected":""}>${d}</option>`).join("")}</select></label>
    ${isRecStaff()?`<label class="lbl">Stare<select id="rst" class="field"><option value="pub" ${!r||r.status!=="hid"?"selected":""}>Publicată</option><option value="hid" ${r&&r.status==="hid"?"selected":""}>Ascunsă</option></select></label>`:`<input type="hidden" id="rst" value="hid">`}</div>
+  ${r&&canReco()?`<div class="box">${tgl(!!r.reco,"Recomandă această rețetă",`recoSet('${r.id}',this.checked)`,r.status==="hid"?"(doar rețetele publicate)":"(se salvează imediat)",r.status==="hid"&&!r.reco)}</div>`:""}
   ${isRecStaff()?"":`<p class="small muted box">Rețeta se vede imediat în contul tău și o poți pune în meniurile studenților. Devine publică pentru toți după ce o aprobă un moderator${r&&r.status!=="hid"?"; orice modificare o trimite din nou la aprobare":""}.</p>`}
   <div class="cats">${RCATS_ALL.map(c=>`<label><input type="checkbox" class="rcat" value="${c}" ${r&&(r.cat||[]).includes(c)?"checked":""}>${c}</label>`).join("")}<label><input type="checkbox" id="rveg" ${r&&r.veg?"checked":""}>Vegetariană</label></div>
   <div class="form"><label class="lbl">kcal / porție<input id="rk" class="field w90" type="number" min="0" placeholder="auto" value="${r&&r.k?r.k:""}"></label><label class="lbl">Proteine (g)<input id="rp" class="field w90" type="number" min="0" value="${r?r.p:""}"></label><label class="lbl">Carbohidrați (g)<input id="rc" class="field w90" type="number" min="0" value="${r?r.c:""}"></label><label class="lbl">Grăsimi (g)<input id="rf" class="field w90" type="number" min="0" value="${r?r.f:""}"></label></div>
@@ -3863,7 +3884,7 @@ ATAB_FN.look=function(){const t=S.theme;setTimeout(banMount);
   <div class="rowacts"><button class="btn primary" onclick="edStart()">${I("layout")}Pagina principală</button><button class="btn primary" onclick="edStart('premium')">${I("crown")}Pagina Abonament Premium</button></div>
   <p class="small muted">Acces: Administratorul principal și cei cărora el le-a dat dreptul „Editor vizual” (Utilizatori → Opțiuni → Drepturi).</p>
   <button class="link" onclick="askResetHome()">${I("reset")}Restabilește pagina principală</button>${S.premPage?`<button class="link" onclick="askResetPrem()">${I("reset")}Restabilește pagina Premium</button>`:""}</div>
- ${navPanel()}
+ ${navCan()?`<div class="card panel"><h3>Meniul din stânga</h3><p class="small muted">Categoriile și subcategoriile meniului se editează acum în fila <b>Meniu</b>.</p><button class="btn sm" onclick="S.atab='nav';save();draw()">${I("folder")}Deschide fila Meniu</button></div>`:""}
  <div class="card panel"><h3>Nume și culori</h3>
   <label class="lbl">Numele site-ului<input id="tb" class="field" maxlength="24" value="${esc(t.brand)}"></label>
   <div class="lbl">Culoarea principală<div class="swatches">${THEME_PRESETS.map(([n,c])=>`<button type="button" class="sw" style="background:${c}" title="${n}" aria-label="${n}" aria-pressed="${t.color.toLowerCase()===c}" onclick="$('tc').value='${c}'"></button>`).join("")}<input type="color" id="tc" value="${esc(t.color)}" aria-label="Alege altă culoare"></div></div>
@@ -4002,27 +4023,30 @@ const NAVED={items:null,dirty:false};
 const navRid=p=>p+Math.random().toString(36).slice(2,8);
 function navDraft(){if(!NAVED.items)NAVED.items=clone(navTree());return NAVED.items}
 const navFind=id=>{for(const x of navDraft()){if(x.id===id)return{it:x,list:navDraft(),parent:null};if(x.t==="g"){const c=(x.c||[]).find(y=>y.id===id);if(c)return{it:c,list:x.c,parent:x}}}return null};
-const navUsed=()=>new Set(navDraft().flatMap(x=>x.t==="g"?(x.c||[]).map(c=>c.p):[x.p]));
+const navUsed=()=>new Set(navDraft().flatMap(x=>x.t==="g"?(x.c||[]).map(c=>c.p):[x.p]).filter(Boolean));
+const navCan=()=>{const m=ME();return !!m&&(RANK[m.role]>=3||can("frontend"))};
+const navActive=(it)=>`<label class="switch small nvact" title="Un element inactiv rămâne aici, dar nu apare în meniu"><input type="checkbox" ${it.off?"":"checked"} ${it.p==="acasa"?"disabled":""} onchange="navOff('${it.id}',!this.checked)">Activ</label>`;
 function navTouch(){NAVED.dirty=true;draw()}
 
-function navRow(it,inGroup){const def=(PAGE_META[it.p]||[it.p])[0],groups=navDraft().filter(g=>g.t==="g");
- return `<li class="nvi" data-id="${it.id}"><div class="nvrow"><span class="nvgrip" title="Trage ca să muți">${I("grip")}</span>${I((PAGE_META[it.p]||[])[1]||"grid")}
+function navRow(it,inGroup){const lk=it.t==="l",def=lk?"Legătură":(PAGE_META[it.p]||[it.p])[0],groups=navDraft().filter(g=>g.t==="g");
+ return `<li class="nvi ${it.off?"nvoff":""}" data-id="${it.id}"><div class="nvrow"><span class="nvgrip" title="Trage ca să muți">${I("grip")}</span>${I(navIc(it))}
   <input class="field nvl" value="${esc(it.l||"")}" placeholder="${esc(def)}" maxlength="30" aria-label="Numele din meniu pentru ${esc(def)}" oninput="navLbl('${it.id}',this.value)">
+  ${lk?`<button type="button" class="btn sm nvurl" onclick="navLinkModal('${it.id}')" title="Unde duce">${I("arrow")}${esc(String(it.u).startsWith("#")?(PAGE_META[it.u.slice(1)]||[it.u])[0]:String(it.u).replace(/^https:\/\//,"").slice(0,26))}</button>`:""}
   <select class="field nvsel" aria-label="Categoria" onchange="navMoveTo('${it.id}',this.value)"><option value="">Fără categorie</option>${groups.map(g=>`<option value="${g.id}" ${inGroup&&inGroup.id===g.id?"selected":""}>În: ${esc(g.l||"Categorie nouă")}</option>`).join("")}</select>
   <span class="nvbtns"><button class="iconbtn" onclick="navStep('${it.id}',-1)" aria-label="Mută în sus">${I("up")}</button><button class="iconbtn" onclick="navStep('${it.id}',1)" aria-label="Mută în jos">${I("down")}</button>
-  ${it.p==="acasa"?"":`<button class="iconbtn" onclick="navHide('${it.id}')" aria-label="Scoate din meniu" title="Scoate din meniu">${I("eyeoff")}</button>`}</span></div></li>`}
-function navPanel(){if(!can("frontend"))return"";const items=navDraft(),used=navUsed(),hidden=Object.keys(PAGE_META).filter(p=>!used.has(p));setTimeout(navMount);
+  ${it.p==="acasa"?"":`<button class="iconbtn" onclick="navHide('${it.id}')" aria-label="${lk?"Șterge legătura":"Scoate din meniu"}" title="${lk?"Șterge legătura":"Scoate din meniu"}">${I(lk?"trash":"eyeoff")}</button>`}</span>${navActive(it)}</div></li>`}
+function navPanel(){if(!navCan())return"";const items=navDraft(),used=navUsed(),hidden=Object.keys(PAGE_META).filter(p=>!used.has(p));setTimeout(navMount);
  return `<div class="card panel wide" id="navpanel"><h3>Meniul din stânga</h3>
-  <p class="small muted">Grupează paginile în categorii, de exemplu <b>Familie</b> → Cumpărături, Frigider, Casă și igienă. Trage de ${I("grip")} ca să muți o pagină sau o categorie; o pagină se poate trage și într-o categorie. Pe telefon, același meniu apare în meniul contului.</p>
-  <ul class="navtree" id="navroot">${items.map(x=>x.t!=="g"?navRow(x):`<li class="nvi nvgroup" data-id="${x.id}"><div class="nvrow"><span class="nvgrip" title="Trage ca să muți">${I("grip")}</span>
+  <p class="small muted">Categoriile principale (nume, pictogramă) conțin subcategorii: pagini ale site-ului sau legături proprii (nume, rută, categoria părinte). Exemplu: <b>Familie</b> → Frigider, Casă și igienă, Cumpărături, Anti-risipă, Cheltuieli. Bifa „Activ” ascunde temporar un element fără să-l ștergi. Trage de ${I("grip")} ca să muți o pagină sau o categorie; o pagină se poate trage și într-o categorie. Pe telefon, același meniu apare în meniul contului.</p>
+  <ul class="navtree" id="navroot">${items.map(x=>x.t!=="g"?navRow(x):`<li class="nvi nvgroup ${x.off?"nvoff":""}" data-id="${x.id}"><div class="nvrow"><span class="nvgrip" title="Trage ca să muți">${I("grip")}</span>
    <select class="field nvic" aria-label="Pictograma categoriei" onchange="navIcon('${x.id}',this.value)">${NAV_ICONS.map(i=>`<option value="${i}" ${x.ic===i?"selected":""}>${i}</option>`).join("")}</select>${I(x.ic||"folder")}
    <input class="field nvl" value="${esc(x.l||"")}" placeholder="Numele categoriei" maxlength="30" aria-label="Numele categoriei" oninput="navLbl('${x.id}',this.value)">
-   <label class="switch small"><input type="checkbox" ${x.open!==false?"checked":""} onchange="navOpenDef('${x.id}',this.checked)">Deschisă</label>
+   <label class="switch small"><input type="checkbox" ${x.open!==false?"checked":""} onchange="navOpenDef('${x.id}',this.checked)">Deschisă</label>${navActive(x)}
    <span class="nvbtns"><button class="iconbtn" onclick="navStep('${x.id}',-1)" aria-label="Mută în sus">${I("up")}</button><button class="iconbtn" onclick="navStep('${x.id}',1)" aria-label="Mută în jos">${I("down")}</button>
    <button class="iconbtn" onclick="navDelGroup('${x.id}')" aria-label="Șterge categoria" title="Șterge categoria">${I("trash")}</button></span></div>
    <ul class="navtree navkids2" data-g="${x.id}">${(x.c||[]).map(c=>navRow(c,x)).join("")||""}</ul>${(x.c||[]).length?"":`<p class="small muted nvempty">Trage aici pagini sau alege categoria din lista unei pagini.</p>`}</li>`).join("")}</ul>
   ${hidden.length?`<div class="nvhidden"><span class="small muted">Pagini care nu sunt în meniu:</span><div class="chips">${hidden.map(p=>`<button class="chip" onclick="navAdd('${p}')">${I("plus")}${esc(PAGE_META[p][0])}</button>`).join("")}</div></div>`:""}
-  <div class="rowacts"><button class="btn" onclick="navAddGroup()">${I("folder")}Categorie nouă</button><button class="btn primary" onclick="navSave()" ${NAVED.dirty?"":"disabled"}>Salvează meniul</button>
+  <div class="rowacts"><button class="btn" onclick="navAddGroup()">${I("folder")}Categorie nouă</button><button class="btn" onclick="navLinkModal()">${I("plus")}Subcategorie / legătură nouă</button><button class="btn" onclick="navPreset()">${I("layout")}Structura exemplu</button><button class="btn primary" onclick="navSave()" ${NAVED.dirty?"":"disabled"}>Salvează meniul</button>
    ${NAVED.dirty?`<button class="btn ghost" onclick="NAVED.items=null;NAVED.dirty=false;draw()">Anulează modificările</button>`:""}<button class="link" onclick="navReset()">${I("reset")}Meniul inițial</button></div>
   <p class="small muted">Paginile Familie, Mesaje și Antrenor apar doar celor conectați, iar Administrare doar echipei, indiferent de categorie.</p></div>`}
 
@@ -4033,6 +4057,30 @@ function navStep(id,d){const f=navFind(id);if(!f)return;const i=f.list.indexOf(f
 function navMoveTo(id,gid){const f=navFind(id);if(!f)return;f.list.splice(f.list.indexOf(f.it),1);
  if(gid){const g=navDraft().find(x=>x.id===gid);(g.c=g.c||[]).push(f.it)}else{const at=f.parent?navDraft().indexOf(f.parent)+1:navDraft().length;navDraft().splice(at,0,f.it)}navTouch()}
 function navHide(id){const f=navFind(id);if(!f||f.it.p==="acasa")return;f.list.splice(f.list.indexOf(f.it),1);navTouch()}
+function navOff(id,off){const f=navFind(id);if(!f||f.it.p==="acasa")return;if(off)f.it.off=true;else delete f.it.off;navTouch()}
+/* subcategorie / legătură: nume, pictogramă, unde duce (o pagină a site-ului sau o adresă https://) și categoria părinte */
+function navLinkModal(id){const f=id?navFind(id):null,it=f?f.it:{l:"",u:"#retete",ic:""},groups=navDraft().filter(g=>g.t==="g"),ext=!String(it.u).startsWith("#");
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("folder")} Meniul din stânga</p><h2 style="font-size:21px">${f?"Editează legătura":"Subcategorie / legătură nouă"}</h2></div>
+ <form class="stack" onsubmit="event.preventDefault();navLinkSave(${f?`'${id}'`:"null"})" novalidate>
+  <label class="lbl">Nume (cum apare în meniu)<input id="nlt" class="field" maxlength="30" value="${esc(it.l||"")}" placeholder="ex. Rețete rapide"></label>
+  <label class="lbl">Rută / link intern<select id="nlp" class="field" onchange="$('nlxw').hidden=this.value!=='ext'">${Object.entries(PAGE_META).map(([k,v])=>`<option value="#${k}" ${it.u==="#"+k?"selected":""}>Pagina: ${esc(v[0])}</option>`).join("")}<option value="ext" ${ext?"selected":""}>Adresă externă (https://…)</option></select></label>
+  <label class="lbl" id="nlxw" ${ext?"":"hidden"}>Adresa<input id="nlx" class="field" maxlength="300" value="${ext?esc(it.u):""}" placeholder="https://…"></label>
+  <label class="lbl">Pictogramă<select id="nli" class="field"><option value="">Automată</option>${NAV_ICONS.map(i=>`<option ${it.ic===i?"selected":""}>${i}</option>`).join("")}</select></label>
+  <label class="lbl">Categoria părinte<select id="nlg" class="field"><option value="">Fără categorie (meniul principal)</option>${groups.map(g=>`<option value="${g.id}" ${f&&f.parent&&f.parent.id===g.id?"selected":""}>${esc(g.l||"Categorie")}</option>`).join("")}</select></label>
+  <div class="rowacts"><button class="btn primary">${f?"Aplică":"Adaugă"}</button><button type="button" class="btn" onclick="closeModal()">Renunță</button></div>
+  <p class="small muted">După ce adaugi, apasă „Salvează meniul”.</p></form></div>`,1,"#nlt")}
+function navLinkSave(id){const l=$("nlt").value.trim().slice(0,30),sel=$("nlp").value,u=sel==="ext"?$("nlx").value.trim():sel,ic=$("nli").value,g=$("nlg").value;
+ if(!l)return toast("Scrie numele legăturii.");if(sel==="ext"&&!/^https:\/\/[^\s"'<>]+$/i.test(u))return toast("Adresa trebuie să înceapă cu https://");
+ let it;if(id){const f=navFind(id);if(!f)return;it=f.it;f.list.splice(f.list.indexOf(it),1)}else it={id:navRid("l"),t:"l"};
+ it.l=l;it.u=u;if(ic)it.ic=ic;else delete it.ic;
+ if(g){const gr=navDraft().find(x=>x.id===g);(gr.c=gr.c||[]).push(it)}else navDraft().push(it);closeModal();navTouch()}
+/* structura exemplu: Familie → Frigider, Casă și igienă, Cumpărături, Anti-risipă, Cheltuieli; Antrenor personal → Cabinet, Planificator */
+function navPreset(){ask("Aplici structura exemplu?","Meniul din editor se rearanjează: Familie (Frigider, Casă și igienă, Cumpărături, Anti-risipă, Cheltuieli) și Antrenor personal (Cabinet, Planificator). Celelalte pagini rămân în meniul principal. Apoi apeși „Salvează meniul”.","Aplică",()=>{
+ const P=p=>({id:navRid("p"),t:"p",p});
+ NAVED.items=[P("acasa"),P("retete"),P("nutritie"),P("fav"),
+  {id:navRid("g"),t:"g",l:"Familie",ic:"home",open:true,c:[P("frigider"),P("casa"),P("lista"),P("stats"),P("bani"),P("familie")]},
+  {id:navRid("g"),t:"g",l:"Antrenor personal",ic:"dumbbell",open:true,c:[P("antrenor"),P("plan")]},
+  P("mesaje"),P("admin")];navTouch()})}
 function navAdd(p){navDraft().push({id:navRid("p"),t:"p",p});navTouch()}
 function navAddGroup(){navDraft().push({id:navRid("g"),t:"g",l:"Categorie nouă",ic:"folder",open:true,c:[]});navTouch();
  setTimeout(()=>{const l=document.querySelectorAll("#navroot > .nvgroup .nvl");const e=l[l.length-1];if(e){e.focus();e.select()}},50)}
@@ -4052,12 +4100,14 @@ function navFromDom(){const root=$("navroot");if(!root)return;const all={};
 async function navSave(){const items=navDraft();
  if(items.some(x=>x.t==="g"&&!String(x.l||"").trim()))return toast("Fiecare categorie are nevoie de un nume.");
  const nav=items.map(x=>x.t==="g"?{...x,l:x.l.trim(),c:(x.c||[]).map(c=>({...c,l:(c.l||"").trim()||undefined}))}:{...x,l:(x.l||"").trim()||undefined});
+ if(nav.some(x=>(x.t==="l"&&!x.l)||(x.c||[]).some(c=>c.t==="l"&&!c.l)))return toast("Fiecare legătură are nevoie de un nume.");
  if(SRV){const r=await api("/nav",{method:"PUT",body:{nav}});if(!r.ok)return toast((r.data&&r.data.error)||"Meniul nu a putut fi salvat.");S.nav=r.data.nav}
  else{S.nav=nav;audit("A modificat meniul din stânga")}
  NAVED.items=null;NAVED.dirty=false;save();draw();toast("Meniul a fost salvat")}
 function navReset(){ask("Revii la meniul inițial?","Categoriile create dispar, iar paginile revin în ordinea de la lansare.","Revino la meniul inițial",async()=>{
  if(SRV){const r=await api("/nav",{method:"DELETE"});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut reseta meniul.")}
  S.nav=null;NAVED.items=null;NAVED.dirty=false;save();draw();toast("Meniul a revenit la forma inițială")},true)}
+ATAB_FN.nav=function(){return navPanel()||`<div class="empty">Doar administratorii pot modifica meniul.</div>`};
 
 /* ---------- Pagina Familie ---------- */
 PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
@@ -5377,6 +5427,37 @@ function foodsPaint(){const el=$("foodres");if(!el)return draw();const tmp=docum
 function foodAdd(name,where){if(!ME())return authModal("login");const n=name.toLowerCase();
  if(where==="fridge"){const ex=S.fridge.find(f=>f.n===n&&f.u==="g");if(ex)ex.q=+ex.q+100;else S.fridge.push({n,q:100,u:"g",x:inDays(5),s:false});S.demo=false;save();toast(`${name} · 100 g în frigider`)}
  else{S.shop.push({n,q:"",u:"",d:false});save();toast(`${name} a fost adăugat pe listă`)}}
+
+/* ---------- Rețete recomandate: le aleg moderatorii și administratorii; apar primele pe site ---------- */
+const RECO={q:"",st:"all",cat:"",vis:"all"};
+const canReco=()=>RANK[(ME()||{}).role]>=2;
+const recoList=()=>recipes().filter(r=>r.reco).sort((a,b)=>String(b.reco).localeCompare(String(a.reco)));
+async function recoSet(id,on){if(!canReco())return deny("Doar moderatorii și administratorii pot recomanda rețete.");const r=byId(id);if(!r)return;
+ if(on&&r.status==="hid")return toast("Poți recomanda doar rețete publicate.");
+ if(SRV){const x=await api("/recipes/"+encodeURIComponent(id)+"/recommend",{method:"PUT",body:{on}});if(!x.ok){toast((x.data&&x.data.error)||"Nu am putut salva.");return draw()}recSet(x.data.recipe);persist()}
+ else{if(on)r.reco=new Date().toISOString().slice(0,19).replace("T"," ");else delete r.reco;audit(`${on?"A recomandat":"A scos din recomandate"} rețeta „${r.n}”`);save()}
+ draw();toast(on?`„${r.n}” este acum recomandată`:`„${r.n}” nu mai este recomandată`)}
+ATAB_FN.reco=function(){if(!canReco())return"";const q=pnorm(RECO.q);
+ const l=S.recipes.filter(r=>(!q||pnorm(r.n).includes(q)||pnorm((r.au&&r.au.name)||r.byName||"").includes(q))&&(RECO.st==="all"||(RECO.st==="on")===!!r.reco)&&(!RECO.cat||(r.cat||[]).includes(RECO.cat)||(RECO.cat==="Vegetarian"&&r.veg))&&(RECO.vis==="all"||(RECO.vis==="hid")===(r.status==="hid")))
+  .sort((a,b)=>(!!b.reco-!!a.reco)||String(b.reco||"").localeCompare(String(a.reco||""))||a.n.localeCompare(b.n,"ro"));
+ const n=S.recipes.filter(r=>r.reco).length;
+ return `<div class="card panel"><h3>${I("star")} Rețete recomandate</h3><p class="small muted">Rețetele bifate apar primele pe prima pagină (secțiunea „Rețete recomandate”), sunt marcate cu ★ și stau în fruntea listei de rețete. Le pot alege doar moderatorii și administratorii. <b>${n}</b> ${n===1?"rețetă recomandată":"rețete recomandate"} acum.</p>
+  <div class="ftools"><label class="lbl grow">Caută<input class="field" value="${esc(RECO.q)}" placeholder="Numele rețetei sau autorul" oninput="RECO.q=this.value;recoPaint()" id="recoq" autocomplete="off"></label>
+   <label class="lbl">Recomandare<select class="field" onchange="RECO.st=this.value;recoPaint()"><option value="all">Toate</option><option value="on" ${RECO.st==="on"?"selected":""}>Doar recomandate</option><option value="off" ${RECO.st==="off"?"selected":""}>Nerecomandate</option></select></label>
+   <label class="lbl">Categorie<select class="field" onchange="RECO.cat=this.value;recoPaint()"><option value="">Toate</option>${["Mic dejun","Prânz","Cină","Desert","Gustare","Vegetarian"].map(c=>`<option ${RECO.cat===c?"selected":""}>${c}</option>`).join("")}</select></label>
+   <label class="lbl">Stare<select class="field" onchange="RECO.vis=this.value;recoPaint()"><option value="all">Toate</option><option value="pub" ${RECO.vis==="pub"?"selected":""}>Publicate</option><option value="hid" ${RECO.vis==="hid"?"selected":""}>Ascunse</option></select></label></div></div>
+ <div id="recores">${recoTable(l)}</div>`};
+function recoTable(l){if(!l.length)return `<div class="empty">Nicio rețetă nu se potrivește filtrelor.</div>`;
+ return `<p class="small muted">${l.length} ${l.length===1?"rețetă":"rețete"}</p><div class="card tablewrap"><table class="ftable recotable"><thead><tr><th>Rețeta</th><th>Autor</th><th>Categorii</th><th>Stare</th><th>Recomandă această rețetă</th></tr></thead><tbody>
+ ${l.map(r=>`<tr><td data-l=""><span class="recorow"><span class="thumb">${tile(r)}</span><span><b>${esc(r.n)}</b><br><span class="small muted">${r.t} min · ${esc(r.dif)}${r.rt?` · ★ ${num(r.rt.a)}`:""}</span></span></span></td>
+  <td data-l="Autor">${esc((r.au&&r.au.name)||r.byName||"Gusto")}</td><td data-l="Categorii"><span class="small">${esc((r.cat||[]).join(", ")||"–")}</span></td>
+  <td data-l="Stare">${r.status==="hid"?`<span class="tag">Ascunsă</span>`:`<span class="tag fnd">Publicată</span>`}</td>
+  <td data-l="">${tgl(!!r.reco,"Recomandă această rețetă",`recoSet('${r.id}',this.checked)`,r.status==="hid"?"(doar rețetele publicate)":"",r.status==="hid"&&!r.reco)}</td></tr>`).join("")}</tbody></table></div>`}
+function recoPaint(){const el=$("recores");if(!el)return draw();const t=document.createElement("div");t.innerHTML=ATAB_FN.reco();const n=t.querySelector("#recores");if(n)el.innerHTML=n.innerHTML}
+/* pe prima pagină: secțiunea „Rețete recomandate” apare automat deasupra celorlalte, dacă nu e deja pusă ca bloc */
+function recoHome(vis){const l=recoList();if(!l.length||vis.some(b=>b.type==="recipes"&&b.source==="reco"))return"";
+ return `<section class="stack recohome"><div class="sechead"><h2>${I("star")} Rețete recomandate</h2><button class="link" onclick="S.rcat='Recomandate';save();go('retete')">Vezi toate ${I("arrow")}</button></div>
+  <div class="rgrid four">${l.slice(0,8).map(r=>rcard(r)).join("")}</div></section>`}
 
 /* ---------- Pornire ---------- */
 load();
