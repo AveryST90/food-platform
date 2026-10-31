@@ -1438,6 +1438,12 @@ body.cooking .scrim{z-index:80}
  .ftable td:nth-last-child(2),.ftable td:last-child{grid-column:span 3}
 }
 
+/* meniul contului și meniul lateral: se derulează singure când nu încap pe ecran */
+.pop{max-height:calc(100vh - 80px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 80px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+@media (max-width:900px){.pop{max-height:calc(100dvh - 150px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}}
+.side{overflow:hidden}
+.side #sidenav,.side .nav{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
