@@ -3903,7 +3903,7 @@ function aiInner(){
    <button class="btn primary" ${AIX.busy||off?"disabled":""}>${I("spark")}${AIX.busy?"Se analizează…":"Analizează cu AI"}</button></div></form>`;
  const offBox=off?`<div class="box honey"><p class="small"><b>Importul AI nu este configurat încă.</b> Administratorul trebuie să adauge variabila <code>GEMINI_API_KEY</code> (cheie gratuită din Google AI Studio) la serviciul <b>gusto-api</b> din Railway.</p></div>`:"";
  const busy=AIX.busy?`<ol class="aisteps" aria-live="polite">${AI_STEPS.map((s,i)=>`<li class="${i<AIX.step?"done":i===AIX.step?"now":""}"><span class="aidot">${i<AIX.step?I("check"):i===AIX.step?`<span class="aispin"></span>`:""}</span>${s}</li>`).join("")}</ol>`:"";
- const err=AIX.err?`<div class="box aierr" role="alert">${I("alarm")}<span>${esc(AIX.err)}</span></div>`:"";
+ const err=AIX.err?`<div class="box aierr" role="alert">${I("alarm")}<span>${esc(AIX.err)}${SRV&&RANK[(ME()||{}).role]>=2?`<br><button class="link" onclick="aiDiag()">${I("settings")}Testează conexiunea AI</button>`:""}</span></div>`:(SRV&&RANK[(ME()||{}).role]>=2?`<p class="small"><button class="link mutedlink" onclick="aiDiag()">${I("settings")}Testează conexiunea AI</button></p>`:"");
  const res=AIX.res?aiCard(AIX.res):"";
  const hist=AIX.hist&&AIX.hist.length?`<div class="aihist"><p class="h3" style="font-size:15px">Importuri recente</p><ul class="alist flat">${AIX.hist.map(h=>`<li>
    <span class="ic ${h.status==="ok"?"g":h.status==="not_recipe"?"h":"r"}">${I(h.kind==="url"?"share":"edit")}</span>
@@ -3960,6 +3960,18 @@ function confirmAi(id){const r=byId(id)||(AIX.res&&AIX.res.recipe);if(!r)return 
  const b=$("aibox");if(!b)return false;
  b.querySelector(".aicard .rowacts").innerHTML=`<span class="small"><b>Ștergi „${esc(r.n)}”?</b> Se șterge definitiv.</span><button class="btn danger sm" onclick="aiDelGo('${r.id}')">Da, șterge</button><button class="btn sm" onclick="aiDraw()">Renunță</button>`;return true}
 function aiDelGo(id){S.recipes=S.recipes.filter(x=>x.id!==id);save();socOp("DELETE","/recipes/"+encodeURIComponent(id));AIX.res=null;aiDraw();toast("Rețeta a fost ștearsă");setTimeout(aiHist,1200);if(S.page==="admin")draw()}
+
+/* diagnostic AI (echipa): cât răspunde fiecare model și ce modele permite cheia */
+async function aiDiag(){openModal(`<div class="sheet-b"><h2 style="font-size:21px;padding-right:36px">Testez conexiunea AI…</h2><p class="muted">Trimit o cerere scurtă fiecărui model Gemini. Durează cel mult 45 de secunde.</p></div>`,1);
+ const r=await api("/ai/diagnose",{timeout:90000});
+ if(!r.ok)return openModal(`<div class="sheet-b"><h2 style="font-size:21px">Diagnosticul nu a mers</h2><p class="muted">${esc((r.data&&r.data.error)||"Serverul nu a răspuns.")}</p></div>`,1);
+ const d=r.data,res=d.results||[],good=res.filter(x=>x.ok).sort((a,b)=>a.ms-b.ms)[0];
+ const txt=[`Model setat: ${d.configuredModel||"-"} · activ: ${d.activeModel||"-"}`,...res.map(x=>`${x.model}: ${x.ok?"OK":"EROARE "+x.status} în ${(x.ms/1000).toFixed(1)} s${x.error?" — "+x.error:""}`)].join("\n");
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Diagnostic AI</p><h2 style="font-size:21px">${good?`Funcționează: ${esc(good.model)} (${(good.ms/1000).toFixed(1)} s)`:"Niciun model nu a răspuns"}</h2></div>
+  <ul class="alist flat">${res.map(x=>`<li><span class="grow"><b>${esc(x.model)}</b>${x.model===d.configuredModel?` <span class="tag">setat în Railway</span>`:""}${x.model===d.activeModel&&x.model!==d.configuredModel?` <span class="tag">folosit acum</span>`:""}<br><span class="small ${x.ok?"":"muted"}">${x.ok?"răspunde":"eroare "+esc(String(x.status))} în ${(x.ms/1000).toFixed(1)} s${x.error?` · ${esc(x.error)}`:""}</span></span>${x.ok?I("checkc"):I("x")}</li>`).join("")}</ul>
+  ${good&&good.model!==d.configuredModel?`<div class="box honey"><p class="small">Recomandare: în Railway → gusto-api → Variables, pune <b>GEMINI_MODEL = ${esc(good.model)}</b>.</p></div>`:""}
+  ${d.available&&d.available.length?`<details><summary class="small">Modele disponibile pentru cheia ta (${d.available.length})</summary><p class="small muted">${d.available.map(esc).join(", ")}</p></details>`:""}
+  <div class="rowacts"><button class="btn primary" onclick="navigator.clipboard&&navigator.clipboard.writeText(${jsq(txt)}).then(()=>toast('Rezultatul a fost copiat'))">${I("copy")}Copiază rezultatul</button><button class="btn" onclick="closeModal()">Închide</button></div></div>`,1)}
 
 /* ---------- Administrare → Aspect: meniul din stânga pe categorii (arbore pe 2 niveluri) ---------- */
 const NAVED={items:null,dirty:false};
