@@ -1413,6 +1413,8 @@ body.cooking{overflow:hidden}
 .planweek .dmenu{position:absolute;right:-8px;top:-6px;width:28px;height:28px}
 .planweek .dmenu svg{width:16px;height:16px}
 body.cooking .scrim{z-index:80}
+.pkon{color:var(--green-dk);font-weight:700;font-family:var(--f-ui)}
+.switch input[type=checkbox]:checked:disabled{accent-color:var(--green);opacity:1;filter:none}
 
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -3672,10 +3674,10 @@ function uOptsBtn(a,mg,self){if(!uHasOpts(a,mg,self))return self?"":`<span class
 function uOpts(a,mg,self){const me=ME(),sw=[],bt=[];
  if(mg&&RANK[a.role]<2)sw.push(tgl(!!a.famGrant,"Funcția de familie",`famGrantUI('${a.id}');draw()`,hasPrem(a)?"(are și prin Premium)":""));
  if(me.role==="super"&&a.role==="admin")sw.push(tgl(!!a.grantPlans,"Poate acorda planuri Premium",`setGrantPlans('${a.id}',this.checked)`));
- if(canTgl(a))sw.push(tgl(uFeat(a,"receipt_scan"),"Scanare bon cu AI",`setUserFeature('${a.id}','receipt_scan',this.checked)`,uFeatPlan(a,"receipt_scan")?"(și din pachet)":""));
+ if(canTgl(a))sw.push(tgl(uOn(a,"receipt_scan"),"Scanare bon cu AI",`setUserFeature('${a.id}','receipt_scan',this.checked)`,uFeatPlan(a,"receipt_scan")?"(activă din pachet)":"",uFeatPlan(a,"receipt_scan")));
  if(RANK[a.role]<2&&a.id!==ME().id&&(isRecStaff()||canTgl(a))){sw.push(tgl(uFeat(a,"recipe_author"),"Poate adăuga rețete",`setUserFeature('${a.id}','recipe_author',this.checked)`));
-  sw.push(tgl(uFeat(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(și din pachet)":""));
-  sw.push(tgl(uFeat(a,"coach_cabinet"),"Cabinet de antrenor",`setUserFeature('${a.id}','coach_cabinet',this.checked)`,uFeatPlan(a,"coach_cabinet")?"(și din pachet)":a.role!=="trainer"?"(contul devine Antrenor)":""))}
+  sw.push(tgl(uOn(a,"ai_recipes"),"Generare rețete cu AI",`setUserFeature('${a.id}','ai_recipes',this.checked)`,uFeatPlan(a,"ai_recipes")?"(activă din pachet)":"",uFeatPlan(a,"ai_recipes")));
+  sw.push(tgl(uOn(a,"coach_cabinet"),"Cabinet de antrenor",`setUserFeature('${a.id}','coach_cabinet',this.checked)`,uFeatPlan(a,"coach_cabinet")?"(activă din pachet)":a.role!=="trainer"?"(contul devine Antrenor)":"",uFeatPlan(a,"coach_cabinet")))}
  if(me.role==="super"&&!self)bt.push(`<button class="btn sm" onclick="pkgModal('${a.id}')">${I("spark")}Funcții</button>`);
  if(mg&&SRV)bt.push(`<button class="btn sm" onclick="resetLinkUI('${a.id}')">${I("key")}Link resetare parolă</button>`);
  if(mg&&RANK[a.role]<2&&canPlans())bt.push(`<button class="btn sm" onclick="premModal('${a.id}')">${I("crown")}Premium</button>`);
@@ -3689,6 +3691,7 @@ function famGrantUI(id){const t=acct(id);if(!t)return;const on=!t.famGrant;
 
 /* ---------- Funcții activate manual și pachete atașate ---------- */
 const uFeat=(a,f)=>f==="recipe_author"?!!(a.recipeAuthor||(a.mfeat||[]).includes(f)||(a.features||[]).includes(f)&&!SRV):(SRV?(a.mfeat||[]).includes(f):(a.features||[]).includes(f));
+const uOn=(a,f)=>uFeat(a,f)||uFeatPlan(a,f);   // activă din orice sursă: manual sau din pachetul acordat
 const uFeatPlan=(a,f)=>SRV?(a.pfeat||[]).includes(f):planFeats(a).includes(f);
 async function setUserFeature(id,f,on){const t=acct(id)||(PROF.data&&PROF.data.id===id?{id,role:PROF.data.role,name:PROF.data.name}:null)||((RAUTH.list||[]).some(x=>x.id===id)?{id,role:"trainer",name:(RAUTH.list.find(x=>x.id===id)||{}).name}:null);if(!t)return;
  if(ME().role!=="super"){if(!canTgl(t)||!["receipt_scan","recipe_author","ai_recipes","coach_cabinet"].includes(f))return deny("Această funcție o poate activa doar Administratorul principal.");
@@ -3702,10 +3705,10 @@ const pkgList=a=>a.packages&&a.packages.length?a.packages:a.planName?[{name:a.pl
 const pkgTags=a=>pkgList(a).map(x=>`<span class="tag pk">${esc(x.name)}</span>${x.gift?`<span class="tag gift">Oferit de admin</span>`:""}`).join(" ");
 function pkgModal(id){const t=acct(id);if(!t||ME().role!=="super")return deny();
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("spark")} Funcții</p><h2 style="font-size:22px">${esc(t.name)}</h2><p class="small muted">${esc(t.email)} · ${esc(ROLE_L[t.role])}</p></div>
- <p class="small muted">Pachetele Premium se acordă din butonul „Premium”.</p>
- <div class="box"><p class="h3" style="font-size:15px">Funcții activate manual</p><p class="small muted">Independent de pachet. Pentru antrenori, Moderatorii și Administratorii pot activa doar AI, rețetele proprii și cabinetul.</p>
+ <p class="small muted">Pachetele Premium se acordă din butonul „Premium”. Funcțiile din pachetele active apar aici bifate („activă din pachet”); poți porni manual doar funcțiile care nu sunt în pachet.</p>
+ <div class="box"><p class="h3" style="font-size:15px">Funcțiile contului</p><p class="small muted">Pentru antrenori, Moderatorii și Administratorii pot activa doar AI, rețetele proprii și cabinetul.</p>
   ${RANK[t.role]>=2?`<div class="box honey"><p class="small"><b>${esc(ROLE_L[t.role])}:</b> are automat acces la toate funcțiile platformei, inclusiv toate funcțiile Premium. Nu trebuie activat nimic manual.</p></div>`:""}
-  ${FEAT_G.map(([g,fs])=>`<div class="pfgroup"><b class="small">${esc(g)}</b>${fs.map(f=>{const st=RANK[t.role]>=2;return `<label class="switch"><input type="checkbox" ${st||uFeat(t,f)?"checked":""} ${st?"disabled":""} onchange="setUserFeature('${id}','${f}',this.checked)"><span>${esc(FEAT_L[f])}${st?` <span class="small muted">(inclusă în rang)</span>`:uFeatPlan(t,f)?` <span class="small muted">(inclusă și în pachet)</span>`:""}</span></label>`}).join("")}</div>`).join("")}</div>
+  ${FEAT_G.map(([g,fs])=>`<div class="pfgroup"><b class="small">${esc(g)}</b>${fs.map(f=>{const st=RANK[t.role]>=2,pl=!st&&uFeatPlan(t,f),man=uFeat(t,f);return `<label class="switch"><input type="checkbox" ${st||pl||man?"checked":""} ${st||pl?"disabled":""} onchange="setUserFeature('${id}','${f}',this.checked)"><span>${esc(FEAT_L[f])}${st?` <span class="small muted">(inclusă în rang)</span>`:pl?` <span class="small pkon">activă din pachet${man?" și manual":""}</span>`:""}</span></label>`}).join("")}</div>`).join("")}</div>
  <div class="rowacts"><button class="btn" onclick="closeModal()">Gata</button></div></div>`,1)}
 function pkgFeatsLine(pid){const p=(S.plans||[]).find(x=>x.id===pid);if(!p)return"";const a=planAll(p);return a.length?"Include: "+a.map(f=>esc((FEAT_L[f]||f).split(" (")[0])).join(", "):"Pachetul nu are încă funcții bifate."}
 
@@ -4318,18 +4321,18 @@ const canTgl=(t,me=ME())=>!!me&&!!t&&me.id!==t.id&&RANK[me.role]>=2&&RANK[t.role
 function profAdmState(p){if(SRV)return p.adm||null;const a=acct(p.id);if(!a||!canTgl(a))return null;
  return {feat:[...(a.features||[]),...(a.recipeAuthor?["recipe_author"]:[])],plan:planFeats(a),famGrant:!!a.famGrant,premium:hasPrem(a),family:true}}
 function profAdmin(){const p=PROF.data;if(!p||!ME()||RANK[ME().role]<2)return;
- const A=profAdmState(p),on=f=>!!A&&A.feat.includes(f),pl=f=>!!A&&A.plan.includes(f),tr=p.role==="trainer",id=p.id;
- const note=f=>pl(f)?"(și din pachet)":"";
+ const A=profAdmState(p),pl=f=>!!A&&A.plan.includes(f),on=f=>!!A&&(A.feat.includes(f)||pl(f)),tr=p.role==="trainer",id=p.id;
+ const note=f=>pl(f)?"(activă din pachet)":"";
  const pend=(p.recipes||[]).filter(r=>r.status==="hid").length;
  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("settings")} Administrare</p><h2 style="font-size:22px">${esc(p.name)}</h2>
   <p class="small muted">${esc(ROLE_L[p.role]||"Membru")}${p.since?` · cont din ${fmtDate(p.since)}`:""} · ${p.recipeTotal} ${p.recipeTotal===1?"rețetă":"rețete"}${pend?` · ${pend} de aprobat`:""}</p></div>
  ${can("users")?`<div class="box"><p class="h3" style="font-size:15px">Contul</p><p class="small muted">Rol, Premium și pachete, familie, drepturi, blocare sau ștergere.</p><button class="btn primary sm" onclick="profAdminUsers('${id}')">${I("users")}Deschide în Administrare → Utilizatori</button></div>`:""}
  ${A?`<div class="box"><p class="h3" style="font-size:15px">Funcții</p><div class="tgls">
    ${A.family?tgl(A.famGrant,"Funcția de familie",`profAdmFam('${id}',this.checked)`,A.premium?"(are și prin Premium)":""):""}
-   ${tgl(on("receipt_scan"),"Scanare bon cu AI",`profAdmSet('${id}','receipt_scan',this.checked)`,note("receipt_scan"))}
-   ${tgl(on("recipe_author"),"Poate adăuga rețete",`profAdmSet('${id}','recipe_author',this.checked)`)+tgl(on("ai_recipes"),"Generare rețete cu AI",`profAdmSet('${id}','ai_recipes',this.checked)`,note("ai_recipes"))}</div></div>`:""}
+   ${tgl(on("receipt_scan"),"Scanare bon cu AI",`profAdmSet('${id}','receipt_scan',this.checked)`,note("receipt_scan"),pl("receipt_scan"))}
+   ${tgl(on("recipe_author"),"Poate adăuga rețete",`profAdmSet('${id}','recipe_author',this.checked)`)+tgl(on("ai_recipes"),"Generare rețete cu AI",`profAdmSet('${id}','ai_recipes',this.checked)`,note("ai_recipes"),pl("ai_recipes"))}</div></div>`:""}
  ${A?subsHTML(id):""}
- ${A?`<div class="box"><p class="h3" style="font-size:15px">Antrenor</p><div class="tgls">${tgl(on("coach_cabinet"),"Cabinet de antrenor",`profAdmSet('${id}','coach_cabinet',this.checked)`,note("coach_cabinet"))}</div>${tr?"":`<p class="small muted">Dacă pornești cabinetul, contul devine automat Antrenor personal.</p>`}</div>`:""}
+ ${A?`<div class="box"><p class="h3" style="font-size:15px">Antrenor</p><div class="tgls">${tgl(on("coach_cabinet"),"Cabinet de antrenor",`profAdmSet('${id}','coach_cabinet',this.checked)`,note("coach_cabinet"),pl("coach_cabinet"))}</div>${tr?"":`<p class="small muted">Dacă pornești cabinetul, contul devine automat Antrenor personal.</p>`}</div>`:""}
  ${isRecStaff()&&p.recipeTotal?`<div class="box"><p class="h3" style="font-size:15px">Rețetele lui</p><div class="rowacts"><button class="btn sm" onclick="closeModal();PROF.showRec=true;draw();setTimeout(()=>$('profrec')&&$('profrec').scrollIntoView({behavior:'smooth'}))">${I("grid")}Vezi rețetele (${p.recipeTotal})</button>${pend?`<button class="btn sm" onclick="closeModal();S.atab='rec';go('admin')">${I("check")}Aprobă în Administrare → Rețete</button>`:""}</div></div>`:""}
  ${!can("users")?`<p class="small muted">Rolul, pachetele, blocarea și ștergerea contului le schimbă un Administrator.</p>`:""}
  <div class="rowacts"><button class="btn" onclick="closeModal()">Gata</button></div></div>`,1);if(A)subsLoad(id,"prof")}
