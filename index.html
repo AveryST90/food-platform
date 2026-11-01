@@ -1662,7 +1662,7 @@ const DEMO_USERS=[["u-andrei","Membru gratuit"],["u-maria","Membru Premium"],["u
 /* Pagina principală: blocuri editabile din editorul vizual */
 const DEF_HOME=[
 {id:"b1",type:"hero",show:true,aud:"all",eyebrow:"Gătește mai inteligent",t1:"Ai ingredientele.",t2:"Noi îți arătăm ce poți găti.",text:"Descoperă rețete delicioase din ingredientele pe care le ai deja, gestionează-ți frigiderul și creează liste de cumpărături inteligente.",ph:"Ce ingrediente ai în frigider?",btn:"Descoperă rețete",chips:"roșii, ouă, spanac, cașcaval, piept de pui",img:"photo/hero.jpg",tone:"sage"},
-{id:"b2",type:"recipes",show:true,aud:"all",title:"Inspirație pentru azi",count:4,source:"compat",link:"Vezi toate"},
+{id:"b2",type:"recipes",show:true,aud:"all",title:"Inspirație pentru azi",count:4,source:"daily",link:"Vezi toate"},
 {id:"b3",type:"widgets",show:true,aud:"all"},
 {id:"b4",type:"banner",show:true,aud:"nopremium",eyebrow:"Premium",title:"Gătește fără limite",text:"Rețete nelimitate, valori nutriționale, planificator automat și rapoarte anti-risipă.",btn:"Vezi planurile",to:"premium",img:"photo/premium.jpg",tone:"dark"}
 ];
@@ -2612,7 +2612,7 @@ setTimeout(()=>expiryPush(),6000);
 /* ---------- Pagina principală: blocuri ---------- */
 const AUD_L={all:"Toți vizitatorii",guest:"Doar vizitatori (neconectați)",member:"Doar utilizatori conectați",nopremium:"Doar cei fără Premium",premium:"Doar utilizatori Premium"};
 const TONES=[["sage","Verde deschis"],["cream","Crem"],["white","Alb"],["dark","Verde închis"]];
-const SRC_L=[["reco","Rețete recomandate (alese de echipă)"],["compat","Potrivite cu ce ai în frigider"],["new","Cele mai noi"],["quick","Rapide (până în 20 min)"],["veg","Vegetariene"],["fav","Favoritele tale"]];
+const SRC_L=[["daily","Aleatorii, se schimbă în fiecare zi la 00:01"],["reco","Rețete recomandate (alese de echipă)"],["compat","Potrivite cu ce ai în frigider"],["new","Cele mai noi"],["quick","Rapide (până în 20 min)"],["veg","Vegetariene"],["fav","Favoritele tale"]];
 const BLOCK_DEF={
  hero:{label:"Hero cu căutare",icon:"search",desc:"Titlu mare, căutare după ingrediente și o imagine.",f:[["eyebrow","Etichetă"],["t1","Titlu, rândul 1"],["t2","Titlu, rândul 2"],["text","Text","area"],["ph","Text în câmpul de căutare"],["btn","Text buton"],["chips","Ingrediente rapide, separate prin virgulă"],["img","Imagine","img"],["tone","Fundal","tone"]]},
  recipes:{label:"Rețete recomandate",icon:"grid",desc:"O grilă de rețete: potrivite, noi, rapide sau vegetariene.",f:[["title","Titlu"],["count","Număr de rețete (1–12)","num"],["source","Alege rețetele","src"],["link","Text link"]]},
@@ -2640,7 +2640,9 @@ const BLK={
   <div class="chips">${all.map(n=>`<button class="chip" aria-pressed="${S.sel.includes(n)}" onclick="togSel(${jsq(n)})">${thumb(n)}${esc(n[0].toUpperCase()+n.slice(1))}</button>`).join("")}</div></div>
   ${b.img?`<div class="hero-photo"><img src="${IM(b.img)}" alt=""></div>`:""}</section>`},
  recipes(b){const A=avail(),n=Math.max(1,Math.min(12,+b.count||4));let l=recipes().slice();
-  if(b.source==="reco")l=recoList();
+  const src=b.source==="compat"&&/^inspira[tț]ie pentru azi$/i.test(String(b.title||"").trim())?"daily":b.source;
+  if(src==="daily")l=dailyPick(l);
+  else if(b.source==="reco")l=recoList();
   else if(b.source==="new")l.sort((a,c)=>(c.created||"").localeCompare(a.created||""));
   else if(b.source==="quick")l=l.filter(r=>r.t<=20).sort((a,c)=>a.t-c.t);
   else if(b.source==="veg")l=l.filter(r=>r.veg);
@@ -2762,6 +2764,15 @@ function edTheme(){const t=ED.theme;
  <div class="rowacts"><button class="btn primary" onclick="closeModalKeep()">Gata</button><button class="btn" onclick="ED.theme=clone(DEF_THEME);closeModalKeep()">Valorile inițiale</button></div></div>`,1,"#tb")}
 function edBrand(v){ED.theme.brand=String(v).slice(0,24)||"Try To Be FIT";brandNames();document.title=ED.theme.brand}
 function edColor(k,v){ED.theme[k]=v;applyTheme(ED.theme);const el=$(k==="color"?"tc":"th");if(el)el.value=v}
+
+/* rețetele zilei: aceeași alegere aleatorie pentru toți, toată ziua; se schimbă la ora 00:01 */
+const dayKey=()=>iso(new Date(Date.now()-60000));
+function dailyPick(l){const k=dayKey();let h=2166136261;for(const c of k){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}
+ const rnd=()=>{h=(h+0x6D2B79F5)>>>0;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
+ const a=l.slice().sort((x,y)=>String(x.id).localeCompare(String(y.id)));for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+/* dacă pagina rămâne deschisă peste noapte, rețetele se schimbă singure la 00:01 */
+(function dailyTimer(){const n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+(n.getHours()||n.getMinutes()>=1?1:0),0,1,2);
+ setTimeout(()=>{try{if(S.page==="acasa"&&!ED&&!document.querySelector(".modal:not([hidden]), #modal:not([hidden])"))draw()}catch(e){}dailyTimer()},Math.min(t-n,2147483000))})();
 
 /* =====================================================================
    Administrare vizuală rapidă: înlocuirea imaginilor dintr-un click și
