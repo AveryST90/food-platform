@@ -4046,17 +4046,19 @@ function navRow(it,inGroup){const lk=it.t==="l",def=lk?"Legătură":(PAGE_META[i
   ${lk?`<button type="button" class="btn sm nvurl" onclick="navLinkModal('${it.id}')" title="Unde duce">${I("arrow")}${esc(String(it.u).startsWith("#")?(PAGE_META[it.u.slice(1)]||[it.u])[0]:String(it.u).replace(/^https:\/\//,"").slice(0,26))}</button>`:""}
   <select class="field nvsel" aria-label="Categoria" onchange="navMoveTo('${it.id}',this.value)"><option value="">Fără categorie</option>${groups.map(g=>`<option value="${g.id}" ${inGroup&&inGroup.id===g.id?"selected":""}>În: ${esc(g.l||"Categorie nouă")}</option>`).join("")}</select>
   <span class="nvbtns"><button class="iconbtn" onclick="navStep('${it.id}',-1)" aria-label="Mută în sus">${I("up")}</button><button class="iconbtn" onclick="navStep('${it.id}',1)" aria-label="Mută în jos">${I("down")}</button>
+  <button class="iconbtn" onclick="navToGroup('${it.id}')" aria-label="Fă categorie de bază" title="Fă categorie de bază (poate conține subcategorii)">${I("folder")}</button>
   <button class="iconbtn" onclick="navLinkModal('${it.id}')" aria-label="Editează" title="Editează (nume, pictogramă, rută, categorie)">${I("edit")}</button>
   ${it.p==="acasa"?"":`<button class="iconbtn" onclick="navHide('${it.id}')" aria-label="Șterge din meniu" title="Șterge din meniu">${I("trash")}</button>`}</span>${navActive(it)}</div></li>`}
 function navPanel(){if(!navCan())return"";const items=navDraft(),used=navUsed(),hidden=Object.keys(PAGE_META).filter(p=>!used.has(p));setTimeout(navMount);
  return `<div class="card panel wide" id="navpanel"><h3>Meniul din stânga</h3>
-  <p class="small muted">Categoriile principale (nume, pictogramă) conțin subcategorii: pagini ale site-ului sau legături proprii (nume, rută, categoria părinte). Exemplu: <b>Familie</b> → Frigider, Casă și igienă, Cumpărături, Anti-risipă, Cheltuieli. Bifa „Activ” ascunde temporar un element fără să-l ștergi. Trage de ${I("grip")} ca să muți o pagină sau o categorie; o pagină se poate trage și într-o categorie. Pe telefon, același meniu apare în meniul contului.</p>
+  <p class="small muted">Categoriile principale (nume, pictogramă) conțin subcategorii: pagini ale site-ului sau legături proprii (nume, rută, categoria părinte). Exemplu: <b>Familie</b> → Frigider, Casă și igienă, Cumpărături, Anti-risipă, Cheltuieli. Butonul ${I("folder")} face dintr-un element o <b>categorie de bază</b> (cu subcategorii), iar ${I("layout")} face dintr-o categorie de bază o <b>categorie simplă</b>. Bifa „Activ” ascunde temporar un element fără să-l ștergi. Trage de ${I("grip")} ca să muți o pagină sau o categorie; o pagină se poate trage și într-o categorie. Pe telefon, același meniu apare în meniul contului.</p>
   <div class="rowacts nvtools"><button class="btn primary" onclick="navAddGroup()">${I("folder")}Categorie nouă</button><button class="btn" onclick="navLinkModal()">${I("plus")}Subcategorie nouă</button><button class="btn" onclick="navPreset()">${I("layout")}Structura exemplu</button><button class="link" onclick="navReset()">${I("reset")}Meniul inițial</button></div>
   <ul class="navtree" id="navroot">${items.map(x=>x.t!=="g"?navRow(x):`<li class="nvi nvgroup ${x.off?"nvoff":""}" data-id="${x.id}"><div class="nvrow"><span class="nvgrip" title="Trage ca să muți">${I("grip")}</span>
    <select class="field nvic" aria-label="Pictograma categoriei" onchange="navIcon('${x.id}',this.value)">${NAV_ICONS.map(i=>`<option value="${i}" ${x.ic===i?"selected":""}>${i}</option>`).join("")}</select>${I(x.ic||"folder")}
    <input class="field nvl" value="${esc(x.l||"")}" placeholder="Numele categoriei" maxlength="30" aria-label="Numele categoriei" oninput="navLbl('${x.id}',this.value)">
    <label class="switch small"><input type="checkbox" ${x.open!==false?"checked":""} onchange="navOpenDef('${x.id}',this.checked)">Deschisă</label>${navActive(x)}
    <span class="nvbtns"><button class="iconbtn" onclick="navStep('${x.id}',-1)" aria-label="Mută în sus">${I("up")}</button><button class="iconbtn" onclick="navStep('${x.id}',1)" aria-label="Mută în jos">${I("down")}</button>
+   <button class="iconbtn" onclick="navUngroup('${x.id}')" aria-label="Fă categorie simplă" title="Fă categorie simplă (fără subcategorii)">${I("layout")}</button>
    <button class="iconbtn" onclick="navLinkModal(null,'${x.id}')" aria-label="Adaugă subcategorie" title="Adaugă subcategorie în această categorie">${I("plus")}</button>
    <button class="iconbtn" onclick="navDelGroup('${x.id}')" aria-label="Șterge categoria" title="Șterge categoria">${I("trash")}</button></span></div>
    <ul class="navtree navkids2" data-g="${x.id}">${(x.c||[]).map(c=>navRow(c,x)).join("")||""}</ul>${(x.c||[]).length?"":`<p class="small muted nvempty">Trage aici pagini sau alege categoria din lista unei pagini.</p>`}</li>`).join("")}</ul>
@@ -4127,6 +4129,30 @@ function navReset(){ask("Revii la meniul inițial?","Categoriile create dispar, 
  if(SRV){const r=await api("/nav",{method:"DELETE"});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut reseta meniul.")}
  S.nav=null;NAVED.items=null;NAVED.dirty=false;save();draw();toast("Meniul a revenit la forma inițială")},true)}
 ATAB_FN.nav=function(){return navPanel()||`<div class="empty">Doar administratorii pot modifica meniul.</div>`};
+
+/* element simplu → categorie de bază: elementul devine prima subcategorie a noii categorii */
+function navToGroup(id){const f=navFind(id);if(!f)return;const it=f.it,items=navDraft();
+ const name=it.l||(it.t==="p"?(PAGE_META[it.p]||[it.p])[0]:"Categorie nouă"),g={id:navRid("g"),t:"g",l:String(name).slice(0,30),ic:NAV_ICONS.includes(navIc(it))?navIc(it):"folder",open:true,c:[]};
+ const at=f.parent?items.indexOf(f.parent)+1:items.indexOf(it);f.list.splice(f.list.indexOf(it),1);
+ delete it.off;g.c.push(it);items.splice(at,0,g);navTouch();toast(`„${g.l}” este acum categorie de bază. Adaugă subcategorii cu +.`)}
+/* categorie de bază → categorie simplă: alegi ce pagină deschide; celelalte subcategorii trec în meniul principal */
+function navUngroup(id){const items=navDraft(),g=items.find(x=>x.id===id);if(!g)return;const kids=g.c||[],used=navUsed();
+ const lbl=c=>esc(c.l||(c.t==="p"?(PAGE_META[c.p]||[c.p])[0]:c.u));
+ const free=Object.keys(PAGE_META).filter(p=>!used.has(p));
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("folder")} Meniul din stânga</p><h2 style="font-size:21px">Fă „${esc(g.l||"categoria")}” categorie simplă</h2></div>
+ <form class="stack" onsubmit="event.preventDefault();navUngroupDo('${id}')" novalidate>
+  <p class="small muted">O categorie simplă nu are subcategorii: apeși pe ea și se deschide direct o pagină. Păstrează numele „${esc(g.l||"")}” și pictograma.${kids.length>1?" Celelalte subcategorii trec în meniul principal, imediat sub ea.":""}</p>
+  <label class="lbl">Ce pagină deschide<select id="nug" class="field">
+   ${kids.map((c,i)=>`<option value="k:${c.id}" ${i?"":"selected"}>${lbl(c)}</option>`).join("")}
+   ${free.map(p=>`<option value="#${p}" ${kids.length?"":""}>Pagina: ${esc(PAGE_META[p][0])}</option>`).join("")}
+   ${Object.keys(PAGE_META).filter(p=>used.has(p)).map(p=>`<option value="L#${p}">Legătură spre: ${esc(PAGE_META[p][0])}</option>`).join("")}</select></label>
+  <div class="rowacts"><button class="btn primary">Fă categorie simplă</button><button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,1,"#nug")}
+function navUngroupDo(id){const items=navDraft(),g=items.find(x=>x.id===id);if(!g)return;const v=$("nug").value,kids=(g.c||[]).slice();let main;
+ if(v.startsWith("k:")){main=kids.find(c=>c.id===v.slice(2));kids.splice(kids.indexOf(main),1)}
+ else if(v.startsWith("L#"))main={id:navRid("l"),t:"l",u:v.slice(1)};
+ else main={id:navRid("p"),t:"p",p:v.slice(1)};
+ if(!main)return;main.l=String(g.l||"").trim().slice(0,30)||main.l;if(!main.l)delete main.l;if(g.ic&&g.ic!=="folder")main.ic=g.ic;if(g.off&&main.p!=="acasa")main.off=true;
+ items.splice(items.indexOf(g),1,main,...kids);closeModal();navTouch();toast(`„${main.l||"Elementul"}” este acum categorie simplă.`)}
 
 /* ---------- Pagina Familie ---------- */
 PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
