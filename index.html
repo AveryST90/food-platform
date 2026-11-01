@@ -4739,7 +4739,7 @@ function rcDraw(){const b=$("rcbox");if(!b)return;
  if(RC)b.innerHTML=rcReview()}
 function rcStart(file){RC=null;RCX.err=null;RCX.busy=true;RCX.step=0;rcOpen();rcDraw();
  rcImage(file,1800,async u=>{RCX.step=1;rcDraw();clearInterval(RCX.timer);RCX.timer=setInterval(()=>{if(RCX.step<RC_STEPS.length-1){RCX.step++;rcDraw()}},7000);
-  const r=await api("/receipts/scan",{method:"POST",body:{image:u},timeout:120000});clearInterval(RCX.timer);RCX.busy=false;
+  const r=await api("/receipts/scan",{method:"POST",body:{image:u},timeout:180000});clearInterval(RCX.timer);RCX.busy=false;
   if(!$("rcbox"))return;   // fereastra a fost închisă între timp
   if(!r.ok){RCX.err=(r.data&&r.data.error)||(r.timeout?"Citirea a durat prea mult. Încearcă din nou, eventual cu o poză mai mică.":r.status===0?"Nu mă pot conecta la server. Verifică internetul și încearcă din nou.":"Bonul nu a putut fi citit. Încearcă din nou.");return rcDraw()}
   RC=r.data.receipt;RC.items.forEach(x=>{if(x.kind==="food"&&!x.productId){const k=kindOf(x.name);if(k!=="food")x.kind=k}});
