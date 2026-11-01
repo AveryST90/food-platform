@@ -2171,7 +2171,7 @@ function sessSave(o){if(!isTrainer())return deny("Doar antrenorul programează �
  if(!/^\d{4}-\d{2}-\d{2}$/.test(o.d||""))return deny("Alege data.");if(!HHMM.test(o.s||""))return deny("Ora nu este validă (ex. 18:00).");
  const dur=Math.round(+o.dur);if(!(dur>=15&&dur<=480))return deny("Durata trebuie să fie între 15 și 480 de minute.");
  const [h,mi]=o.s.split(":").map(Number);if(h*60+mi+dur>24*60)return deny("Ședința trebuie să se termine în aceeași zi.");
- const rec2={st:o.st,d:o.d,s:o.s,dur,title:String(o.title||"Antrenament").trim().slice(0,60)||"Antrenament",note:String(o.note||"").slice(0,300)};
+ const rec2={st:o.st,d:o.d,s:o.s,dur,title:String(o.title||"Antrenament").trim().slice(0,60)||"Antrenament",note:String(o.note||"").slice(0,300),plan:String(o.plan||"").slice(0,4000)};
  if(o.id){const x=S.coach.sessions.find(z=>z.id===o.id&&z.tr===S.uid);if(!x)return deny();Object.assign(x,rec2)}
  else S.coach.sessions.push({id:nid("s-"),tr:S.uid,...rec2});save();return true}
 function sessDelete(id){const x=S.coach.sessions.find(z=>z.id===id&&z.tr===S.uid);if(!x||!isTrainer())return deny();S.coach.sessions=S.coach.sessions.filter(z=>z!==x);save();return true}
@@ -2387,7 +2387,7 @@ if(SRV){
  optW("menuDelete",a=>["DELETE","/coach/menus/"+enc(a[0])]);
  optW("menuCopy",a=>["POST","/coach/menus/"+enc(a[0])+"/copy",{student:a[1]}]);
  optW("sessSave",a=>{const o=a[0],id=o.id||(S.coach.sessions[S.coach.sessions.length-1]||{}).id;
-  return["PUT","/coach/sessions",{id,st:o.st,d:o.d,s:o.s,dur:+o.dur,title:o.title,note:o.note}]});
+  return["PUT","/coach/sessions",{id,st:o.st,d:o.d,s:o.s,dur:+o.dur,title:o.title,note:o.note,plan:o.plan||""}]});
  optW("sessDelete",a=>["DELETE","/coach/sessions/"+enc(a[0])]);
 }
 
@@ -4411,8 +4411,14 @@ function sessModal(id,sid,day){const x=id?mySessions().find(z=>z.id===id):null;i
   <label class="lbl">Durata<select id="sdu" class="field">${[30,45,60,75,90,120].map(n=>`<option value="${n}" ${(x?x.dur:60)===n?"selected":""}>${durL(n)}</option>`).join("")}</select></label></div>
   <label class="lbl">Titlu<input id="stt" class="field" maxlength="60" value="${esc(x?x.title:"Antrenament")}"></label>
   <label class="lbl">Notă pentru student (opțional)<textarea id="snt" class="field" rows="2" maxlength="300">${esc(x?x.note:"")}</textarea></label>
+  <label class="lbl"><span>${I("lock")} Planul antrenamentului <span class="small muted">· vizibil doar pentru tine</span></span><textarea id="spl" class="field" rows="6" maxlength="4000" placeholder="ex.
+Încălzire 10 min (bandă, mobilitate)
+Genuflexiuni 4×10 · 60 kg
+Fandări 3×12
+Presă picioare 4×12 · 120 kg
+Stretching 5 min">${esc(x&&x.plan||"")}</textarea></label>
   <div class="rowacts"><button class="btn primary">${x?"Salvează":"Programează"}</button>${x?`<button type="button" class="btn danger" onclick="sessDelete('${x.id}')&&(closeModal(),toast('Ședința a fost ștearsă'))">${I("trash")}Șterge</button>`:""}<button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,1,"#sss")}
-function sessGo(id){if(sessSave({id,st:$("sst").value,d:$("sdd").value,s:$("sss").value,dur:$("sdu").value,title:$("stt").value,note:$("snt").value})){CAL.d=$("sdd").value;closeModal();toast(id?"Ședința a fost salvată":"Ședința a fost programată")}}
+function sessGo(id){if(sessSave({id,st:$("sst").value,d:$("sdd").value,s:$("sss").value,dur:$("sdu").value,title:$("stt").value,note:$("snt").value,plan:$("spl").value})){CAL.d=$("sdd").value;closeModal();toast(id?"Ședința a fost salvată":"Ședința a fost programată")}}
 
 /* ---------- Legături cu serverul care depind de paginile definite mai sus ---------- */
 if(SRV){
