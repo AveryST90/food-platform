@@ -1481,6 +1481,23 @@ body.cooking .scrim{z-index:80}
 .nvsave.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface))}
 .nvsave .rowacts{margin:0}
 @media (max-width:860px){.nvsave{bottom:calc(76px + env(safe-area-inset-bottom,0px))}}
+/* Măsurători corporale */
+.bodywrap{display:flex;flex-direction:column;gap:16px}
+.bodyform h3{display:flex;align-items:center;gap:8px}
+.bodygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px;align-items:end;margin-top:10px}
+.bodygrid .field{width:100%}
+.bodyact{grid-column:1/-1}
+.bodycards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px;margin:16px 0}
+.bodyc .bodyh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.bodyc .bodyh b{font-size:20px}
+.bodyc .chart{margin-top:6px}
+.bodyhist summary{cursor:pointer;list-style:revert}
+.bodyt{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+.bodyt th,.bodyt td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.bodyt .iconbtn.xs{width:24px;height:24px;vertical-align:middle}
+.bodyt .iconbtn.xs .i{width:13px;height:13px}
+@media (max-width:640px){.bodyt thead{display:none}.bodyt tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}.bodyt td{display:flex;justify-content:space-between;border:0;padding:3px 0}.bodyt td::before{content:attr(data-l);color:var(--muted)}}
+.bodyc .chart .tk{font-size:20px}.bodyc .chart .dt{r:6px}
 
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -3497,6 +3514,7 @@ PAGES.cont=function(){const u=ME(),pl=premLeft(u),ps=perms(u),opened=Math.min(us
   ${ps.length?`<div><p class="small muted" style="margin-bottom:6px">Drepturile tale în administrare</p><div class="chips">${ps.map(p=>`<span class="tag">${PERM_L[p]}</span>`).join("")}</div></div>`:""}</div>
  <div class="card panel"><h3>Abonament</h3>${plan}</div>
  ${famPanel(u)}
+ ${typeof myBodyPanel==="function"?myBodyPanel():""}
  <div class="card panel"><h3>Schimbă parola</h3><form onsubmit="doChangePw(event)" class="stack" novalidate>
   <label class="lbl">Parola actuală<input id="cp0" class="field" type="password" autocomplete="current-password"></label>
   <label class="lbl">Parola nouă<input id="cp1" class="field" type="password" autocomplete="new-password"><small class="muted">Cel puțin 8 caractere, cu litere și cifre.</small></label>
@@ -5094,8 +5112,8 @@ function progressBody(p,forCoach,sid){const w=p.weights.map(x=>({l:dShort(x.day)
  return `<div class="kpis"><div class="kpi"><span>Greutate</span><b>${last?num(last.kg)+" kg":"—"}</b><small>${diff!=null?`${diff>0?"+":""}${num(diff)} kg în perioadă`:"o singură măsurătoare"}</small></div>
   <div class="kpi"><span>Calorii / zi</span><b>${avg?num(avg):"—"}</b><small>media zilelor notate (14 zile)</small></div>
   <div class="kpi"><span>Respectarea planului</span><b>${c.pct!=null?c.pct+"%":"—"}</b><small>${c.planned?`${c.done} din ${c.planned} mese planificate`:"nicio masă planificată"}</small></div></div>
- <div class="pgrid"><div class="card panel"><h3>Greutatea</h3>${lineSVG(w,"kg")}</div>
-  <div class="card panel"><h3>Calorii pe zi (ultimele 14 zile)</h3>${barsMini(kd,"kcal")}</div></div>
+ ${bodyPanel(p,forCoach?sid:null)}
+ <div class="card panel"><h3>Calorii pe zi (ultimele 14 zile)</h3>${barsMini(kd,"kcal")}</div>
  <div class="card panel"><h3>Jurnal alimentar</h3>${days.length?days.map(d=>{const l=p.journal.filter(j=>j.day===d),k=l.reduce((a,j)=>a+(j.kcal||0),0);
    return `<div class="jday"><div class="jdh"><b>${esc(dateL(d))}</b><span class="small muted">${num(k)} kcal</span>${forCoach?`<button class="btn sm" onclick="coachFeedback('${sid}','${d}')">${I("chat")}Feedback</button>`:""}</div>
     <ul class="jlist">${l.map(j=>`<li><span class="tag">${esc(SLOT_RO[j.slot]||"Masă")}</span><span class="grow">${j.recipe?`<button class="link" onclick="openRecipe('${esc(j.recipe)}')">${esc(j.title)}</button>`:esc(j.title)}${j.planned?` <span class="small muted">· din plan</span>`:""}</span><span class="small muted">${j.kcal!=null?num(j.kcal)+" kcal":""}</span>${forCoach?"":`<button class="iconbtn" onclick="journalDel(${j.id})" aria-label="Șterge">${I("x")}</button>`}</li>`).join("")}</ul></div>`}).join("")
@@ -5103,7 +5121,7 @@ function progressBody(p,forCoach,sid){const w=p.weights.map(x=>({l:dShort(x.day)
 const SLOT_RO={breakfast:"Mic dejun",snack:"Gustare",lunch:"Prânz",afternoon:"Chindie",dinner:"Cină"};
 
 /* ---------- clientul: greutate + jurnal ---------- */
-async function myProgLoad(){if(!SRV||PRG.loading)return;PRG.loading=true;const r=await api("/me/progress?days=60");PRG.loading=false;if(r.ok){PRG.me=r.data;if(["antrenor","stats"].includes(S.page))draw()}}
+async function myProgLoad(){if(!SRV||PRG.loading)return;PRG.loading=true;const r=await api("/me/progress?days=60");PRG.loading=false;if(r.ok){PRG.me=r.data;if(["antrenor","stats","cont"].includes(S.page))draw()}}
 function myProgress(){if(!SRV)return `<div class="card panel"><p class="muted">Jurnalul și greutatea se salvează pe site, cu serverul conectat.</p></div>`;
  if(!PRG.me){myProgLoad();return `<p class="muted">Se încarcă…</p>`}const td=todayS(),planned=daySlots(td).map(m=>({m,r:rec(S.plan[td+"|"+m])})).filter(x=>x.r);
  const eaten=new Set(PRG.me.journal.filter(j=>j.day===td&&j.recipe).map(j=>j.recipe));
@@ -5523,6 +5541,45 @@ function recoPaint(){const el=$("recores");if(!el)return draw();const t=document
 function recoHome(vis){const l=recoList();if(!l.length||vis.some(b=>b.type==="recipes"&&b.source==="reco"))return"";
  return `<section class="stack recohome"><div class="sechead"><h2>${I("star")} Rețete recomandate</h2><button class="link" onclick="S.rcat='Recomandate';save();go('retete')">Vezi toate ${I("arrow")}</button></div>
   <div class="rgrid four">${l.slice(0,8).map(r=>rcard(r)).join("")}</div></section>`}
+
+/* ======== Măsurători corporale: greutate, înălțime, piept, talie, bazin, picior, braț.
+   Fiecare valoare are data ei; din 2 măsurători în sus apare graficul progresului.
+   Le notează clientul (Contul meu, Antrenor → Progres) sau antrenorul lui (Cabinet → Progres). ======== */
+const BODY_M=[["weight","Greutate","kg"],["height","Înălțime","cm"],["chest","Piept","cm"],["waist","Talie","cm"],["hips","Bazin","cm"],["thigh","Picior (coapsă)","cm"],["arm","Braț","cm"]];
+const BODYUI={open:false};
+function bodySeries(body,m){return (body||[]).filter(x=>x.m===m).sort((a,b)=>a.day.localeCompare(b.day))}
+/* who: null = eu; altfel id-ul clientului (pentru antrenor) */
+function bodyPanel(data,who){if(!SRV)return"";const body=(data&&data.body)||[],td=todayS(),wq=who?`'${who}'`:"null";
+ const last=m=>{const l=bodySeries(body,m);return l[l.length-1]};
+ const cards=BODY_M.map(([m,l,u])=>{const s=bodySeries(body,m);if(!s.length)return"";const a=s[0],z=s[s.length-1],d=Math.round((z.v-a.v)*10)/10;
+  return `<div class="card panel bodyc"><div class="bodyh"><h3>${l}</h3><b>${num(z.v)} ${u}</b></div>
+   <p class="small muted">${s.length>1?`${d>0?"+":""}${num(d)} ${u} față de ${fmtDate(a.day)} · ${s.length} măsurători`:`măsurat pe ${fmtDate(z.day)} · adaugă încă una ca să vezi graficul`}</p>
+   ${s.length>1?lineSVG(s.map(x=>({l:dShort(x.day),v:x.v})),u):""}</div>`}).join("");
+ const days=[...new Set(body.map(x=>x.day))].sort().reverse();
+ return `<div class="card panel bodyform"><h3>${I("chart")} Măsurători corporale</h3>
+  <p class="small muted">${who?"Notează măsurătorile clientului.":"Notează-ți măsurătorile."} Completează doar ce ai măsurat; fiecare valoare se salvează cu data aleasă. Circumferințele (diametrele) se scriu în centimetri.</p>
+  <form class="bodygrid" onsubmit="event.preventDefault();bodySave(${wq})" novalidate>
+   <label class="lbl">Data<input id="bd_day" class="field" type="date" max="${td}" value="${td}"></label>
+   ${BODY_M.map(([m,l,u])=>{const z=last(m);return `<label class="lbl">${l} (${u})<input id="bd_${m}" class="field" inputmode="decimal" autocomplete="off" placeholder="${z?"ultima: "+num(z.v):m==="weight"?"ex. 72,5":"ex. 90"}"></label>`}).join("")}
+   <div class="bodyact"><button class="btn primary">${I("check")}Salvează măsurătorile</button></div></form></div>
+ ${cards?`<div class="bodycards">${cards}</div>`:`<p class="small muted">Încă nu sunt măsurători. După a doua măsurătoare a aceleiași valori apare graficul cu progresul.</p>`}
+ ${days.length?`<details class="card panel bodyhist" ${BODYUI.open?"open":""} ontoggle="BODYUI.open=this.open"><summary><b>Istoricul măsurătorilor</b> <span class="small muted">· ${days.length} ${days.length===1?"zi":"zile"}</span></summary>
+  <div class="tablewrap"><table class="table bodyt"><thead><tr><th>Data</th>${BODY_M.map(([,l,u])=>`<th>${l} <span class="small muted">${u}</span></th>`).join("")}</tr></thead><tbody>
+  ${days.map(d=>`<tr><td data-l="Data"><b>${esc(fmtDate(d))}</b></td>${BODY_M.map(([m,l])=>{const x=body.find(y=>y.day===d&&y.m===m);
+   return `<td data-l="${l}">${x?`${num(x.v)} <button class="iconbtn xs" onclick="bodyDel(${wq},'${d}','${m}')" aria-label="Șterge ${l} din ${esc(fmtDate(d))}" title="Șterge">${I("x")}</button>`:`<span class="muted">—</span>`}</td>`}).join("")}</tr>`).join("")}
+  </tbody></table></div></details>`:""}`}
+async function bodySave(who){const values={};BODY_M.forEach(([m])=>{const v=$("bd_"+m).value.trim();if(v)values[m]=v});
+ if(!Object.keys(values).length)return toast("Scrie cel puțin o valoare.");
+ const r=await api(who?"/coach/students/"+encodeURIComponent(who)+"/body":"/me/body",{method:"PUT",body:{day:$("bd_day").value,values}});
+ if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");
+ if(who)PRG.data=r.data;else PRG.me=r.data;draw();toast("Măsurătorile au fost salvate")}
+function bodyDel(who,day,m){const l=(BODY_M.find(x=>x[0]===m)||[])[1]||"";
+ ask("Ștergi măsurătoarea?",`${esc(l)} din ${esc(fmtDate(day))} dispare din istoric și din grafic.`,"Șterge",async()=>{
+  const r=await api((who?"/coach/students/"+encodeURIComponent(who)+"/body/":"/me/body/")+day+"/"+m,{method:"DELETE"});
+  if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut șterge.");if(who)PRG.data=r.data;else PRG.me=r.data;draw();toast("Măsurătoare ștearsă")},true)}
+/* în „Contul meu” */
+function myBodyPanel(){if(!SRV||!ME())return"";if(!PRG.me){myProgLoad();return `<div class="card panel wide"><h3>Măsurători corporale</h3><p class="muted">Se încarcă…</p></div>`}
+ return `<div class="wide bodywrap">${bodyPanel(PRG.me,null)}</div>`}
 
 /* ---------- Pornire ---------- */
 load();
