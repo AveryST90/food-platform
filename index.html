@@ -2647,7 +2647,8 @@ const BLK={
   else if(b.source==="fav"&&ME())l=l.filter(r=>S.fav.includes(r.id));
   else l.sort((a,c)=>compat(c,A)/c.i.length-compat(a,A)/a.i.length||a.t-c.t);
   l=l.slice(0,n);
-  return `<section class="stack"><div class="sechead"><h2>${esc(b.title)}</h2><button class="link" onclick="go('retete')">${esc(b.link||"Vezi toate")} ${I("arrow")}</button></div>
+  const rc=b.source==="reco";
+  return `<section class="stack ${rc?"recohome":""}"><div class="sechead"><h2>${rc?I("star")+" ":""}${esc(b.title)}</h2><button class="link" onclick="${rc?"S.rcat='Recomandate';save();":""}go('retete')">${esc(b.link||"Vezi toate")} ${I("arrow")}</button></div>
   ${l.length?`<div class="rgrid four">${l.map(r=>rcard(r)).join("")}</div>`:`<div class="empty">Nicio rețetă nu se potrivește acestei alegeri.</div>`}</section>`},
  widgets(b){
   if(!ME())return `<section class="home2"><div class="card mini"><div class="sechead"><h2>Frigiderul și planul tău</h2></div><p class="muted">Cu un cont gratuit îți vezi aici produsele care expiră curând și mesele planificate pentru azi.</p><div class="rowacts"><button class="btn primary sm" onclick="authModal('register')">Creează cont gratuit</button><button class="btn sm" onclick="authModal('login')">Autentificare</button></div></div></section>`;
@@ -2693,7 +2694,10 @@ function drawEdbar(){const e=$("edbar");if(!ED){e.hidden=true;e.innerHTML="";ret
   <button class="btn sm" onclick="edTheme()">${I("palette")}Culori și nume</button><button class="btn sm" onclick="edCancel()">Anulează</button><button class="btn sm honey" onclick="edPublish()">Publică</button></div>`}
 function edStart(page){page=page==="premium"?"premium":"home";
  if(!can("frontend"))return deny("Editorul vizual îl pot folosi doar Administratorul principal și cei cărora le-a dat acest drept.");
- ED={page,blocks:clone(page==="premium"?premBlocks():S.home),theme:clone(S.theme)};S.page=page==="premium"?"premium":"acasa";POP=null;draw();scrollTo({top:0})}
+ ED={page,blocks:clone(page==="premium"?premBlocks():S.home),theme:clone(S.theme)};
+ /* „Rețete recomandate” afișate automat devin un bloc obișnuit în editor, ca să poată fi mutate, editate sau ascunse */
+ if(page==="home"&&typeof recoList==="function"&&recoList().length&&!ED.blocks.some(b=>b.type==="recipes"&&b.source==="reco"))
+  ED.blocks.unshift({id:"b"+uid8(),type:"recipes",show:true,aud:"all",title:"Rețete recomandate",count:8,source:"reco",link:"Vezi toate"});S.page=page==="premium"?"premium":"acasa";POP=null;draw();scrollTo({top:0})}
 /* mutarea blocurilor prin tragere (mouse sau deget), pe lângă săgețile sus/jos */
 function edDnd(){const el=$("edlist");if(!ED||!el||el.dataset.dnd)return;el.dataset.dnd="1";
  loadSortable().then(Sortable=>{if(!Sortable||!document.body.contains(el)||!ED)return;
