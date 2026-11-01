@@ -1308,7 +1308,7 @@ body.cooking{overflow:hidden}
 .menulegal{display:block;text-align:center;font-size:12.5px;padding:6px 0 0}
 
 /* ===== Sugestii de produse și calorii ===== */
-#psbox{position:absolute;z-index:80;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgb(22 42 31 / .18);padding:4px;max-height:320px;overflow:auto}
+#psbox{position:absolute;z-index:1000;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgb(22 42 31 / .18);padding:4px;max-height:320px;overflow:auto}
 #psbox[hidden]{display:none}
 .psi{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:8px 10px;border-radius:10px;text-align:left;cursor:pointer;color:var(--ink);font-size:15px;min-height:42px}
 .psi:hover,.psi[aria-selected="true"]{background:var(--soft)}
@@ -5275,7 +5275,7 @@ function psShow(el){const b=psBox(),items=prodMatches(el.value,8,[...psExtra(el)
  b.innerHTML=items.map((x,i)=>`<button type="button" role="option" class="psi" data-i="${i}">${S.products[x]?thumb(x):`<span class="tph">${I(foodOf(x)?"leaf":"tag")}</span>`}<span class="grow">${esc(!S.products[x]&&foodOf(x)?foodOf(x)[0]:capF(x))}${!S.products[x]&&foodOf(x)?` <span class="small muted">· catalog USDA</span>`:""}</span>${kcalStd(x)!=null?`<span class="small muted">${num(kcalOf(x))} kcal/100 g</span>`:""}</button>`).join("");
  const r=el.getBoundingClientRect();Object.assign(b.style,{left:(r.left+scrollX)+"px",top:(r.bottom+scrollY+4)+"px",width:Math.max(r.width,240)+"px"});b.hidden=false}
 function psHide(){const b=$("psbox");if(b)b.hidden=true;PS.el=null}
-function psPick(i){let el=PS.el;const x=PS.items[i];if(el&&!document.contains(el)&&el.id)el=$(el.id);if(!el||!x)return;el.value=x;psHide();el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));el.focus()}
+function psPick(i){let el=PS.el;const x=PS.items[i];if(el&&!document.contains(el)&&el.id)el=$(el.id);if(!el||!x)return;el.value=x;psHide();PS.picking=true;try{el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}finally{PS.picking=false}el.focus();PS.done=el;setTimeout(()=>{if(PS.done===el)PS.done=null},400)}
 document.addEventListener("input",e=>{const el=e.target;if(el&&el.dataset&&el.dataset.ps!==undefined&&document.activeElement===el&&!PS.picking)psShow(el)});
 document.addEventListener("keydown",e=>{const b=$("psbox");if(!b||b.hidden||e.target!==PS.el)return;const n=PS.items.length;
  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();PS.i=(PS.i+(e.key==="ArrowDown"?1:-1)+n)%n;b.querySelectorAll(".psi").forEach((x,i)=>x.setAttribute("aria-selected",i===PS.i))}
