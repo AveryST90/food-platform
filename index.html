@@ -2237,7 +2237,7 @@ async function srvBoot(){
 async function srvAuth(path,body){
  const r=await api(path,{method:"POST",body});
  if(!r.ok)return{err:(r.data&&r.data.error)||"Ceva nu a mers. Încearcă din nou."};
- setTok(r.data.token);const a=srvMirror(r.data.user);setUser(a.id);await srvPull(true);await socRefresh(true);return{ok:true,u:a}}
+ setTok(r.data.token);const a=srvMirror(r.data.user);setUser(a.id);await srvPull(true);await socRefresh(true);await catLoad(true);return{ok:true,u:a}}
 async function srvGate(id){   // serverul decide dacă rețeta se poate deschide (limita lunară) și dacă ești Premium
  const r=await api("/recipes/"+encodeURIComponent(id));
  if(r.status===402){const l=(r.data&&r.data.limit)||{};if(l.max)S.limit=l.max;S.srvUsed=l.used;return{locked:true}}
@@ -4419,7 +4419,8 @@ const PROF={id:null,data:null,err:null,loading:false,showRec:false,lb:-1};
 /* ---------- autorul rețetei ---------- */
 function recAuthor(r){if(!r)return null;if(r.au)return r.au;const a=r.by&&acct(r.by);return a?{id:a.id,name:a.name,role:a.role,av:a.avatar||null}:null}
 function avatarHTML(a,cls){return `<span class="avatar ${cls||""}">${a&&a.av?`<img src="${esc(IM(a.av))}" alt="">`:esc(initials((a&&a.name)||"?"))}</span>`}
-function authorChip(r,label){const a=recAuthor(r);if(!a)return"";
+/* cine a adăugat rețeta: vizibil doar pentru moderatori, administratori și administratorul principal */
+function authorChip(r,label){if(!isStaff())return"";const a=recAuthor(r);if(!a)return"";
  return `<button type="button" class="author" onclick="event.stopPropagation();openProfile('${esc(a.id)}')" aria-label="Profilul lui ${esc(a.name)}">${avatarHTML(a,"xs")}<span>${label?`${label} `:""}<b>${esc(a.name)}</b></span></button>`}
 
 /* ---------- note 1–5 ---------- */
