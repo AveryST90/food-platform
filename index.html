@@ -2546,7 +2546,10 @@ function draw(){
  $("demobar").innerHTML=S.hideDemo||SRV?"":`<div class="demobar"><span class="dtag">Demo</span><span class="dtxt">Intră rapid ca:</span><span class="dchips">${[["_v","Vizitator"],...DEMO_USERS].map(([id,l])=>`<button class="dchip" aria-pressed="${(S.uid||"_v")===id}" onclick="demoAs('${id}')">${l}</button>`).join("")}</span><button class="dx" onclick="S.hideDemo=true;save();draw()" aria-label="Ascunde bara demonstrativă">${I("x")}</button></div>`;
  const need=NEEDLOGIN.includes(S.page)&&!m;let html;
  try{html=need?gatePage(S.page):PAGES[S.page]()}catch(err){console.error(err);html=`<div class="empty"><img src="${IM("img/pot_of_food.png")}" alt="">A apărut o eroare la afișarea paginii. Încearcă din nou sau resetează demonstrația din meniul contului.</div>`}
+ /* redesenare din fundal (lista comună, sincronizare): păstrează ce scrii în câmpul de produs și sugestiile */
+ const ae=document.activeElement,keep=!window.event&&ae&&ae.id&&ae.dataset&&ae.dataset.ps!==undefined&&$("app").contains(ae)?{id:ae.id,v:ae.value,s:ae.selectionStart,e:ae.selectionEnd,ps:!!(PS&&PS.el===ae&&!$("psbox").hidden)}:null;
  $("app").innerHTML=html;
+ if(keep){const ne=$(keep.id);if(ne&&ne.value===""&&keep.v){ne.value=keep.v;ne.focus({preventScroll:true});try{ne.setSelectionRange(keep.s,keep.e)}catch(e){}if(keep.ps)psShow(ne)}}
  if(S.page==="retete"&&!need&&$("rlist"))renderRecipes();
  brandNames();drawPop();drawEdbar();
  if(S.page==="stats"&&!need)statsPaint();
@@ -5272,7 +5275,7 @@ function psShow(el){const b=psBox(),items=prodMatches(el.value,8,[...psExtra(el)
  b.innerHTML=items.map((x,i)=>`<button type="button" role="option" class="psi" data-i="${i}">${S.products[x]?thumb(x):`<span class="tph">${I(foodOf(x)?"leaf":"tag")}</span>`}<span class="grow">${esc(!S.products[x]&&foodOf(x)?foodOf(x)[0]:capF(x))}${!S.products[x]&&foodOf(x)?` <span class="small muted">· catalog USDA</span>`:""}</span>${kcalStd(x)!=null?`<span class="small muted">${num(kcalOf(x))} kcal/100 g</span>`:""}</button>`).join("");
  const r=el.getBoundingClientRect();Object.assign(b.style,{left:(r.left+scrollX)+"px",top:(r.bottom+scrollY+4)+"px",width:Math.max(r.width,240)+"px"});b.hidden=false}
 function psHide(){const b=$("psbox");if(b)b.hidden=true;PS.el=null}
-function psPick(i){const el=PS.el,x=PS.items[i];if(!el||!x)return;el.value=x;psHide();el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));el.focus()}
+function psPick(i){let el=PS.el;const x=PS.items[i];if(el&&!document.contains(el)&&el.id)el=$(el.id);if(!el||!x)return;el.value=x;psHide();el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));el.focus()}
 document.addEventListener("input",e=>{const el=e.target;if(el&&el.dataset&&el.dataset.ps!==undefined&&document.activeElement===el&&!PS.picking)psShow(el)});
 document.addEventListener("keydown",e=>{const b=$("psbox");if(!b||b.hidden||e.target!==PS.el)return;const n=PS.items.length;
  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();PS.i=(PS.i+(e.key==="ArrowDown"?1:-1)+n)%n;b.querySelectorAll(".psi").forEach((x,i)=>x.setAttribute("aria-selected",i===PS.i))}
