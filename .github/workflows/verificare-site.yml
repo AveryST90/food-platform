@@ -1,0 +1,28 @@
+# Verificarea site-ului: la fiecare încărcare, GitHub deschide pagina într-un browser (calculator și telefon) și caută erori.
+# Rezultatul: fila „Actions” (bifă verde = în regulă). Site-ul se publică oricum; dacă apare ❌, uită-te aici.
+name: Verificare site
+on: [push, workflow_dispatch]
+jobs:
+  verificare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Browser pentru test
+        run: |
+          npm install --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Pornește site-ul local
+        run: |
+          cat > /tmp/srv.mjs <<'JS'
+          import http from "http"; import fs from "fs"; import path from "path";
+          http.createServer((q, s) => { const p = decodeURIComponent(q.url.split("?")[0]); let f = path.join(process.cwd(), p.endsWith("/") ? p + "index.html" : p);
+            if (fs.existsSync(f) && fs.statSync(f).isFile()) { s.writeHead(200, { "content-type": f.endsWith(".html") ? "text/html" : f.endsWith(".js") ? "text/javascript" : "application/octet-stream" }); return s.end(fs.readFileSync(f)); }
+            s.writeHead(404, { "content-type": "text/html" }); s.end(fs.readFileSync("404.html")); }).listen(8080);
+          JS
+          node /tmp/srv.mjs &
+          sleep 1
+      - name: Verifică
+        run: node ci/verificare.mjs
