@@ -5427,8 +5427,15 @@ async function coachInviteGo(uid){
 function coachInvCancel(id){ask("Anulezi invitația?","Persoana nu mai poate intra în grup cu această invitație.","Anulează invitația",async()=>{const r=await socOp("POST","/coach/invites/"+encodeURIComponent(id)+"/decline",{});if(r&&r.ok)toast("Invitația a fost anulată")},true)}
 /* răspunsul la invitație (din mesaj sau din pagina „Antrenorul meu”) */
 async function coachInvAnswer(id,yes){const r=await socOp("POST","/coach/invites/"+encodeURIComponent(id)+"/"+(yes?"accept":"decline"),{});
- if(r&&r.ok){toast(yes?"Ai intrat în grupul antrenorului":"Ai refuzat invitația");if(typeof MSG!=="undefined"&&MSG.uid&&S.page==="mesaje")openChat(MSG.uid)}}
+ if(r&&r.ok){toast(yes?"Ai intrat în grupul antrenorului":"Ai refuzat invitația");if(typeof MSG!=="undefined"&&MSG.open&&S.page==="mesaje")openChat(MSG.open)}}
+/* invitația în familie venită ca mesaj privat */
+async function famInvAnswer(id,yes){const r=await socOp(yes?"POST":"DELETE","/family/invites/"+encodeURIComponent(id)+(yes?"/accept":""),yes?{}:undefined);
+ if(r&&r.ok){toast(yes?"Ai intrat în familie":"Ai refuzat invitația");if(typeof MSG!=="undefined"&&MSG.open&&S.page==="mesaje")openChat(MSG.open)}}
 function inviteBox(m){const st=m.invite.status;
+ if(m.invite.kind==="family"){
+  if(st==="pending")return m.mine?`<div class="invbox"><span class="small">${I("home")} Invitație în familie · așteaptă răspunsul</span></div>`
+   :`<div class="invbox"><span class="small"><b>Invitație în familie</b></span><div class="rowacts"><button class="btn sm primary" onclick="famInvAnswer('${m.invite.id}',true)">${I("check")}Accept</button><button class="btn sm" onclick="famInvAnswer('${m.invite.id}',false)">${I("x")}Refuz</button></div></div>`;
+  return `<div class="invbox"><span class="small">${I("home")} Invitație în familie · ${m.mine?"a primit răspuns":"ai răspuns"}</span></div>`}
  if(st==="pending")return m.mine?`<div class="invbox"><span class="small">${I("users")} Invitație în grup · așteaptă răspunsul</span></div>`
   :`<div class="invbox"><span class="small"><b>Invitație în grupul de antrenament</b></span><div class="rowacts"><button class="btn sm primary" onclick="coachInvAnswer('${m.invite.id}',true)">${I("check")}Accept</button><button class="btn sm" onclick="coachInvAnswer('${m.invite.id}',false)">${I("x")}Refuz</button></div></div>`;
  return `<div class="invbox"><span class="small">${I("users")} Invitație ${st==="accepted"?"acceptată":st==="declined"?"refuzată":"anulată"}</span></div>`}
