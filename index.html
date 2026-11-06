@@ -5774,7 +5774,7 @@ function prodModal(id,opts){if(!ME())return authModal("login");if(!SRV)return to
   <label class="lbl" id="pf_kw" ${k==="food"?"":"hidden"}>Calorii la 100 g <span class="small muted">(opțional)</span><input id="pf_kcal" class="field w120" inputmode="decimal" value="${x&&x.kcal!=null?num(x.kcal):""}" placeholder="ex. 70"></label>
   <label class="lbl">Magazin <span class="small muted">(opțional)</span><input id="pf_ms" class="field" maxlength="40" list="pf_stores" value="${esc(x&&x.ms||"")}" placeholder="ex. Kaufland, Lidl, Nr1"><datalist id="pf_stores">${stores.map(s=>`<option value="${esc(s)}">`).join("")}</datalist></label>
   ${x?"":`<label class="switch"><input type="checkbox" id="pf_add" ${opts.add===false?"":"checked"}><span>Adaugă-l și în lista de cumpărături</span></label>
-   <label class="switch"><input type="checkbox" id="pf_fav"><span>Pune-l la Produse favorite</span></label>`}
+   <label class="switch"><input type="checkbox" id="pf_fav"><span>Pune-l la Produse recomandate</span></label>`}
   <p class="small muted">Produsul intră în catalogul site-ului: îl vezi imediat tu și familia ta, iar după verificarea echipei îl pot găsi toți utilizatorii.</p>
   <div class="rowacts"><button class="btn primary">${I("check")}${x?"Salvează":"Adaugă produsul"}</button><button type="button" class="btn" onclick="closeModal()">Renunță</button>${x&&x.mine?`<button type="button" class="btn danger" onclick="prodDel('${x.id}')">${I("trash")}Șterge</button>`:""}</div>
  </form></div>`,1,"#pf_n")}
@@ -5808,9 +5808,9 @@ function favToggle(n,k,ms,on){n=String(n||"").trim().toLowerCase();if(!n)return;
  if(on===undefined)on=i<0;if(on&&i<0)l.push({n,...(k&&k!=="food"?{k}:{}),...(ms?{ms}:{})});else if(!on&&i>=0)l.splice(i,1);
  S.pfav=l.slice(0,200);save()}
 function favRow(){const l=pfav();if(!ME())return"";
- return `<div class="card panel favbar"><div class="sechead"><h3>${I("star")} Produse favorite</h3><span class="rowacts"><button class="btn sm" onclick="prodModal(null,{add:true})">${I("plus")}Produs nou</button><button class="btn sm" onclick="myProds()">${I("tag")}Produsele mele</button>${sendTargets().length?`<button class="btn sm" onclick="sendModal()">${I("send")}Trimite produse</button>`:""}</span></div>
+ return `<div class="card panel favbar"><div class="sechead"><h3>${I("star")} Produse recomandate</h3><span class="rowacts"><button class="btn sm" onclick="prodModal(null,{add:true})">${I("plus")}Produs nou</button><button class="btn sm" onclick="myProds()">${I("tag")}Produsele mele</button>${sendTargets().length?`<button class="btn sm" onclick="sendModal()">${I("send")}Trimite produse</button>`:""}</span></div>
   ${l.length?`<div class="favchips">${l.map((f,i)=>{const c=catByName(f.n),inL=S.shop.some(s=>!s.d&&s.n===f.n);
-   return `<span class="favchip ${inL?"on":""}"><button class="favadd" onclick="favAdd(${i})" title="${inL?"E deja în listă":"Adaugă în listă"}">${c&&c.img?`<img src="${esc(IM(c.img))}" alt="">`:S.products[f.n]?thumb(f.n):`<span class="tph k-${f.k||kindOf(f.n)}">${I(KIND_IC[f.k||kindOf(f.n)]||"tag")}</span>`}<span>${esc(c?c.n:capF(f.n))}</span>${inL?I("check"):I("plus")}</button><button class="favx" onclick="favToggle('${esc(f.n).replace(/'/g,"")}',null,null,false);draw()" aria-label="Scoate ${esc(f.n)} de la favorite" title="Scoate de la favorite">${I("x")}</button></span>`}).join("")}</div>`
+   return `<span class="favchip ${inL?"on":""}"><button class="favadd" onclick="favAdd(${i})" title="${inL?"E deja în listă":"Adaugă în listă"}">${c&&c.img?`<img src="${esc(IM(c.img))}" alt="">`:S.products[f.n]?thumb(f.n):`<span class="tph k-${f.k||kindOf(f.n)}">${I(KIND_IC[f.k||kindOf(f.n)]||"tag")}</span>`}<span>${esc(c?c.n:capF(f.n))}</span>${inL?I("check"):I("plus")}</button><button class="favx" onclick="favToggle('${esc(f.n).replace(/'/g,"")}',null,null,false);draw()" aria-label="Scoate ${esc(f.n)} de la Produse recomandate" title="Scoate de la Produse recomandate">${I("x")}</button></span>`}).join("")}</div>`
   :`<p class="small muted">Apasă steaua ☆ de lângă un produs din listă ca să-l pui aici. Data viitoare îl adaugi dintr-o singură atingere.</p>`}</div>`}
 function favAdd(i){const f=pfav()[i];if(!f)return;if(S.shop.some(s=>!s.d&&s.n===f.n))return toast("E deja în listă.");shopAddItem({n:f.n,k:f.k,ms:f.ms});draw();toast(`${capF(f.n)} a fost adăugat în listă`)}
 
@@ -5821,7 +5821,7 @@ function shopMetaHTML(s){const out=[];
  if(s.fb&&s.fb!==S.uid){const u=acct(s.fb);out.push(`<span class="smeta fb">${I("send")} trimis de ${esc(u?u.name.split(" ")[0]:"antrenor")}</span>`)}
  if(s.nt)out.push(`<span class="smeta nt">„${esc(s.nt)}”</span>`);
  return out.length?" · "+out.join(" · "):""}
-function shopStar(s){return `<button class="iconbtn star ${isFav(s.n)?"on":""}" onclick="favToggle('${esc(s.n).replace(/'/g,"")}','${s.k||""}','${esc(s.ms||"").replace(/'/g,"")}');draw()" aria-label="${isFav(s.n)?"Scoate de la":"Pune la"} favorite: ${esc(s.n)}" title="${isFav(s.n)?"Scoate de la favorite":"Pune la Produse favorite"}">${I("star")}</button>`}
+function shopStar(s){return `<button class="iconbtn star ${isFav(s.n)?"on":""}" onclick="favToggle('${esc(s.n).replace(/'/g,"")}','${s.k||""}','${esc(s.ms||"").replace(/'/g,"")}');draw()" aria-label="${isFav(s.n)?"Scoate de la":"Pune la"} Produse recomandate: ${esc(s.n)}" title="${isFav(s.n)?"Scoate de la Produse recomandate":"Pune la Produse recomandate"}">${I("star")}</button>`}
 
 /* ---------- trimiterea produselor: membrilor familiei sau (antrenor) membrilor din grup ---------- */
 function sendTargets(){if(!SRV||!ME())return[];const out=[],m=ME(),f=famOf(m.id);
