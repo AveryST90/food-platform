@@ -8,18 +8,7 @@ Prototip funcțional al platformei web de rețete, planificare și gestiune a cu
 
 ## Conturi demonstrative
 
-Parola pentru toate conturile: `Gusto2026!`
 
-| Rol | Email |
-|---|---|
-| Membru (plan gratuit) | membru@gusto.md |
-| Membru cu Premium activ (are și familie) | premium@gusto.md |
-| Antrenor personal | antrenor@gusto.md |
-| Moderator | moderator@gusto.md |
-| Administrator | admin@gusto.md |
-| Administrator principal | super@gusto.md |
-
-Banda **DEMO** din partea de sus a paginii permite trecerea rapidă între roluri. O poți închide cu **X**.
 
 ## Ce poți face în site
 
