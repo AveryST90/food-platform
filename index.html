@@ -1510,6 +1510,30 @@ body.cooking .scrim{z-index:80}
 .pgitem .pgrep{opacity:.8}
 .reptable td{vertical-align:top}
 body.offline::before{content:"Offline · modificările se salvează pe telefon și se trimit când revine internetul";position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:90;background:#2f3a33;color:#fff;font-size:13px;padding:7px 14px;border-radius:999px;white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none}@media (min-width:861px){body.offline::before{bottom:18px}}
+/* produse: catalog, favorite, trimitere */
+.req{color:var(--red,#b4372f)}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.segb{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-size:14px;background:var(--surface)}
+.segb:has(input:checked){border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.pfkind{border:0;padding:0;margin:0}
+.pfimg{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+.pfprev,.pfthumb{width:64px;height:64px;border-radius:14px;background:var(--green-soft);display:grid;place-items:center;overflow:hidden;flex:none}
+.pfprev img,.pfthumb img{width:100%;height:100%;object-fit:cover}
+.pfthumb{width:44px;height:44px;border-radius:10px}
+.favbar .favchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.favchip{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;background:var(--surface);overflow:hidden}
+.favchip.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface))}
+.favchip .favadd{display:flex;align-items:center;gap:6px;border:0;background:none;padding:4px 10px 4px 4px;cursor:pointer;font:inherit;font-size:14px}
+.favchip .favadd img,.favchip .favadd .tph,.favchip .favadd .thumb{width:26px;height:26px;border-radius:50%;object-fit:cover;flex:none}
+.favchip .favadd .i{width:15px;height:15px;color:var(--green)}
+.favchip .favx{border:0;background:none;padding:4px 8px;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.favchip .favx .i{width:13px;height:13px}
+.iconbtn.star .i{width:17px;height:17px}.iconbtn.star.on{color:var(--honey,#c99a2e)}.iconbtn.star.on .i{fill:currentColor}
+.smeta{white-space:nowrap}.smeta .i{width:13px;height:13px;vertical-align:-2px}.smeta.fb{color:var(--green)}.smeta.nt{font-style:italic}
+.sdrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:10px;border:1px solid var(--line);border-radius:14px}
+.famprod{margin:12px 0}
+.movebar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex-basis:100%}
+.movebar .chip.sm{padding:3px 10px;font-size:13px}
 
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -1914,7 +1938,7 @@ async function ensureHashes(){let ch=false;for(const a of S.accounts){if(!a.hash
 const FAILS={};
 const lockMsg=n=>`Prea multe încercări greșite. Reîncearcă în ${n} ${n===1?"secundă":n>=20?"de secunde":"secunde"}.`;
 function setUser(id){if(SRV)SYNC.ready=false;stash();S.uid=id;unstash(id);ED=null;POP=null;const u=ME();if(u)u.last=todayS();if(S.page==="admin"&&!isStaff())S.page="acasa";applyTheme(S.theme);save()}
-function logoutNow(){S.rfull={};if(SRV&&getTok()){api("/auth/logout",{method:"POST"});setTok("")}if(SRV){if(typeof liveStop==="function")liveStop();SHOPX.fam=null;clearTimeout(SYNC.timer);SYNC.dirty=false;SYNC.ready=false;SOC.sig="";S.blocked=[];S.audit=[];ADM.at=0;S.families=[];S.invites=[];S.coach={groups:{},menus:[],sessions:[]};S.accounts=S.accounts.filter(a=>!a.ext)}stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
+function logoutNow(){S.rfull={};if(typeof CATX!=="undefined"){CATX.items=null;CATX.adm=null}if(SRV&&getTok()){api("/auth/logout",{method:"POST"});setTok("")}if(SRV){if(typeof liveStop==="function")liveStop();SHOPX.fam=null;clearTimeout(SYNC.timer);SYNC.dirty=false;SYNC.ready=false;SOC.sig="";S.blocked=[];S.audit=[];ADM.at=0;S.families=[];S.invites=[];S.coach={groups:{},menus:[],sessions:[]};S.accounts=S.accounts.filter(a=>!a.ext)}stash();S.uid=null;unstash(null);S.page="acasa";ED=null;POP=null;save()}
 async function loginCore(email,pw){
  if(SRV){email=String(email||"").trim().toLowerCase();if(!EMAIL_RE.test(email)||!pw)return{err:"Scrie emailul și parola."};return srvAuth("/auth/login",{email,password:String(pw)})}
  if(!window.crypto||!crypto.subtle)return{err:"Autentificarea necesită o conexiune securizată (HTTPS)."};
@@ -2280,7 +2304,7 @@ const usedN=()=>SRV&&S.srvUsed!=null?S.srvUsed:S.viewed.length;
 const SYNC={timer:null,busy:false,dirty:false,pulling:false,ready:false,sig:"",fails:0};
 const SHOPX={fam:null,known:[],why:{},sig:"",timer:null,busy:false,dirty:false};   // lista comună a familiei
 const syncOn=()=>SRV&&!!getTok()&&!!ME();
-const syncSig=()=>JSON.stringify([S.fridge,SHOPX.fam?null:S.shop,S.house||[],S.fav,S.plan,S.pdays,S.ppos||{},S.umenus||[],S.pmeta||{},S.plabels||{},S.log.filter(e=>!e.s&&!e.demo).length]);
+const syncSig=()=>JSON.stringify([S.fridge,SHOPX.fam?null:S.shop,S.house||[],S.fav,S.plan,S.pdays,S.ppos||{},S.umenus||[],S.pmeta||{},S.plabels||{},S.pfav||[],S.log.filter(e=>!e.s&&!e.demo).length]);
 function srvDirty(){if(!syncOn()||SYNC.pulling||!SYNC.ready)return;
  if(SHOPX.fam&&shopSig()!==SHOPX.sig)shopDirty();
  if(syncSig()===SYNC.sig)return;                 // s-a schimbat doar aspectul/pagina, nu datele
@@ -2288,9 +2312,9 @@ function srvDirty(){if(!syncOn()||SYNC.pulling||!SYNC.ready)return;
 /* ---------- îmbinarea la conflict (409): altcineva din familie / alt dispozitiv a salvat între timp.
    Nu aruncăm modificările locale: calculăm ce s-a schimbat aici față de ultima versiune sincronizată (SYNC.base)
    și aplicăm doar acele schimbări peste datele de pe server, apoi trimitem din nou. ---------- */
-const SYNC_F=[["fridge","fridge"],["shop","shop"],["house","home"],["fav","fav"],["plan","plan"],["pdays","pdays"],["ppos","ppos"],["umenus","menus"],["pmeta","pmeta"],["plabels","plabels"]];
+const SYNC_F=[["fridge","fridge"],["shop","shop"],["house","home"],["fav","fav"],["plan","plan"],["pdays","pdays"],["ppos","ppos"],["umenus","menus"],["pmeta","pmeta"],["plabels","plabels"],["pfav","pfav"]];
 const jeq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-const itemKey={fridge:x=>x.id||x.n+"|"+x.u,shop:x=>x.id||x.n+"|"+x.u,house:x=>x.id||(x.k||"")+"|"+x.n+"|"+x.u,umenus:x=>x.id||x.n};
+const itemKey={fridge:x=>x.id||x.n+"|"+x.u,shop:x=>x.id||x.n+"|"+x.u,house:x=>x.id||(x.k||"")+"|"+x.n+"|"+x.u,umenus:x=>x.id||x.n,pfav:x=>x.n};
 function mergeList(base,loc,srv,key,qty){base=base||[];loc=loc||[];srv=srv||[];
  const B=new Map(base.map(x=>[key(x),x])),L=new Map(loc.map(x=>[key(x),x])),out=[];
  for(const x of srv){const k=key(x),b=B.get(k),l=L.get(k);
@@ -2310,11 +2334,11 @@ function syncBase(){SYNC.base=syncCopy(l=>S[l])}
 function mergeSnap(d){const b=SYNC.base||{},loc=syncCopy(l=>S[l]);
  const keepShop=!!SHOPX.fam;applySnap(d);const srv=syncCopy(l=>S[l]);let changed=false;
  for(const [l] of SYNC_F){if(l==="shop"&&keepShop)continue;
-  const m=itemKey[l]?mergeList(b[l],loc[l],srv[l],itemKey[l],l!=="umenus"):l==="fav"?mergeSet(b[l],loc[l],srv[l]):mergeObj(b[l],loc[l],srv[l]);
+  const m=itemKey[l]?mergeList(b[l],loc[l],srv[l],itemKey[l],l!=="umenus"&&l!=="pfav"):l==="fav"?mergeSet(b[l],loc[l],srv[l]):mergeObj(b[l],loc[l],srv[l]);
   if(!jeq(m,srv[l])){S[l]=m;changed=true}}
  return changed}
 function applySnap(d){
- S.fridge=d.fridge||[];S.shop=d.shop||[];S.house=d.home||[];S.fav=d.fav||[];S.plan=d.plan||{};S.pdays=d.pdays||{};S.ppos=d.ppos||{};S.umenus=d.menus||[];S.pmeta=d.pmeta||{};S.plabels=d.plabels||{};
+ S.fridge=d.fridge||[];S.shop=d.shop||[];S.house=d.home||[];S.fav=d.fav||[];S.plan=d.plan||{};S.pdays=d.pdays||{};S.ppos=d.ppos||{};S.umenus=d.menus||[];S.pmeta=d.pmeta||{};S.plabels=d.plabels||{};S.pfav=Array.isArray(d.pfav)?d.pfav:(S.pfav||[]);
  SHOPX.fam=d.shopFam||null;SHOPX.known=S.shop.map(x=>x.id).filter(Boolean);SHOPX.why={};SHOPX.sig=shopSig();liveStart();
  S.log=[...(d.log||[]),...S.log.filter(e=>!e.s&&!e.demo)];S.rev=d.rev||0;
  SYNC.sig=syncSig();syncBase()}
@@ -2322,7 +2346,7 @@ async function srvPush(){
  if(!syncOn()||SYNC.busy||!SYNC.dirty)return;
  SYNC.busy=true;SYNC.dirty=false;
  const sent=S.log.filter(e=>!e.s&&!e.demo).slice(-500);
- const body={rev:S.rev||0,fs:true,fridge:S.fridge,...(SHOPX.fam?{}:{shop:S.shop}),home:S.house||[],fav:S.fav,plan:S.plan,pdays:S.pdays,ppos:S.ppos||{},menus:S.umenus||[],pmeta:S.pmeta||{},plabels:S.plabels||{},logAdd:sent};
+ const body={rev:S.rev||0,fs:true,fridge:S.fridge,...(SHOPX.fam?{}:{shop:S.shop}),home:S.house||[],fav:S.fav,plan:S.plan,pdays:S.pdays,ppos:S.ppos||{},menus:S.umenus||[],pmeta:S.pmeta||{},plabels:S.plabels||{},pfav:S.pfav||[],logAdd:sent};
  const r=await api("/me/data",{method:"PUT",body});
  SYNC.busy=false;
  if(r.ok){SYNC.fails=0;SYNC.c409=0;S.rev=r.data.rev;sent.forEach(e=>e.s=1);SYNC.base=syncCopy((l,k)=>body[k]!==undefined?body[k]:S[l]);SYNC.sig=syncSig();if(!SYNC.dirty)S.pend=0;persist();if(SYNC.dirty)srvDirty();return}
@@ -3150,16 +3174,17 @@ PAGES.lista=function(){
  const todo=S.shop.filter(s=>!s.d),done=S.shop.filter(s=>s.d),est=todo.reduce((a,s)=>a+value(s),0);
  const inF=S.shop.filter(s=>!s.d&&itemKind(s)==="food"&&inFridge(s.n)).length;
  const row=s=>{const i=S.shop.indexOf(s),k=itemKind(s),by=SHOPX.fam&&s.by&&s.by!==S.uid?shopBy(s):null,pd=s.st==="del",pu=pd&&s.dby?acct(s.dby):null;return `<div class="srow ${s.d?"done":""} ${pd?"pend":""}"><input type="checkbox" id="sh${i}" ${s.d?"checked":""} onchange="buyItem(${i},this.checked)" aria-label="Procurat: ${esc(s.n)} (merge în ${KIND_DEST[k]})">${k==="food"?thumb(s.n):`<span class="tph k-${k}">${I(KIND_IC[k])}</span>`}
-  <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&k==="food"&&inFridge(s.n)?" · ai deja în frigider":""}${s.d?"":` · <span class="dest">→ ${KIND_DEST[k]}</span>`}${by?` · <span class="addby">adăugat de ${esc(by.name.split(" ")[0])}</span>`:SHOPX.fam&&s.by===S.uid?` · <span class="addby">adăugat de tine</span>`:""}${s.src&&s.src.a?` · <span class="addby">din planificator</span>`:""}</span>
+  <label for="sh${i}"><b>${esc(s.n)}</b><span>${fmtQ(s.q,s.u)}${!s.d&&k==="food"&&inFridge(s.n)?" · ai deja în frigider":""}${s.d?"":` · <span class="dest">→ ${KIND_DEST[k]}</span>`}${by?` · <span class="addby">adăugat de ${esc(by.name.split(" ")[0])}</span>`:SHOPX.fam&&s.by===S.uid?` · <span class="addby">adăugat de tine</span>`:""}${typeof shopMetaHTML==="function"?shopMetaHTML(s):""}${s.src&&s.src.a?` · <span class="addby">din planificator</span>`:""}</span>
    ${pd?`<span class="pendtag">${I("clock")} Ștergere sugerată${pu?` de ${esc(pu.name.split(" ")[0])}`:""}${s.by===S.uid?" · răspunde mai sus":` · așteaptă răspunsul lui ${esc(by?by.name.split(" ")[0]:"autorului")}`}</span>`:""}</label>
-  <button class="iconbtn" onclick="shopDel(${i})" aria-label="${shopMine(s)||s.d?"Șterge":"Sugerează ștergerea"} ${esc(s.n)}" title="${shopMine(s)||s.d?"Șterge":"Sugerează ștergerea (decide cine l-a adăugat)"}">${I("x")}</button></div>`};
+  ${typeof shopStar==="function"&&SRV?shopStar(s):""}<button class="iconbtn" onclick="shopDel(${i})" aria-label="${shopMine(s)||s.d?"Șterge":"Sugerează ștergerea"} ${esc(s.n)}" title="${shopMine(s)||s.d?"Șterge":"Sugerează ștergerea (decide cine l-a adăugat)"}">${I("x")}</button></div>`};
  return pagehead("Lista de cumpărături",`${esc(txt("shopSub"))} · ${todo.length} de cumpărat, aproximativ ${Math.round(est)} MDL`,
   `${rcBtn("Fă poză la bon","honey")}${feat("shop_groups")?`<button class="btn" onclick="S.shopView=S.shopView==='store'?'cat':'store';save();draw()">${I("cart")}${S.shopView==="store"?"Pe raioane":"Pe magazine"}</button>`:lockBtn("shop_groups","Pe magazine","")}<button class="btn" onclick="shareList()">${I("share")}Partajează</button>${feat("auto_shopping")?`<button class="btn" onclick="importPick()">${I("grid")}Importă din rețetă</button>`:lockBtn("auto_shopping","Importă din rețetă","")}`)+
  `<form class="card addpanel" onsubmit="addShop(event)"><div class="form"><label class="lbl grow">Produs<input id="sn" class="field" data-ps="all" autocomplete="off" required maxlength="80" placeholder="ex. lapte, detergent de vase, șampon" oninput="shopKindHint()"><datalist id="dlp4">${[...allProducts(),...HOUSE_SUG,...HYG_SUG].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
   <label class="lbl">Cantitate<input id="sq" class="field w90" type="number" min="0" step="any" placeholder="1"></label>
   <label class="lbl">Unitate<select id="su" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label>
-  <label class="lbl">Tip<select id="sk" class="field" onchange="shopKindHint()"><option value="">Automat</option>${Object.entries(KIND_L).map(([k,l])=>`<option value="${k}">${l}</option>`).join("")}</select></label><button class="btn primary">${I("plus")}Adaugă</button></div><p class="small muted skh" id="skh" aria-live="polite"></p></form>
+  <label class="lbl">Tip<select id="sk" class="field" onchange="shopKindHint()"><option value="">Automat</option>${Object.entries(KIND_L).map(([k,l])=>`<option value="${k}">${l}</option>`).join("")}</select></label>${SRV?`<label class="lbl">Magazin<input id="sms" class="field w120" maxlength="40" placeholder="opțional" list="dlstores"><datalist id="dlstores">${[...new Set([...(S.stores||[]),"Kaufland","Lidl","Nr1","Linella"])].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>`:""}<button class="btn primary">${I("plus")}Adaugă</button></div><p class="small muted skh" id="skh" aria-live="polite"></p></form>
  ${SHOPX.fam?shopReqBanner()+`<p class="small muted famshop">${I("users")} Listă comună cu familia ${esc((famOf(S.uid)||{}).name||"")}: ce adaugă un membru apare imediat la ceilalți. Produsele altora nu se șterg direct: cel care le-a adăugat aprobă ștergerea.</p>`:""}
+ ${SRV&&ME()&&typeof favRow==="function"?favRow():""}
  ${lastBuyBar()}
  ${inF?`<div class="suggest">${I("fridge")}<span><b>${inF} ${inF===1?"produs e":"produse sunt"} deja în frigider.</b></span><button class="btn sm" onclick="S.shop=S.shop.filter(s=>s.d||!inFridge(s.n));save();draw();toast('Am eliminat produsele pe care le ai')">Elimină-le din listă</button></div>`:""}
  ${S.shop.length&&feat("shop_groups")&&S.shopView==="store"?`<p class="small muted">Lista e împărțită pe magazine. <button class="link" onclick="storesModal()">${I("settings")}Alege magazinele</button></p>${storeView(row)}`:S.shop.length?`<p class="small muted">Bifează un produs când l-ai cumpărat: alimentele merg în Frigider, curățenia în Pentru casă, igiena în Igienă personală.</p><div class="scols">${CATS.map(c=>{const it=todo.filter(s=>itemKind(s)==="food"&&prod(s.n).cat===c);return it.length?`<div class="card slist"><div class="fcol-h" style="padding-top:12px">${CATT[c]}<span class="badge">${it.length}</span></div>${it.map(row).join("")}</div>`:""}).join("")}
@@ -3169,7 +3194,8 @@ PAGES.lista=function(){
  :`<div class="empty"><img src="${IM("img/red_apple.png")}" alt="">Lista e goală. Adaugă produse sau importă ingredientele lipsă dintr-o rețetă.</div>`}
  ${prem()||SHOPX.fam?"":`<div class="card hint"><span class="ic g">${I("users")}</span><span style="flex:1;min-width:200px"><b>Liste partajate cu familia</b><br><span class="small muted">În versiunea cu server, Premium va sincroniza lista pentru toți membrii familiei.</span></span><button class="btn sm" onclick="go('premium')">${I("crown")}Află mai mult</button></div>`}`};
 function addShop(e){e.preventDefault();const n=canonProd($("sn").value,[...HOUSE_SUG,...HYG_SUG]);if(!n)return;const k=$("sk").value||kindOf(n);
- const it={n,q:$("sq").value?+$("sq").value:"",u:$("sq").value?$("su").value:"",d:false};if(k!=="food")it.k=k;S.shop.push(it);save();draw();toast(`${n} · la bifare merge în ${KIND_DEST[k]}`);setTimeout(()=>$("sn")&&$("sn").focus())}
+ const it={n,q:$("sq").value?+$("sq").value:"",u:$("sq").value?$("su").value:"",d:false};if(k!=="food")it.k=k;
+ {const ms=($("sms")||{}).value,c=typeof catByName==="function"&&catByName(n);if(ms&&ms.trim())it.ms=ms.trim().slice(0,40);else if(c&&c.ms)it.ms=c.ms}S.shop.push(it);save();draw();toast(`${n} · la bifare merge în ${KIND_DEST[k]}`);setTimeout(()=>$("sn")&&$("sn").focus())}
 function toFridge(){const d=S.shop.filter(s=>s.d);d.forEach(s=>{const f=S.fridge.find(x=>x.n===s.n&&x.u===s.u);if(f&&s.q)f.q=+f.q+(+s.q);else if(!f)S.fridge.push({n:s.n,q:s.q||1,u:s.u||"buc",x:inDays(7),s:false})});
  S.shop=S.shop.filter(s=>!s.d);S.demo=false;save();draw();toast(`${d.length} produse mutate în frigider`)}
 function shareList(){const t=`Lista de cumpărături ${String(S.theme.brand||"Try To Be FIT")}:\n`+S.shop.filter(s=>!s.d).map(s=>`- ${s.n}${s.q?` (${num(s.q)} ${s.u})`:""}`).join("\n");
@@ -3754,7 +3780,7 @@ let PNEWIMG=null;
 const PUNITS=["kg","l","buc","g","ml","legătură","cap","conservă"];
 ATAB_FN.prod=function(){const q=PQ.trim().toLowerCase(),use={};S.recipes.forEach(r=>r.i.forEach(x=>{use[x[0]]=(use[x[0]]||0)+1}));
  const l=allProducts().filter(n=>(PCAT==="Toate"||S.products[n].cat===PCAT)&&(!q||n.includes(q))),shown=l.slice(0,PLIM);
- return `<div class="card addpanel"><p class="h3">Produs nou</p><form class="form" onsubmit="event.preventDefault();prodAdd()">
+ return (typeof catAdmPanel==="function"?catAdmPanel():"")+`<div class="card addpanel"><p class="h3">Produs nou</p><form class="form" onsubmit="event.preventDefault();prodAdd()">
   <label class="lbl grow">Nume<input id="pn" class="field" maxlength="40" placeholder="ex. dovlecei" required></label>
   <label class="lbl">Categorie<select id="pc" class="field">${CATS.map(c=>`<option>${c}</option>`).join("")}</select></label>
   <label class="lbl">Preț estimat (MDL)<input id="pp" class="field w90" type="number" min="0" step="0.5" value="0"></label>
@@ -4267,6 +4293,7 @@ PAGES.familie=function(){const m=ME(),f=famOf(m.id),inv=invitesTo(m.id);
    <span class="small muted">${esc(u.email)} · ${!canFamily(u)?"fără Premium: funcția e în pauză":sharesFridge(u.id)?"folosește frigiderul comun":"frigider separat"}</span></span>
    ${owner&&u.id!==m.id?`<button class="btn sm" onclick="famRemoveUI('${u.id}')">${I("x")}Elimină</button>`:""}</li>`).join("")}
   ${pend.map(i=>{const t=acct(i.to);return t?`<li class="pending"><span class="avatar ghost">${I("user")}</span><span class="grow"><b>${esc(t.name)}</b> <span class="tag">Invitație trimisă</span><br><span class="small muted">${esc(t.email)} · ${fmtDate(i.d)}</span></span><button class="btn sm" onclick="famCancelInvite('${i.id}');draw();toast('Invitația a fost anulată')">Anulează</button></li>`:""}).join("")}</ul>
+  ${SRV?`<div class="rowacts famprod"><button class="btn primary" onclick="famAddProd()">${I("plus")}Adaugă produs în lista familiei</button>${users.length>1?`<button class="btn" onclick="sendModal()">${I("send")}Trimite produse unui membru</button>`:""}<button class="btn" onclick="prodModal(null,{add:false})">${I("tag")}Produs nou în catalog</button></div>`:""}
   ${f.members.length+pend.length<FAM_MAX?`<form class="form" onsubmit="event.preventDefault();famInviteUI()"><label class="lbl grow">Invită un membru (emailul contului)<input id="finv" class="field" type="email" placeholder="adresa@exemplu.md" autocomplete="off"></label><button class="btn primary">${I("plus")}Trimite invitația</button></form>`:`<p class="small muted">Familia are numărul maxim de ${FAM_MAX} membri.</p>`}</div>
  ${famCodeCard(f,owner)}
  <div class="card panel"><h3>Frigiderul meu</h3>
@@ -4356,7 +4383,7 @@ function studentsTab(st){const col=SRV&&colleagues().length>0;
  return `${invitePanel()}
  ${st.length?`<div class="card panel"><h3>Grupul meu</h3><ul class="alist flat">${st.map(u=>{const nm=S.coach.menus.filter(m=>m.tr===S.uid&&m.st===u.id).length,nx=nextSess(u.id);
   return `<li><span class="avatar ${stTone(u.id)}">${esc(initials(u.name))}</span><span class="grow"><b>${esc(u.name)}</b>${roleTag(u)} ${hasPrem(u)?`<span class="tag honey">Premium</span>`:""}<br><span class="small muted">${esc(u.email)}${u.no?` · ID ${u.no}`:""} · ${nm} ${nm===1?"meniu":"meniuri"} · ${nx?`următoarea ședință: ${dateL(nx.d)}, ${nx.s}`:"nicio ședință programată"}</span></span>
-  <span class="rowacts">${SRV?`<button class="btn sm" onclick="openChat('${u.id}')">${I("chat")}Mesaj</button>`:""}<button class="btn sm" onclick="coachProg('${u.id}')">${I("chart")}Progres</button><button class="btn sm" onclick="menuNewUI('${u.id}')">${I("plus")}Meniu</button><button class="btn sm" onclick="sessModal(null,'${u.id}')">${I("cal")}Programează</button>${col?`<button class="btn sm" onclick="transferModal('${u.id}')">${I("arrow")}Transferă</button>`:""}<button class="iconbtn" onclick="coachRemoveUI('${u.id}')" aria-label="Elimină ${esc(u.name)} din grup">${I("trash")}</button></span></li>`}).join("")}</ul></div>`
+  <span class="rowacts">${SRV?`<button class="btn sm" onclick="openChat('${u.id}')">${I("chat")}Mesaj</button>`:""}<button class="btn sm" onclick="coachProg('${u.id}')">${I("chart")}Progres</button>${SRV?`<button class="btn sm" onclick="sendModal('${u.id}')">${I("cart")}Produse</button>`:""}<button class="btn sm" onclick="menuNewUI('${u.id}')">${I("plus")}Meniu</button><button class="btn sm" onclick="sessModal(null,'${u.id}')">${I("cal")}Programează</button>${col?`<button class="btn sm" onclick="transferModal('${u.id}')">${I("arrow")}Transferă</button>`:""}<button class="iconbtn" onclick="coachRemoveUI('${u.id}')" aria-label="Elimină ${esc(u.name)} din grup">${I("trash")}</button></span></li>`}).join("")}</ul></div>`
  :`<div class="empty"><img src="${IM("img/cooking.png")}" alt="">Grupul tău este gol. Invită prima persoană după email, nume sau ID.</div>`}`}
 function nextSess(sid){const now=todayS()+" "+hm(new Date().getHours()*60+new Date().getMinutes());
  return S.coach.sessions.filter(x=>x.st===sid&&(x.tr===S.uid||x.st===S.uid)&&(x.d+" "+x.s)>=now).sort((a,b)=>(a.d+a.s).localeCompare(b.d+b.s))[0]}
@@ -4652,7 +4679,11 @@ function undoBuy(){const r=LASTBUY.shift();if(!r)return;const s=r.s,u=s.u||"buc"
  S.shop.push({...s,d:false});save();draw();toast(`${s.n} a revenit în lista de cumpărături`)}
 function lastBuyBar(){if(!LASTBUY.length)return"";const r=LASTBUY.slice(0,4);
  return `<div class="buybar" role="status">${I("checkc")}<span><b>Procurate:</b> ${r.map(x=>`${esc(x.s.n)} <span class="muted">→ ${KIND_DEST[x.k]}</span>`).join(" · ")}${LASTBUY.length>4?` · și încă ${LASTBUY.length-4}`:""}</span>
-  <span class="rowacts">${LASTBUY.some(x=>!x.paid)?`<button class="btn sm primary" onclick="cartPay()">${I("coin")}Finalizează coșul</button>`:""}<button class="link" onclick="undoBuy()">${I("reset")}Anulează ultimul</button></span></div>`}
+  <span class="rowacts">${LASTBUY.some(x=>!x.paid)?`<button class="btn sm primary" onclick="cartPay()">${I("coin")}Finalizează coșul</button>`:""}<button class="link" onclick="undoBuy()">${I("reset")}Anulează ultimul</button></span>
+  <span class="movebar small">Mută „${esc(LASTBUY[0].s.n)}” în: ${["food","house","hyg"].map(k=>`<button class="chip sm" aria-pressed="${LASTBUY[0].k===k}" onclick="moveLast('${k}')">${KIND_DEST[k]}</button>`).join("")}</span></div>`}
+/* la procurare, alegi unde ajunge produsul: Frigider, Pentru casă sau Igienă personală */
+function moveLast(k){const r=LASTBUY[0];if(!r||r.k===k)return;undoBuy();const i=S.shop.length-1,s=S.shop[i];if(!s)return;
+ if(k==="food")delete s.k;else s.k=k;buyItem(i,true)}
 function shopKindHint(){const n=$("sn"),t=$("sk"),h=$("skh");if(!n||!t||!h)return;const k=t.value||kindOf(n.value);h.innerHTML=n.value.trim()?`${I(KIND_IC[k])}La bifare merge în <b>${KIND_DEST[k]}</b>`:""}
 
 /* ---------- pagina „Casă și igienă” ---------- */
@@ -5366,10 +5397,10 @@ function fridgeInfo(v){const el=$("fninfo");if(!el)return;const n=canonProd(v),k
 /* ---------- sugestii sub câmpul de produs (merge pe telefon și calculator) ---------- */
 const PS={el:null,items:[],i:-1};
 function psBox(){let b=$("psbox");if(!b){b=document.createElement("div");b.id="psbox";b.setAttribute("role","listbox");b.hidden=true;document.body.appendChild(b)}return b}
-function psExtra(el){return el.dataset.ps==="all"?[...(typeof HOUSE_SUG!=="undefined"?HOUSE_SUG:[]),...(typeof HYG_SUG!=="undefined"?HYG_SUG:[])]:[]}
+function psExtra(el){const cat=typeof catNames==="function"?catNames():[];return el.dataset.ps==="all"?[...cat,...(typeof HOUSE_SUG!=="undefined"?HOUSE_SUG:[]),...(typeof HYG_SUG!=="undefined"?HYG_SUG:[])]:cat}
 function psShow(el){const b=psBox(),items=prodMatches(el.value,8,[...psExtra(el),...(el.dataset.ps==='nofood'?[]:foodNames())]);PS.el=el;PS.items=items;PS.i=-1;
  if(!items.length||(items.length===1&&items[0]===el.value.trim().toLowerCase())){b.hidden=true;return}
- b.innerHTML=items.map((x,i)=>`<button type="button" role="option" class="psi" data-i="${i}">${S.products[x]?thumb(x):`<span class="tph">${I(foodOf(x)?"leaf":"tag")}</span>`}<span class="grow">${esc(!S.products[x]&&foodOf(x)?foodOf(x)[0]:capF(x))}${!S.products[x]&&foodOf(x)?` <span class="small muted">· catalog USDA</span>`:""}</span>${kcalStd(x)!=null?`<span class="small muted">${num(kcalOf(x))} kcal/100 g</span>`:""}</button>`).join("");
+ b.innerHTML=items.map((x,i)=>{const cx=typeof catByName==="function"&&!S.products[x]?catByName(x):null;if(cx)return `<button type="button" role="option" class="psi" data-i="${i}">${cx.img?`<span class="tph"><img src="${esc(IM(cx.img))}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px"></span>`:`<span class="tph">${I(KIND_IC[cx.k]||"tag")}</span>`}<span class="grow">${esc(cx.n)} <span class="small muted">· ${cx.k==="food"?"Frigider":"Casă și igienă"}${cx.ms?" · "+esc(cx.ms):""}${cx.st==="pending"?" · produsul tău":""}</span></span>${cx.kcal!=null?`<span class="small muted">${num(cx.kcal)} kcal/100 g</span>`:""}</button>`;return `<button type="button" role="option" class="psi" data-i="${i}">${S.products[x]?thumb(x):`<span class="tph">${I(foodOf(x)?"leaf":"tag")}</span>`}<span class="grow">${esc(!S.products[x]&&foodOf(x)?foodOf(x)[0]:capF(x))}${!S.products[x]&&foodOf(x)?` <span class="small muted">· catalog USDA</span>`:""}</span>${kcalStd(x)!=null?`<span class="small muted">${num(kcalOf(x))} kcal/100 g</span>`:""}</button>`}).join("");
  const r=el.getBoundingClientRect();Object.assign(b.style,{left:(r.left+scrollX)+"px",top:(r.bottom+scrollY+4)+"px",width:Math.max(r.width,240)+"px"});b.hidden=false}
 function psHide(){const b=$("psbox");if(b)b.hidden=true;PS.el=null}
 function psPick(i){let el=PS.el;const x=PS.items[i];if(el&&!document.contains(el)&&el.id)el=$(el.id);if(!el||!x)return;el.value=x;psHide();PS.picking=true;try{el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}finally{PS.picking=false}el.focus();PS.done=el;setTimeout(()=>{if(PS.done===el)PS.done=null},400)}
@@ -5714,6 +5745,154 @@ function notifyPanel(){if(!inApp()||!SRV||!ME())return"";const on=feat("expiry_a
    <label class="lbl">Ora notificării<select class="field w120" onchange="S.notifyHour=+this.value;save();expirySync(true)">${[7,8,9,10,12,18,20].map(h=>`<option value="${h}" ${(+S.notifyHour||9)===h?"selected":""}>${h}:00</option>`).join("")}</select></label>
    <p class="small muted">Primești o notificare cu o zi înainte și în ziua în care expiră un produs. Dacă telefonul nu le arată, permite notificările pentru Try To Be FIT din Setări.</p>`
   :`<p class="small muted">Notificările pentru produsele care expiră sunt incluse în pachetul Smart Kitchen.</p><div><button class="btn sm primary" onclick="go('premium')">${I("crown")}Vezi pachetele</button></div>`}</div>`}
+
+/* ======== Produse: catalogul comun creat de utilizatori, produse favorite, trimiterea produselor
+   (în familie și de la antrenor), magazinul preferat. Flux: Catalog ➔ Lista de cumpărături ➔ Frigider / Casă și igienă. ======== */
+const CATX={items:null,busy:false,adm:null,admSt:"pending",admN:0};
+const KIND2={food:"❄️ Frigider",house:"🧼 Casă (curățenie, menaj)",hyg:"🧴 Igienă personală"};
+async function catLoad2(force){if(!SRV||!ME()||CATX.busy||(CATX.items&&!force))return;CATX.busy=true;
+ const r=await api("/catalog/items");CATX.busy=false;if(r.ok){CATX.items=r.data.items||[];if(["lista","familie","antrenor"].includes(S.page)&&!editing())draw()}}
+const catByName=n=>{n=String(n||"").trim().toLowerCase();return (CATX.items||[]).find(x=>x.n.toLowerCase()===n)||null};
+const catNames=()=>(CATX.items||[]).map(x=>x.n.toLowerCase());
+/* tipul unui produs: întâi catalogul (ce a ales cel care l-a creat), apoi regulile obișnuite */
+const _kindOf0=kindOf;kindOf=function(n){const c=catByName(n);return c?c.k:_kindOf0(n)};
+
+/* ---------- formularul „Produs nou” ---------- */
+const PFORM={img:undefined,id:null};
+function prodModal(id,opts){if(!ME())return authModal("login");if(!SRV)return toast("Catalogul de produse funcționează cu serverul conectat.");
+ opts=opts||{};const x=id?(CATX.items||[]).find(c=>c.id===id):null;PFORM.img=undefined;PFORM.id=id||null;const k=x?x.k:(opts.k||"food");
+ const stores=[...new Set([...(S.stores||[]),"Kaufland","Lidl","Nr1","Linella","Fidesco","Green Hills"])];
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("tag")} Catalogul de produse</p><h2 style="font-size:22px">${x?"Editează produsul":"Produs nou"}</h2></div>
+ <form class="stack" onsubmit="event.preventDefault();prodSave()" novalidate>
+  <label class="lbl">Denumire <span class="req">*</span><input id="pf_n" class="field" maxlength="80" required value="${esc(x?x.n:opts.n||"")}" placeholder="ex. Iaurt proteic Olympus"></label>
+  <fieldset class="stack pfkind"><legend class="lbl">Unde ajunge după cumpărare</legend>
+   <div class="seg">${["food","house","hyg"].map(v=>`<label class="segb"><input type="radio" name="pf_k" value="${v}" ${k===v?"checked":""} onchange="prodKind()"> ${KIND2[v]}</label>`).join("")}</div></fieldset>
+  <div class="lbl">Imagine <span class="small muted">(opțional)</span>
+   <div class="pfimg"><span id="pf_prev" class="pfprev">${x&&x.img?`<img src="${esc(IM(x.img))}" alt="">`:I("image")}</span>
+    <label class="btn sm">${I("upload")}Alege o poză<input type="file" accept="image/*" hidden onchange="prodImg(this)"></label>${x&&x.img?`<button type="button" class="link" onclick="PFORM.img='none';$('pf_prev').innerHTML=I('image')">Șterge poza</button>`:""}</div></div>
+  <label class="lbl">Descriere <span class="small muted">(opțional)</span><textarea id="pf_d" class="field" rows="2" maxlength="500" placeholder="ex. 2% grăsime, 150 g, fără zahăr adăugat">${esc(x&&x.d||"")}</textarea></label>
+  <label class="lbl" id="pf_kw" ${k==="food"?"":"hidden"}>Calorii la 100 g <span class="small muted">(opțional)</span><input id="pf_kcal" class="field w120" inputmode="decimal" value="${x&&x.kcal!=null?num(x.kcal):""}" placeholder="ex. 70"></label>
+  <label class="lbl">Magazin <span class="small muted">(opțional)</span><input id="pf_ms" class="field" maxlength="40" list="pf_stores" value="${esc(x&&x.ms||"")}" placeholder="ex. Kaufland, Lidl, Nr1"><datalist id="pf_stores">${stores.map(s=>`<option value="${esc(s)}">`).join("")}</datalist></label>
+  ${x?"":`<label class="switch"><input type="checkbox" id="pf_add" ${opts.add===false?"":"checked"}><span>Adaugă-l și în lista de cumpărături</span></label>
+   <label class="switch"><input type="checkbox" id="pf_fav"><span>Pune-l la Produse favorite</span></label>`}
+  <p class="small muted">Produsul intră în catalogul site-ului: îl vezi imediat tu și familia ta, iar după verificarea echipei îl pot găsi toți utilizatorii.</p>
+  <div class="rowacts"><button class="btn primary">${I("check")}${x?"Salvează":"Adaugă produsul"}</button><button type="button" class="btn" onclick="closeModal()">Renunță</button>${x&&x.mine?`<button type="button" class="btn danger" onclick="prodDel('${x.id}')">${I("trash")}Șterge</button>`:""}</div>
+ </form></div>`,1,"#pf_n")}
+function prodKind(){const k=(document.querySelector('input[name="pf_k"]:checked')||{}).value;const w=$("pf_kw");if(w)w.hidden=k!=="food"}
+function prodImg(inp){optimizeImg(inp.files[0],800,u=>{PFORM.img=u;$("pf_prev").innerHTML=`<img src="${u}" alt="">`},true)}
+async function prodSave(){const n=$("pf_n").value.trim();if(n.length<2){$("pf_n").focus();return toast("Scrie denumirea produsului.")}
+ const k=(document.querySelector('input[name="pf_k"]:checked')||{}).value||"food";
+ const body={n,k,d:$("pf_d").value,kcal:k==="food"?$("pf_kcal").value:"",ms:$("pf_ms").value,...(PFORM.img!==undefined?{image:PFORM.img}:{})};
+ const r=await api(PFORM.id?"/catalog/items/"+PFORM.id:"/catalog/items",{method:PFORM.id?"PUT":"POST",body});
+ if(!r.ok)return toast((r.data&&r.data.error)||"Produsul nu a putut fi salvat.");
+ const it=r.data.item;CATX.items=[...(CATX.items||[]).filter(c=>c.id!==it.id),it].sort((a,b)=>a.n.localeCompare(b.n,"ro"));
+ const add=$("pf_add")&&$("pf_add").checked,fav=$("pf_fav")&&$("pf_fav").checked;closeModal();
+ if(fav)favToggle(it.n,it.k,it.ms,true);
+ if(add)shopAddItem({n:it.n.toLowerCase(),q:"",u:"",k:it.k==="food"?undefined:it.k,ms:it.ms||undefined});
+ save();draw();toast(PFORM.id?"Produsul a fost salvat":add?"Produs creat și adăugat în listă":"Produs adăugat în catalog")}
+function prodDel(id){ask("Ștergi produsul din catalog?","Dispare din catalog. Ce ai deja în listă sau în frigider rămâne.","Șterge",async()=>{
+ const r=await api("/catalog/items/"+id,{method:"DELETE"});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut șterge.");
+ CATX.items=(CATX.items||[]).filter(c=>c.id!==id);closeModal();draw();toast("Produsul a fost șters")},true)}
+
+/* ---------- adăugarea în listă (cu magazin și „pentru cine”) ---------- */
+function shopAddItem(o){const n=String(o.n||"").trim().toLowerCase();if(!n)return;const c=catByName(n);
+ const it={n,q:o.q===""||o.q==null?"":+o.q,u:o.q===""||o.q==null?"":(o.u||"buc"),d:false};
+ const k=o.k||(c?c.k:undefined);if(k&&k!=="food")it.k=k;
+ const ms=o.ms||(c&&c.ms);if(ms)it.ms=ms;if(o.as)it.as=o.as;if(o.nt)it.nt=o.nt;
+ S.shop.push(it);save();return it}
+
+/* ---------- Produse favorite ---------- */
+const pfav=()=>Array.isArray(S.pfav)?S.pfav:(S.pfav=[]);
+const isFav=n=>pfav().some(f=>f.n===String(n||"").toLowerCase());
+function favToggle(n,k,ms,on){n=String(n||"").trim().toLowerCase();if(!n)return;const l=pfav(),i=l.findIndex(f=>f.n===n);
+ if(on===undefined)on=i<0;if(on&&i<0)l.push({n,...(k&&k!=="food"?{k}:{}),...(ms?{ms}:{})});else if(!on&&i>=0)l.splice(i,1);
+ S.pfav=l.slice(0,200);save()}
+function favRow(){const l=pfav();if(!ME())return"";
+ return `<div class="card panel favbar"><div class="sechead"><h3>${I("star")} Produse favorite</h3><span class="rowacts"><button class="btn sm" onclick="prodModal(null,{add:true})">${I("plus")}Produs nou</button><button class="btn sm" onclick="myProds()">${I("tag")}Produsele mele</button>${sendTargets().length?`<button class="btn sm" onclick="sendModal()">${I("send")}Trimite produse</button>`:""}</span></div>
+  ${l.length?`<div class="favchips">${l.map((f,i)=>{const c=catByName(f.n),inL=S.shop.some(s=>!s.d&&s.n===f.n);
+   return `<span class="favchip ${inL?"on":""}"><button class="favadd" onclick="favAdd(${i})" title="${inL?"E deja în listă":"Adaugă în listă"}">${c&&c.img?`<img src="${esc(IM(c.img))}" alt="">`:S.products[f.n]?thumb(f.n):`<span class="tph k-${f.k||kindOf(f.n)}">${I(KIND_IC[f.k||kindOf(f.n)]||"tag")}</span>`}<span>${esc(c?c.n:capF(f.n))}</span>${inL?I("check"):I("plus")}</button><button class="favx" onclick="favToggle('${esc(f.n).replace(/'/g,"")}',null,null,false);draw()" aria-label="Scoate ${esc(f.n)} de la favorite" title="Scoate de la favorite">${I("x")}</button></span>`}).join("")}</div>`
+  :`<p class="small muted">Apasă steaua ☆ de lângă un produs din listă ca să-l pui aici. Data viitoare îl adaugi dintr-o singură atingere.</p>`}</div>`}
+function favAdd(i){const f=pfav()[i];if(!f)return;if(S.shop.some(s=>!s.d&&s.n===f.n))return toast("E deja în listă.");shopAddItem({n:f.n,k:f.k,ms:f.ms});draw();toast(`${capF(f.n)} a fost adăugat în listă`)}
+
+/* ---------- afișarea detaliilor unui produs din listă ---------- */
+function shopMetaHTML(s){const out=[];
+ if(s.ms)out.push(`<span class="smeta">${I("cart")} ${esc(s.ms)}</span>`);
+ if(s.as){const u=acct(s.as);if(u)out.push(`<span class="smeta as">${I("user")} pentru ${s.as===S.uid?"tine":esc(u.name.split(" ")[0])}</span>`)}
+ if(s.fb&&s.fb!==S.uid){const u=acct(s.fb);out.push(`<span class="smeta fb">${I("send")} trimis de ${esc(u?u.name.split(" ")[0]:"antrenor")}</span>`)}
+ if(s.nt)out.push(`<span class="smeta nt">„${esc(s.nt)}”</span>`);
+ return out.length?" · "+out.join(" · "):""}
+function shopStar(s){return `<button class="iconbtn star ${isFav(s.n)?"on":""}" onclick="favToggle('${esc(s.n).replace(/'/g,"")}','${s.k||""}','${esc(s.ms||"").replace(/'/g,"")}');draw()" aria-label="${isFav(s.n)?"Scoate de la":"Pune la"} favorite: ${esc(s.n)}" title="${isFav(s.n)?"Scoate de la favorite":"Pune la Produse favorite"}">${I("star")}</button>`}
+
+/* ---------- trimiterea produselor: membrilor familiei sau (antrenor) membrilor din grup ---------- */
+function sendTargets(){if(!SRV||!ME())return[];const out=[],m=ME(),f=famOf(m.id);
+ if(f)f.members.filter(id=>id!==m.id).forEach(id=>{const u=acct(id);if(u)out.push({id,name:u.name,g:"Familia"})});
+ if(typeof myStudents==="function")try{myStudents().forEach(u=>{if(u&&u.id!==m.id&&!out.some(o=>o.id===u.id))out.push({id:u.id,name:u.name,g:"Grupul meu"})})}catch(e){}
+ return out}
+const SENDX={rows:[]};
+function sendModal(to,pre){const t=sendTargets();if(!t.length)return toast("Poți trimite produse membrilor familiei sau, ca antrenor, celor din grupul tău.");
+ SENDX.rows=pre&&pre.length?pre.map(x=>({...x})):[{n:"",q:"",u:"buc",k:"",ms:""}];
+ const grp=[...new Set(t.map(x=>x.g))];
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("send")} Trimite produse</p><h2 style="font-size:22px">Produse pentru lista altcuiva</h2></div>
+ <form class="stack" onsubmit="event.preventDefault();sendGo()" novalidate>
+  <label class="lbl">Cui<select id="sd_to" class="field">${grp.map(g=>`<optgroup label="${esc(g)}">${t.filter(x=>x.g===g).map(x=>`<option value="${x.id}" ${x.id===to?"selected":""}>${esc(x.name)}</option>`).join("")}</optgroup>`).join("")}</select></label>
+  <div id="sd_rows" class="stack"></div>
+  <div><button type="button" class="btn sm" onclick="sendRead();SENDX.rows.push({n:'',q:'',u:'buc',k:'',ms:''});sendRows()">${I("plus")}Încă un produs</button></div>
+  <label class="lbl">Notă <span class="small muted">(opțional)</span><input id="sd_nt" class="field" maxlength="140" placeholder="ex. pentru micul dejun după antrenament"></label>
+  <p class="small muted">Produsele apar imediat în lista de cumpărături a persoanei, cu „trimis de tine”, iar ea primește și un mesaj privat.</p>
+  <div class="rowacts"><button class="btn primary">${I("send")}Trimite</button><button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,1);sendRows()}
+function sendRows(){const b=$("sd_rows");if(!b)return;b.innerHTML=SENDX.rows.map((r,i)=>`<div class="sdrow">
+  <label class="lbl grow">Produs<input class="field" id="sd_n${i}" data-ps="all" autocomplete="off" maxlength="80" value="${esc(r.n)}" placeholder="ex. iaurt proteic"></label>
+  <label class="lbl">Cantitate<input class="field w90" id="sd_q${i}" type="number" min="0" step="any" value="${esc(r.q)}" placeholder="1"></label>
+  <label class="lbl">Unitate<select class="field" id="sd_u${i}">${UNITS.map(u=>`<option ${u===r.u?"selected":""}>${u}</option>`).join("")}</select></label>
+  <label class="lbl">Magazin<input class="field w120" id="sd_m${i}" maxlength="40" value="${esc(r.ms||"")}" placeholder="opțional"></label>
+  ${SENDX.rows.length>1?`<button type="button" class="iconbtn" onclick="sendRead();SENDX.rows.splice(${i},1);sendRows()" aria-label="Scoate rândul">${I("x")}</button>`:""}</div>`).join("")}
+function sendRead(){SENDX.rows=SENDX.rows.map((r,i)=>({n:($("sd_n"+i)||{}).value||"",q:($("sd_q"+i)||{}).value||"",u:($("sd_u"+i)||{}).value||"buc",ms:($("sd_m"+i)||{}).value||""}))}
+async function sendGo(){sendRead();const items=SENDX.rows.filter(r=>r.n.trim()).map(r=>{const c=catByName(r.n);const k=c?c.k:kindOf(r.n);return {n:r.n.trim(),q:r.q,u:r.q?r.u:"",k:k==="food"?undefined:k,ms:r.ms||(c&&c.ms)||""}});
+ if(!items.length)return toast("Scrie cel puțin un produs.");const to=$("sd_to").value;
+ const r=await api("/shop/send",{method:"POST",body:{to,items,note:$("sd_nt").value}});
+ if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut trimite produsele.");
+ closeModal();const u=acct(to);toast(`Am trimis ${r.data.sent} ${r.data.sent===1?"produs":"produse"} lui ${u?u.name.split(" ")[0]:""}`);
+ if(SHOPX.fam)shopPull()}
+
+/* ---------- Administrare → Produse: produsele propuse de utilizatori ---------- */
+async function catAdmLoad(){const r=await api("/admin/catalog-items?status="+CATX.admSt);if(r.ok){CATX.adm=r.data.items;CATX.admN=r.data.pending}else CATX.adm=[];if(S.page==="admin")draw()}
+function catAdmPanel(){if(!SRV||RANK[(ME()||{}).role]<2)return"";if(!CATX.adm){catAdmLoad();return""}
+ return `<div class="card panel wide catadm"><div class="sechead"><h3>${I("users")} Produse propuse de utilizatori</h3><span class="small muted">${CATX.admN} de verificat</span></div>
+  <p class="small muted">Produsele noi le văd imediat autorul și familia lui. După „Aprobă” apar în căutare pentru toți utilizatorii.</p>
+  <div class="chips">${[["pending","De verificat"],["public","Aprobate"],["rejected","Respinse"]].map(([k,t])=>`<button class="chip" aria-pressed="${CATX.admSt===k}" onclick="CATX.admSt='${k}';CATX.adm=null;draw()">${t}</button>`).join("")}</div>
+  ${CATX.adm.length?`<ul class="alist flat">${CATX.adm.map(x=>`<li><span class="pfthumb">${x.img?`<img src="${esc(IM(x.img))}" alt="">`:I(KIND_IC[x.k]||"tag")}</span>
+   <span class="grow"><b>${esc(x.n)}</b> <span class="tag">${KIND2[x.k]}</span><br><span class="small muted">${[x.d&&esc(x.d),x.kcal!=null&&num(x.kcal)+" kcal/100 g",x.ms&&"magazin: "+esc(x.ms),x.byName&&"de "+esc(x.byName)].filter(Boolean).join(" · ")}</span></span>
+   <span class="rowacts">${x.st!=="public"?`<button class="btn sm primary" onclick="catAdmSet('${x.id}','public')">${I("check")}Aprobă</button>`:""}${x.st!=="rejected"?`<button class="btn sm" onclick="catAdmSet('${x.id}','rejected')">${I("x")}Respinge</button>`:""}<button class="iconbtn" onclick="catAdmDel('${x.id}')" aria-label="Șterge">${I("trash")}</button></span></li>`).join("")}</ul>`
+  :`<div class="empty">Nimic aici.</div>`}</div>`}
+async function catAdmSet(id,st){const r=await api("/admin/catalog-items/"+id,{method:"PUT",body:{status:st}});if(!r.ok)return toast((r.data&&r.data.error)||"Nu am putut salva.");CATX.adm=null;CATX.items=null;catLoad2(true);draw();toast(st==="public"?"Produs aprobat":"Produs respins")}
+function catAdmDel(id){ask("Ștergi produsul?","Dispare din catalog pentru toți.","Șterge",async()=>{const r=await api("/catalog/items/"+id,{method:"DELETE"});if(!r.ok)return toast("Nu am putut șterge.");CATX.adm=null;draw()},true)}
+
+/* încărcarea catalogului când e nevoie */
+setInterval(()=>{if(SRV&&ME()&&!CATX.items&&["lista","familie","antrenor","frigider"].includes(S.page))catLoad2()},1500);
+/* ---------- butonul din pagina Familie: adaugă repede un produs în lista comună (opțional „pentru cine”) ---------- */
+function famAddProd(){const m=ME(),f=famOf(m.id);if(!f)return;const users=f.members.map(acct).filter(Boolean);
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("users")} ${esc(f.name)}</p><h2 style="font-size:22px">Adaugă în lista de cumpărături</h2></div>
+ <form class="stack" onsubmit="event.preventDefault();famAddGo()" novalidate>
+  <label class="lbl">Produs<input id="fa_n" class="field" data-ps="all" autocomplete="off" maxlength="80" required placeholder="caută în catalog: iaurt, detergent, șampon…"></label>
+  <div class="form"><label class="lbl">Cantitate<input id="fa_q" class="field w90" type="number" min="0" step="any" placeholder="1"></label>
+   <label class="lbl">Unitate<select id="fa_u" class="field">${UNITS.map(u=>`<option>${u}</option>`).join("")}</select></label>
+   <label class="lbl">Magazin<input id="fa_m" class="field w120" maxlength="40" placeholder="opțional"></label></div>
+  <label class="lbl">Pentru cine <span class="small muted">(opțional)</span><select id="fa_as" class="field"><option value="">Pentru toată familia</option>${users.map(u=>`<option value="${u.id}">${esc(u.id===m.id?"Pentru mine":u.name)}</option>`).join("")}</select></label>
+  <p class="small muted">${SHOPX.fam?"Lista e comună: produsul apare imediat la toți membrii.":"Produsul intră în lista ta. Ca să ajungă direct la altcineva, folosește „Trimite produse unui membru”."} Nu găsești produsul? <button type="button" class="link" onclick="closeModal();prodModal(null,{add:true})">Creează-l în catalog</button></p>
+  <div class="rowacts"><button class="btn primary">${I("plus")}Adaugă</button><button type="button" class="btn" onclick="closeModal()">Renunță</button></div></form></div>`,1,"#fa_n")}
+function famAddGo(){const n=$("fa_n").value.trim();if(!n){$("fa_n").focus();return toast("Scrie produsul.")}
+ const as=$("fa_as").value,it=shopAddItem({n,q:$("fa_q").value,u:$("fa_u").value,ms:$("fa_m").value.trim()||undefined,as:as||undefined});
+ closeModal();draw();toast(`${capF(it.n)} a fost adăugat în lista ${SHOPX.fam?"familiei":"ta"}`)}
+
+/* ---------- „Produsele mele”: produsele create de mine (editare, ștergere, adăugare în listă) ---------- */
+function myProds(){const l=(CATX.items||[]).filter(x=>x.mine);
+ openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("tag")} Catalogul de produse</p><h2 style="font-size:22px">Produsele mele</h2></div>
+  ${l.length?`<ul class="alist flat">${l.map(x=>`<li><span class="pfthumb">${x.img?`<img src="${esc(IM(x.img))}" alt="">`:I(KIND_IC[x.k]||"tag")}</span>
+   <span class="grow"><b>${esc(x.n)}</b> <span class="tag">${x.k==="food"?"Frigider":"Casă și igienă"}</span>${x.st==="pending"?` <span class="tag honey">se verifică</span>`:x.st==="rejected"?` <span class="tag">doar pentru tine și familie</span>`:""}<br>
+    <span class="small muted">${[x.d&&esc(x.d),x.kcal!=null&&num(x.kcal)+" kcal/100 g",x.ms&&esc(x.ms)].filter(Boolean).join(" · ")||"&nbsp;"}</span></span>
+   <span class="rowacts"><button class="btn sm" onclick="shopAddItem({n:'${esc(x.n).replace(/'/g,"")}'});closeModal();draw();toast('Adăugat în listă')">${I("plus")}În listă</button><button class="iconbtn" onclick="prodModal('${x.id}')" aria-label="Editează ${esc(x.n)}">${I("edit")}</button></span></li>`).join("")}</ul>`
+  :`<div class="empty">Nu ai creat încă niciun produs.</div>`}
+  <div class="rowacts"><button class="btn primary" onclick="closeModal();prodModal(null,{add:true})">${I("plus")}Produs nou</button><button class="btn" onclick="closeModal()">Închide</button></div></div>`,1)}
 
 /* ---------- Pornire ---------- */
 load();
