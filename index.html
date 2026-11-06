@@ -1449,7 +1449,8 @@ body.cooking .scrim{z-index:80}
 .sheet-top .rtile.fit{position:relative;overflow:hidden;background:#1d2a22;display:grid;place-items:center}
 .sheet-top .rtile.fit .fitbg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(18px) brightness(.85);transform:scale(1.1)}
 .sheet-top .rtile.fit img.photo{position:relative;width:100%;height:100%;object-fit:contain;object-position:center}
-.rtile img.photo{object-position:center}
+/* poza umple cutia (indiferent de înălțimea părintelui), ca centrul ales (object-position) să se vadă */
+.rtile img.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 .rfocus{margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .rfbox{position:relative;align-self:flex-start;max-width:min(100%,360px);border-radius:12px;overflow:hidden;cursor:crosshair;line-height:0;background:#1d2a22;outline-offset:3px}
 .rfbox img{max-width:100%;max-height:260px;display:block;user-select:none}
@@ -2814,12 +2815,15 @@ function closeModalKeep(){const keep=ED;closeModal();ED=keep;draw()}
 function edSave(i){const b=ED.blocks[i],D=BLOCK_DEF[b.type];
  D.f.forEach(([k,l,t])=>{const el=$("ef_"+k);if(!el)return;let v=el.value;if(t==="num")v=Math.max(1,Math.min(12,Math.round(+v||4)));else if(t!=="area")v=String(v).trim();b[k]=v});
  b.aud=$("ef_aud").value;b.show=$("ef_show").checked;closeModalKeep();toast("Aplicat în ciornă. Apasă Publică ca să fie vizibil tuturor.")}
-function imgPicker(id,val){return `<div class="lbl">Imagine<input type="hidden" id="${id}" value="${esc(val)}"><div class="gallery photos">${PHOTOS.map(p=>`<button type="button" aria-pressed="${val==="photo/"+p+".jpg"}" onclick="pickImg('${id}','photo/${p}.jpg',this)" aria-label="${p.replace(/-/g," ")}"><img src="${IM("photo/"+p+".jpg")}" alt=""></button>`).join("")}</div>
+function imgPicker(id,val){const own=val&&!PHOTOS.some(p=>val==="photo/"+p+".jpg");return `<div class="lbl">Imagine<input type="hidden" id="${id}" value="${esc(val)}"><div class="gallery photos">${own?`<button type="button" class="upimg" aria-pressed="true" onclick="pickImg('${id}','${esc(val)}',this)" aria-label="Imaginea încărcată"><img src="${esc(IM(val))}" alt=""></button>`:""}${PHOTOS.map(p=>`<button type="button" aria-pressed="${val==="photo/"+p+".jpg"}" onclick="pickImg('${id}','photo/${p}.jpg',this)" aria-label="${p.replace(/-/g," ")}"><img src="${IM("photo/"+p+".jpg")}" alt=""></button>`).join("")}</div>
  ${can("images")?`<label class="btn sm" style="align-self:flex-start">${I("upload")}Încarcă o imagine<input type="file" accept="image/*" hidden onchange="upImg('${id}',this)"></label>`:`<p class="small muted">Imagini noi pot încărca doar cei cu dreptul „Imagini”.</p>`}</div>`}
 function pickImg(id,v,btn){$(id).value=v;btn.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn))}
 function upImg(id,inp){const box=inp.closest(".lbl");optimizeImg(inp.files[0],1600,async u=>{
   if(SRV){toast("Se încarcă imaginea…");const r=await api("/images",{method:"POST",body:{data:u}});if(!r.ok)return toast((r.data&&r.data.error)||"Imaginea nu a putut fi încărcată.");u=r.data.url}
-  $(id).value=u;box.querySelectorAll(".gallery button").forEach(b=>b.setAttribute("aria-pressed","false"));toast("Imagine încărcată")})}
+  $(id).value=u;const g=box.querySelector(".gallery");g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false"));
+  let b=g.querySelector(".upimg");if(!b){b=document.createElement("button");b.type="button";b.className="upimg";g.prepend(b)}
+  b.innerHTML=`<img src="${esc(IM(u))}" alt="">`;b.setAttribute("aria-pressed","true");b.setAttribute("aria-label","Imaginea încărcată");b.onclick=()=>pickImg(id,u,b);
+  toast("Imagine încărcată. Apasă „Aplică în ciornă”, apoi „Publică”.")},true)}
 function readImg(file,cb){if(!file)return;if(!/^image\//.test(file.type)){toast("Alege un fișier imagine.");return}
  const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.82))};im.onerror=()=>toast("Imaginea nu a putut fi citită.");im.src=fr.result};fr.readAsDataURL(file)}
 
@@ -3205,7 +3209,7 @@ PAGES.plan=function(){
 const ctxArg=c=>c.type==="plan"?`{type:'plan',k:'${c.k}',key:'${c.key}'}`:`{type:'menu',id:'${c.id}',di:${c.di},key:'${c.key}'}`;
 function slotHTML(c,r,meta,edit){const x=c.key,s=r&&rsrc(r),a=ctxArg(c);
  const info=r?[meta.t?`${I("clock")}${esc(meta.t)}`:"",meta.por&&+meta.por!==recPor(r)?`${meta.por} porții`:"",(meta.ex||[]).length||Object.keys(meta.q||{}).length?"ingrediente ajustate":""].filter(Boolean).join(" · "):"";
- return `<div class="slotw ${isExtra(x)?"extra":""} ${r?"has":""}" data-key="${x}">${isExtra(x)&&edit?`<span class="mgrip" title="Trage ca s-o muți între mese" aria-hidden="true">${I("grip")}</span>`:""}<button class="slot" onclick="${r?`mealModal(${a})`:`mealPick(${a})`}"><small>${x}</small>${r?`<span class="pick">${s?`<img src="${s.u}" class="${s.photo?"":"ill"}" alt="">`:""}<span>${esc(r.n)}${info?`<em class="minfo">${info}</em>`:""}</span></span>`:`<span class="slot-add">${I("plus")}Adaugă</span>`}</button>${edit&&(r||isExtra(x))?`<button class="slotx" onclick="mealClear(${a})" aria-label="Șterge ${x}" title="Șterge masa">${I("x")}</button>`:""}</div>`}
+ return `<div class="slotw ${isExtra(x)?"extra":""} ${r?"has":""}" data-key="${x}">${isExtra(x)&&edit?`<span class="mgrip" title="Trage ca s-o muți între mese" aria-hidden="true">${I("grip")}</span>`:""}<button class="slot" onclick="${r?`mealModal(${a})`:`mealPick(${a})`}"><small>${x}</small>${r?`<span class="pick">${s?`<img src="${s.u}" class="${s.photo?"":"ill"}" alt=""${s.photo?fpStyle(r):""}>`:""}<span>${esc(r.n)}${info?`<em class="minfo">${info}</em>`:""}</span></span>`:`<span class="slot-add">${I("plus")}Adaugă</span>`}</button>${edit&&(r||isExtra(x))?`<button class="slotx" onclick="mealClear(${a})" aria-label="Șterge ${x}" title="Șterge masa">${I("x")}</button>`:""}</div>`}
 const fitsMeal=(r,meal)=>isExtra(meal)?((r.cat||[]).includes("Desert")||r.t<=15):(r.cat||[]).includes(meal);
 function mealGet(c){if(c.type==="plan"){const pk=c.k+"|"+c.key;return {r:rec(S.plan[pk]),meta:pmeta(pk)}}
  const m=umenuById(c.id),d=m&&m.days[c.di],v=d&&d.m[c.key]||{};return {r:rec(v.r),meta:v}}
@@ -4386,7 +4390,7 @@ function menuView(m,tr){if(!m)return"";const u=acct(tr?m.st:m.tr);
    :`<button class="btn sm primary" onclick="menuPlanUI('${m.id}')">${I("cal")}Adaugă în planificator</button>`}</div></div>
  <div class="week mweek">${m.days.map((d,di)=>`<div class="card day" ${tr?`data-mid="${m.id}" data-di="${di}"`:""}><div class="day-h"><b>Ziua ${di+1}</b>${tr&&m.days.length>1?`<button class="slotx" style="position:static" onclick="menuDelDay('${m.id}',${di})&&draw()" aria-label="Șterge ziua ${di+1}">${I("x")}</button>`:""}</div>
   ${menuSlots(d).map(x=>{const v=d.m[x];if(!tr&&!v)return"";const r=v&&v.r&&rec(v.r),s=r&&rsrc(r);
-   const body=r?`<span class="pick">${s?`<img src="${s.u}" class="${s.photo?"":"ill"}" alt="">`:""}<span>${esc(r.n)}</span></span>`:v&&v.t?`<span class="pick txt"><span>${esc(v.t)}</span></span>`:`<span class="slot-add">${I("plus")}Adaugă</span>`;
+   const body=r?`<span class="pick">${s?`<img src="${s.u}" class="${s.photo?"":"ill"}" alt=""${s.photo?fpStyle(r):""}>`:""}<span>${esc(r.n)}</span></span>`:v&&v.t?`<span class="pick txt"><span>${esc(v.t)}</span></span>`:`<span class="slot-add">${I("plus")}Adaugă</span>`;
    return `<div class="slotw ${isExtra(x)?"extra":""}" data-key="${x}">${tr&&isExtra(x)?`<span class="mgrip" title="Trage ca s-o muți între mese" aria-hidden="true">${I("grip")}</span>`:""}<button class="slot" onclick="${tr?`menuPick('${m.id}',${di},'${x}')`:r?`openRecipe('${r.id}')`:""}"><small>${x}</small>${body}</button>${tr&&isExtra(x)?`<button class="slotx" onclick="menuDelSlot('${m.id}',${di},'${x}')&&draw()" aria-label="Șterge ${x}">${I("x")}</button>`:""}</div>`}).join("")}
   ${tr?`<div class="addmeal"><button class="link" onclick="menuAddSlot('${m.id}',${di},'Gustare')&&draw()">${I("plus")}Gustare</button><button class="link" onclick="menuAddSlot('${m.id}',${di},'Chindie')&&draw()">${I("plus")}Chindie</button></div>`:""}</div>`).join("")}</div>`}
 function menuPick(id,di,key){const m=ownMenu(id);if(!m)return;const cur=m.days[di].m[key]||{};
