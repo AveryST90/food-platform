@@ -1,6 +1,6 @@
 /* Try To Be FIT — lucru fără internet: păstrează site-ul pe telefon, ca lista de cumpărături și frigiderul să se deschidă și în magazin, cu semnal slab.
    Pagina: întâi rețeaua (cel mult 4 secunde), altfel copia salvată. Datele (lista, frigiderul) stau în browser și se trimit la server când revine internetul. */
-const CACHE = "tbf-v3";
+const CACHE = "tbf-v4";
 const CORE = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE).catch(() => {})).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
