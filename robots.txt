@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cont
+Disallow: /mesaje
+
+Sitemap: https://trytobefit.md/sitemap.xml
