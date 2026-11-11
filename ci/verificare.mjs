@@ -12,7 +12,8 @@ ok(fs.existsSync("404.html") && fs.readFileSync("404.html", "utf8") === html, "4
 ok(fs.existsSync("sw.js"), "sw.js există");
 if (process.env.BROWSER !== "0") {
   const { chromium } = await import("playwright");
-  const br = await chromium.launch();
+  // Chromium descărcat de Playwright; dacă lipsește (descărcarea a eșuat), Google Chrome deja instalat pe mașina GitHub
+  const br = await chromium.launch().catch(() => chromium.launch({ channel: "chrome" }));
   for (const [name, vp] of [["calculator", { width: 1300, height: 900 }], ["telefon", { width: 390, height: 844 }]]) {
     const p = await br.newPage({ viewport: vp }); const errs = [];
     p.on("pageerror", e => errs.push(e.message));
