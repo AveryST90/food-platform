@@ -11,9 +11,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - name: Browser pentru test
+        timeout-minutes: 5
         run: |
           npm install --no-save playwright@1.48.2
-          npx playwright install --with-deps chromium
+          # Fără pachete de sistem (apt): imaginea GitHub are deja bibliotecile necesare, iar serverele Ubuntu
+          # uneori nu răspund. Încercăm de 3 ori; dacă tot nu merge, testul folosește Google Chrome deja instalat pe GitHub.
+          for i in 1 2 3; do npx playwright install chromium && exit 0; echo "Reîncerc descărcarea ($i)…"; sleep 15; done
+          echo "Descărcarea a eșuat; folosesc Google Chrome de pe mașina GitHub."
       - name: Pornește site-ul local
         run: |
           cat > /tmp/srv.mjs <<'JS'
