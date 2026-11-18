@@ -1065,7 +1065,7 @@ Stretching 5 min">${esc(i&&i.plan||"")}</textarea></label>${typeof wtBar=="funct
  <span class="small muted">F\u0103r\u0103 alcool, cafea \u0219i iute${(S.kidAge||"4-7")==="1-3"?"; f\u0103r\u0103 nuci \xEEntregi, crud sau buc\u0103\u021Bi de care se pot \xEEneca":""}. Verific\u0103 oricum alergiile copilului.</span></div>`}RCATS.includes("Copii")||RCATS.splice(RCATS.indexOf("Rapid")+1,0,"Copii");const LBX={d:null,busy:!1};async function lbLoad(){if(LBX.busy)return;LBX.busy=!0;const e=await api("/family/leaderboard");LBX.busy=!1,LBX.d=e.ok?e.data:{on:!1,rows:[]},S.page==="familie"&&!editing()&&draw()}function lbPanel(){if(!SRV)return"";if(!LBX.d)return lbLoad(),"";const e=LBX.d;return`<div class="card panel wide famx"><h3>${I("star")} Clasamentul s\u0103pt\u0103m\xE2nii</h3>
   <p class="small muted">Ultimele 7 zile: puncte pentru zilele cu 2 litri de ap\u0103 (2), cu jurnal alimentar (2), cu g\u0103tit acas\u0103 (3); minus c\xE2te un punct pentru fiecare produs aruncat. Apar doar cei care aleg s\u0103 participe.</p>
   <label class="chk consentchk"><input type="checkbox" ${e.on?"checked":""} onchange="lbSet(this.checked)"> <span>Particip: familia vede c\xE2te zile am bifat apa, jurnalul \u0219i g\u0103titul (nu ce am m\xE2ncat)</span></label>
-  ${e.rows.length?`<ol class="lb">${e.rows.map((t,a)=>`<li class="${t.me?"me":""}"><span class="lbpos">${a+1}</span><b class="grow">${esc(t.name)}${t.me?" (tu)":""}</b><span class="small muted">${I("drop")}${t.water} \xB7 ${I("chart")}${t.journal} \xB7 ${I("cook")}${t.cooked}${t.wasted?` \xB7 ${I("trash")}${t.wasted}`:""}</span><b class="lbsc">${t.score} p</b></li>`).join("")}</ol>`:'<p class="small muted">\xCEnc\u0103 nu particip\u0103 nimeni.</p>'}</div>`}async function lbSet(e){const t=await api("/family/leaderboard",{method:"PUT",body:{on:e}});if(!t.ok)return toast(t.data&&t.data.error||"Nu am putut salva.");LBX.d=null,draw()}let I18N_RU=null,LANG="ro";try{LANG=localStorage.getItem("tbf_lang")==="ru"?"ru":"ro"}catch{}function langToggle(){try{localStorage.setItem("tbf_lang",LANG==="ru"?"ro":"ru")}catch{}location.reload()}function langPanel(){return`<div class="card panel wide"><h3>${I("chat")} Limba / \u042F\u0437\u044B\u043A</h3><div class="themeseg"><button class="chip" aria-pressed="${LANG==="ro"}" onclick="LANG!=='ro'&&langToggle()">Rom\xE2n\u0103</button><button class="chip" aria-pressed="${LANG==="ru"}" onclick="LANG!=='ru'&&langToggle()">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</button></div><p class="small muted">${LANG==="ru"?"\u041F\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043D \u0438\u043D\u0442\u0435\u0440\u0444\u0435\u0439\u0441 \u0441\u0430\u0439\u0442\u0430. \u0420\u0435\u0446\u0435\u043F\u0442\u044B \u0438 \u0442\u0435\u043A\u0441\u0442\u044B \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0435\u0439 \u043E\u0441\u0442\u0430\u044E\u0442\u0441\u044F \u043D\u0430 \u0440\u0443\u043C\u044B\u043D\u0441\u043A\u043E\u043C.":"Interfa\u021Ba se traduce \xEEn rus\u0103. Re\u021Betele \u0219i textele utilizatorilor r\u0103m\xE2n \xEEn rom\xE2n\u0103."}</p></div>`}const I18N_SKIP=/^(SCRIPT|STYLE|TEXTAREA|INPUT|CODE|PRE)$/;function i18nTxt(e){const t=e.trim();if(!t)return null;const a=I18N_RU[t];if(a)return e.replace(t,a);let i=t.match(/^(\d+) (min|porții|zile|săptămâni|membri|mese)$/);if(i){const n={min:"\u043C\u0438\u043D",por\u021Bii:"\u043F\u043E\u0440\u0446\u0438\u0439",zile:"\u0434\u043D.",s\u0103pt\u0103m\u00E2ni:"\u043D\u0435\u0434.",membri:"\u0443\u0447\u0430\u0441\u0442\u043D.",mese:"\u0431\u043B\u044E\u0434"}[i[2]];return e.replace(t,i[1]+" "+n)}return i=t.match(/^(\d+) din (\d+) ingrediente disponibile$/),i?e.replace(t,i[1]+" \u0438\u0437 "+i[2]+" \u0438\u043D\u0433\u0440\u0435\u0434\u0438\u0435\u043D\u0442\u043E\u0432 \u0432 \u043D\u0430\u043B\u0438\u0447\u0438\u0438"):(i=t.match(/^(\d+) rețete, ordonate după ce ai în frigider$/),i?e.replace(t,"\u0420\u0435\u0446\u0435\u043F\u0442\u043E\u0432: "+i[1]+", \u043F\u043E \u0442\u043E\u043C\u0443, \u0447\u0442\u043E \u0435\u0441\u0442\u044C \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435"):(i=t.match(/^Fără cont: ai deschis (\d+) din (\d+) rețete luna aceasta\./),i?e.replace(t,"\u0411\u0435\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430: \u043E\u0442\u043A\u0440\u044B\u0442\u043E "+i[1]+" \u0438\u0437 "+i[2]+" \u0440\u0435\u0446\u0435\u043F\u0442\u043E\u0432 \u0432 \u044D\u0442\u043E\u043C \u043C\u0435\u0441\u044F\u0446\u0435. \u041D\u0435\u043E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u043D\u044B\u0435 \u0440\u0435\u0446\u0435\u043F\u0442\u044B \u0438 \u043F\u0438\u0449\u0435\u0432\u0430\u044F \u0446\u0435\u043D\u043D\u043E\u0441\u0442\u044C \u2014 \u0432 Premium Essential."):i18nMore(e,t)))}const I18N_MON={ianuarie:"\u044F\u043D\u0432\u0430\u0440\u044C",februarie:"\u0444\u0435\u0432\u0440\u0430\u043B\u044C",martie:"\u043C\u0430\u0440\u0442",aprilie:"\u0430\u043F\u0440\u0435\u043B\u044C",mai:"\u043C\u0430\u0439",iunie:"\u0438\u044E\u043D\u044C",iulie:"\u0438\u044E\u043B\u044C",august:"\u0430\u0432\u0433\u0443\u0441\u0442",septembrie:"\u0441\u0435\u043D\u0442\u044F\u0431\u0440\u044C",octombrie:"\u043E\u043A\u0442\u044F\u0431\u0440\u044C",noiembrie:"\u043D\u043E\u044F\u0431\u0440\u044C",decembrie:"\u0434\u0435\u043A\u0430\u0431\u0440\u044C"},i18nW=e=>{const t=I18N_RU[e.trim()];if(t)return t;const a=i18nTxt(e);return a??e},I18N_PAT=[[/^Bună, (.+)!$/,e=>"\u041F\u0440\u0438\u0432\u0435\u0442, "+e[1]+"!"],[/^(\d+) produse? în frigider$/,e=>"\u041F\u0440\u043E\u0434\u0443\u043A\u0442\u043E\u0432 \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435: "+e[1]],[/^(\d+) de cumpărat$/,e=>"\u041A\u0443\u043F\u0438\u0442\u044C: "+e[1]],[/^(\d+) de cumpărat, aproximativ ([\d.,]+) MDL$/,e=>"\u041A\u0443\u043F\u0438\u0442\u044C: "+e[1]+", \u043F\u0440\u0438\u043C\u0435\u0440\u043D\u043E "+e[2]+" MDL"],[/^(\d+) de cumpărat din (\d+)$/,e=>"\u041A\u0443\u043F\u0438\u0442\u044C: "+e[1]+" \u0438\u0437 "+e[2]],[/^· (\d+) din (\d+)$/,e=>"\xB7 "+e[1]+" \u0438\u0437 "+e[2]],[/^(\d+) din (\d+)$/,e=>e[1]+" \u0438\u0437 "+e[2]],[/^(\d+) din (\d+) în stoc$/,e=>e[1]+" \u0438\u0437 "+e[2]+" \u0432 \u043D\u0430\u043B\u0438\u0447\u0438\u0438"],[/^(Plan gratuit|Fără cont): ai deschis (\d+) din (\d+) rețete luna aceasta\. Rețetele nelimitate și valorile nutriționale sunt în Premium Essential\.$/,e=>(e[1]==="Plan gratuit"?"\u0411\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u0442\u0430\u0440\u0438\u0444":"\u0411\u0435\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430")+": \u043E\u0442\u043A\u0440\u044B\u0442\u043E "+e[2]+" \u0438\u0437 "+e[3]+" \u0440\u0435\u0446\u0435\u043F\u0442\u043E\u0432 \u0432 \u044D\u0442\u043E\u043C \u043C\u0435\u0441\u044F\u0446\u0435. \u041D\u0435\u043E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u043D\u044B\u0435 \u0440\u0435\u0446\u0435\u043F\u0442\u044B \u0438 \u043F\u0438\u0449\u0435\u0432\u0430\u044F \u0446\u0435\u043D\u043D\u043E\u0441\u0442\u044C \u2014 \u0432 Premium Essential."],[/^tot ce ai în frigider \((\d+) produse?\)$/,e=>"\u0432\u0441\u0451, \u0447\u0442\u043E \u0435\u0441\u0442\u044C \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435 ("+e[1]+" \u043F\u0440\u043E\u0434.)"],[/^Planifică mesele săptămânii după ce ai în frigider\. (\d+) din (\d+) mese planificate$/,e=>"\u041F\u043B\u0430\u043D\u0438\u0440\u0443\u0439\u0442\u0435 \u0431\u043B\u044E\u0434\u0430 \u043D\u0430 \u043D\u0435\u0434\u0435\u043B\u044E \u043F\u043E \u0442\u043E\u043C\u0443, \u0447\u0442\u043E \u0435\u0441\u0442\u044C \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435. \u0417\u0430\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u043E: "+e[1]+" \u0438\u0437 "+e[2]],[/^(\d+) din (\d+) mese planificate$/,e=>"\u0417\u0430\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u043E: "+e[1]+" \u0438\u0437 "+e[2]],[/^Săptămâna (.+)$/,e=>"\u041D\u0435\u0434\u0435\u043B\u044F "+e[1]],[/^Opțiunile zilei (.+)$/,e=>I18N_RU[e[1]]?"\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F \u0434\u043B\u044F \u0434\u043D\u044F: "+I18N_RU[e[1]]:null],[/^(.+) în meniu$/,e=>I18N_RU[e[1]]?I18N_RU[e[1]]+" \u0432 \u043C\u0435\u043D\u044E":null],[/^țintă (.+)$/,e=>"\u0446\u0435\u043B\u044C "+e[1]],[/^din ([\d.,]+) l$/,e=>"\u0438\u0437 "+e[1]+" \u043B"],[/^Ți-ai dat acordul pe ([\d.]+)\. Greutatea, măsurătorile și jurnalul alimentar se salvează în contul tău\.$/,e=>"\u0412\u044B \u0434\u0430\u043B\u0438 \u0441\u043E\u0433\u043B\u0430\u0441\u0438\u0435 "+e[1]+". \u0412\u0435\u0441, \u0437\u0430\u043C\u0435\u0440\u044B \u0438 \u0434\u043D\u0435\u0432\u043D\u0438\u043A \u043F\u0438\u0442\u0430\u043D\u0438\u044F \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u044E\u0442\u0441\u044F \u0432 \u0432\u0430\u0448\u0435\u043C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0435."],[/^(\d+) provocări$/,e=>"\u0427\u0435\u043B\u043B\u0435\u043D\u0434\u0436\u0435\u0439: "+e[1]],[/^(\d+) insigne câștigate$/,e=>"\u041F\u043E\u043B\u0443\u0447\u0435\u043D\u043E \u0437\u043D\u0430\u0447\u043A\u043E\u0432: "+e[1]],[/^Automat: (.+)$/,e=>"\u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438: "+i18nW(e[1])],[/^(\d+) zile$/,e=>e[1]+" \u0434\u043D."],[/^Total în (\S+)$/,e=>I18N_MON[e[1]]?"\u0418\u0442\u043E\u0433\u043E \u0437\u0430 "+I18N_MON[e[1]]:null],[/^Nicio cheltuială în (\S+) (\d{4})\. Adaug-o mai sus sau scanează un bon\.$/,e=>"\u041D\u0435\u0442 \u0440\u0430\u0441\u0445\u043E\u0434\u043E\u0432 \u0437\u0430 "+(I18N_MON[e[1]]||e[1])+" "+e[2]+" \u0433. \u0414\u043E\u0431\u0430\u0432\u044C\u0442\u0435 \u0440\u0430\u0441\u0445\u043E\u0434 \u0432\u044B\u0448\u0435 \u0438\u043B\u0438 \u043E\u0442\u0441\u043A\u0430\u043D\u0438\u0440\u0443\u0439\u0442\u0435 \u0447\u0435\u043A."],[/^Îți lipsesc (\d+) ingrediente?\.$/,e=>"\u041D\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u0438\u043D\u0433\u0440\u0435\u0434\u0438\u0435\u043D\u0442\u043E\u0432: "+e[1]+"."],[/^Îți lipsește un ingredient\.$/,()=>"\u041D\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u043E\u0434\u043D\u043E\u0433\u043E \u0438\u043D\u0433\u0440\u0435\u0434\u0438\u0435\u043D\u0442\u0430."],[/^Tot din (.+?), plus: (.+)$/,e=>"\u0412\u0441\u0451 \u0438\u0437 "+e[1]+", \u043F\u043B\u044E\u0441: "+i18nW(e[2])],[/^(.+) și încă (\d+)\.$/,e=>e[1].split(", ").map(i18nW).join(", ")+" \u0438 \u0435\u0449\u0451 "+e[2]+"."],[/^Pagina nu există · (.+)$/,e=>"\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430 \xB7 "+e[1]],[/^Procurat: (.+) \(merge în Frigider\)$/,e=>"\u041A\u0443\u043F\u043B\u0435\u043D\u043E: "+e[1]+" (\u043F\u0435\u0440\u0435\u0439\u0434\u0451\u0442 \u0432 \u0425\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A)"],[/^Pune la Produse recomandate: (.+)$/,e=>"\u0412 \u0440\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u043C\u044B\u0435 \u043F\u0440\u043E\u0434\u0443\u043A\u0442\u044B: "+e[1]],[/^Șterge ([^.?!]{1,40})$/,e=>"\u0423\u0434\u0430\u043B\u0438\u0442\u044C: "+e[1]],[/^Bifează tot din (.+)$/,e=>"\u041E\u0442\u043C\u0435\u0442\u0438\u0442\u044C \u0432\u0441\u0451: "+i18nW(e[1])],[/^Gătește cu ([^.?!]{1,40})$/,e=>"\u041F\u0440\u0438\u0433\u043E\u0442\u043E\u0432\u0438\u0442\u044C \u0441: "+e[1]],[/^Scoate (.+) din frigider$/,e=>"\u0423\u0431\u0440\u0430\u0442\u044C \u0438\u0437 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0430: "+e[1]],[/^Elimină ([^.?!]{1,40})$/,e=>"\u0423\u0431\u0440\u0430\u0442\u044C: "+e[1]],[/^Salvează la favorite$/,()=>"\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0432 \u0438\u0437\u0431\u0440\u0430\u043D\u043D\u043E\u0435"],[/^Arată mai multe rețete \(încă (\d+)\)$/,e=>"\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0435\u0449\u0451 \u0440\u0435\u0446\u0435\u043F\u0442\u044B (\u043E\u0441\u0442\u0430\u043B\u043E\u0441\u044C "+e[1]+")"]];function i18nMore(e,t){for(const[a,i]of I18N_PAT){const n=t.match(a);if(n){const s=i(n);if(s!=null&&s!==t)return e.replace(t,s)}}if(t.includes(" \xB7 ")){const a=t.split(" \xB7 ");let i=!1;const n=a.map(s=>{const l=s.trim()?i18nTxt(s):null;return l!=null&&l!==s?(i=!0,l):s});if(i)return e.replace(t,n.join(" \xB7 "))}if(/, /.test(t)&&t.length<400){const a=t.split(", ");if(a.length>1&&a.every(i=>I18N_RU[i.trim()]||I18N_RU[i.trim().replace(/\.$/,"")]))return e.replace(t,a.map(i=>{const n=i.trim().replace(/\.$/,"");return I18N_RU[i.trim()]||I18N_RU[n]+(i.trim().endsWith(".")?".":"")}).join(", "))}return null}function i18nNode(e){if(LANG!=="ru"||!e)return;if(e.nodeType===3){const s=e.parentNode;if(s&&!I18N_SKIP.test(s.nodeName)&&!(s.closest&&s.closest("[contenteditable],.noi18n"))){const l=i18nTxt(e.nodeValue);l!=null&&l!==e.nodeValue&&(e.nodeValue=l)}return}if(e.nodeType!==1||I18N_SKIP.test(e.nodeName)&&e.nodeName!=="INPUT"&&e.nodeName!=="TEXTAREA"||e.closest&&e.closest("[contenteditable],.noi18n"))return;const t=s=>{for(const l of["placeholder","aria-label","title"]){const r=s.getAttribute&&s.getAttribute(l);if(r){const o=i18nTxt(r);o!=null&&o!==r&&s.setAttribute(l,o)}}};t(e),e.querySelectorAll&&e.querySelectorAll("[placeholder],[aria-label],[title]").forEach(t);const a=document.createTreeWalker(e,NodeFilter.SHOW_TEXT);let i;const n=[];for(;i=a.nextNode();)n.push(i);n.forEach(i18nNode)}function i18nStart(){if(LANG==="ru"){if(!I18N_RU)if(window.I18N_RU_DATA)I18N_RU=window.I18N_RU_DATA;else{const e=document.createElement("script");e.src="i18n-ru.js?v=7694846e",e.onload=()=>{I18N_RU=window.I18N_RU_DATA||{},i18nStart()},document.head.appendChild(e);return}document.documentElement.lang="ru",i18nNode(document.body),new MutationObserver(e=>{for(const t of e)if(t.type==="characterData")i18nNode(t.target);else if(t.type==="attributes"){const a=t.target.getAttribute(t.attributeName),i=a&&i18nTxt(a);i!=null&&i!==a&&t.target.setAttribute(t.attributeName,i)}else t.addedNodes.forEach(i18nNode)}).observe(document.body,{childList:!0,subtree:!0,characterData:!0,attributes:!0,attributeFilter:["placeholder","aria-label","title"]})}}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",i18nStart):i18nStart();function quickPrefs(){const e=typeof themeGet=="function"?themeGet():"light",t={light:"dark",dark:"auto",auto:"light"}[e]||"dark",a={light:"Luminos",dark:"\xCEntunecat",auto:"Automat"}[e];return`<div class="qprefs"><button class="chip" onclick="themeSet('${t}');drawPop()">${I("palette")}${a}</button><button class="chip" onclick="langToggle()">${I("chat")}${LANG==="ru"?"Rom\xE2n\u0103":"\u0420\u0443\u0441\u0441\u043A\u0438\u0439"}</button></div>`}function moreOpen(){moreClose(),POP=null,drawPop();const e=ME(),t=new Set(BNAV.map(c=>c[0])),a=c=>c==="mesaje"?e&&S.msgUnread||0:c==="familie"&&e?invitesTo(e.id).length:0,i=c=>`<button class="mtile" ${c.t!=="l"&&S.page===c.p?'aria-current="page"':""} onclick="moreClose();${navGo(c)}"><span class="mic">${I(navIc(c))}${a(c.p)?`<span class="badge red">${a(c.p)}</span>`:""}</span><span>${esc(navLabel(c))}</span></button>`,n=[];let s=[];navModel().forEach(({g:c,items:u})=>{const d=u.filter(p=>p.t==="l"||!t.has(p.p));d.length&&(c?n.push([c.l,d]):s=s.concat(d))}),s.length&&n.push([n.length?"Altele":"",s]);const l=e?[["Contul meu",[["cont","Contul meu","user"],["setari","Set\u0103ri","settings"],...pageOff("premium")?[]:[["premium","Premium","crown"]]]]]:[],r=document.createElement("div");r.id="moresheet",r.className="moresheet",r.setAttribute("role","dialog"),r.setAttribute("aria-modal","true"),r.setAttribute("aria-label","Mai mult"),r.innerHTML=`<div class="mback" onclick="moreClose()"></div><div class="mpanel"><div class="mhead"><b>Mai mult</b><button class="iconbtn" onclick="moreClose()" aria-label="\xCEnchide">${I("x")}</button></div>
+  ${e.rows.length?`<ol class="lb">${e.rows.map((t,a)=>`<li class="${t.me?"me":""}"><span class="lbpos">${a+1}</span><b class="grow">${esc(t.name)}${t.me?" (tu)":""}</b><span class="small muted">${I("drop")}${t.water} \xB7 ${I("chart")}${t.journal} \xB7 ${I("cook")}${t.cooked}${t.wasted?` \xB7 ${I("trash")}${t.wasted}`:""}</span><b class="lbsc">${t.score} p</b></li>`).join("")}</ol>`:'<p class="small muted">\xCEnc\u0103 nu particip\u0103 nimeni.</p>'}</div>`}async function lbSet(e){const t=await api("/family/leaderboard",{method:"PUT",body:{on:e}});if(!t.ok)return toast(t.data&&t.data.error||"Nu am putut salva.");LBX.d=null,draw()}let I18N_RU=null,LANG="ro";try{LANG=localStorage.getItem("tbf_lang")==="ru"?"ru":"ro"}catch{}function langToggle(){try{localStorage.setItem("tbf_lang",LANG==="ru"?"ro":"ru")}catch{}location.reload()}function langPanel(){return`<div class="card panel wide"><h3>${I("chat")} Limba / \u042F\u0437\u044B\u043A</h3><div class="themeseg"><button class="chip" aria-pressed="${LANG==="ro"}" onclick="LANG!=='ro'&&langToggle()">Rom\xE2n\u0103</button><button class="chip" aria-pressed="${LANG==="ru"}" onclick="LANG!=='ru'&&langToggle()">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</button></div><p class="small muted">${LANG==="ru"?"\u041F\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043D \u0438\u043D\u0442\u0435\u0440\u0444\u0435\u0439\u0441 \u0441\u0430\u0439\u0442\u0430. \u0420\u0435\u0446\u0435\u043F\u0442\u044B \u0438 \u0442\u0435\u043A\u0441\u0442\u044B \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0435\u0439 \u043E\u0441\u0442\u0430\u044E\u0442\u0441\u044F \u043D\u0430 \u0440\u0443\u043C\u044B\u043D\u0441\u043A\u043E\u043C.":"Interfa\u021Ba se traduce \xEEn rus\u0103. Re\u021Betele \u0219i textele utilizatorilor r\u0103m\xE2n \xEEn rom\xE2n\u0103."}</p></div>`}const I18N_SKIP=/^(SCRIPT|STYLE|TEXTAREA|INPUT|CODE|PRE)$/;function i18nTxt(e){const t=e.trim();if(!t)return null;const a=I18N_RU[t];if(a)return e.replace(t,a);let i=t.match(/^(\d+) (min|porții|zile|săptămâni|membri|mese)$/);if(i){const n={min:"\u043C\u0438\u043D",por\u021Bii:"\u043F\u043E\u0440\u0446\u0438\u0439",zile:"\u0434\u043D.",s\u0103pt\u0103m\u00E2ni:"\u043D\u0435\u0434.",membri:"\u0443\u0447\u0430\u0441\u0442\u043D.",mese:"\u0431\u043B\u044E\u0434"}[i[2]];return e.replace(t,i[1]+" "+n)}return i=t.match(/^(\d+) din (\d+) ingrediente disponibile$/),i?e.replace(t,i[1]+" \u0438\u0437 "+i[2]+" \u0438\u043D\u0433\u0440\u0435\u0434\u0438\u0435\u043D\u0442\u043E\u0432 \u0432 \u043D\u0430\u043B\u0438\u0447\u0438\u0438"):(i=t.match(/^(\d+) rețete, ordonate după ce ai în frigider$/),i?e.replace(t,"\u0420\u0435\u0446\u0435\u043F\u0442\u043E\u0432: "+i[1]+", \u043F\u043E \u0442\u043E\u043C\u0443, \u0447\u0442\u043E \u0435\u0441\u0442\u044C \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435"):(i=t.match(/^Fără cont: ai deschis (\d+) din (\d+) rețete luna aceasta\./),i?e.replace(t,"\u0411\u0435\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430: \u043E\u0442\u043A\u0440\u044B\u0442\u043E "+i[1]+" \u0438\u0437 "+i[2]+" \u0440\u0435\u0446\u0435\u043F\u0442\u043E\u0432 \u0432 \u044D\u0442\u043E\u043C \u043C\u0435\u0441\u044F\u0446\u0435. \u041D\u0435\u043E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u043D\u044B\u0435 \u0440\u0435\u0446\u0435\u043F\u0442\u044B \u0438 \u043F\u0438\u0449\u0435\u0432\u0430\u044F \u0446\u0435\u043D\u043D\u043E\u0441\u0442\u044C \u2014 \u0432 Premium Essential."):i18nMore(e,t)))}const I18N_MON={ianuarie:"\u044F\u043D\u0432\u0430\u0440\u044C",februarie:"\u0444\u0435\u0432\u0440\u0430\u043B\u044C",martie:"\u043C\u0430\u0440\u0442",aprilie:"\u0430\u043F\u0440\u0435\u043B\u044C",mai:"\u043C\u0430\u0439",iunie:"\u0438\u044E\u043D\u044C",iulie:"\u0438\u044E\u043B\u044C",august:"\u0430\u0432\u0433\u0443\u0441\u0442",septembrie:"\u0441\u0435\u043D\u0442\u044F\u0431\u0440\u044C",octombrie:"\u043E\u043A\u0442\u044F\u0431\u0440\u044C",noiembrie:"\u043D\u043E\u044F\u0431\u0440\u044C",decembrie:"\u0434\u0435\u043A\u0430\u0431\u0440\u044C"},i18nW=e=>{const t=I18N_RU[e.trim()];if(t)return t;const a=i18nTxt(e);return a??e},I18N_PAT=[[/^Bună, (.+)!$/,e=>"\u041F\u0440\u0438\u0432\u0435\u0442, "+e[1]+"!"],[/^(\d+) produse? în frigider$/,e=>"\u041F\u0440\u043E\u0434\u0443\u043A\u0442\u043E\u0432 \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435: "+e[1]],[/^(\d+) de cumpărat$/,e=>"\u041A\u0443\u043F\u0438\u0442\u044C: "+e[1]],[/^(\d+) de cumpărat, aproximativ ([\d.,]+) MDL$/,e=>"\u041A\u0443\u043F\u0438\u0442\u044C: "+e[1]+", \u043F\u0440\u0438\u043C\u0435\u0440\u043D\u043E "+e[2]+" MDL"],[/^(\d+) de cumpărat din (\d+)$/,e=>"\u041A\u0443\u043F\u0438\u0442\u044C: "+e[1]+" \u0438\u0437 "+e[2]],[/^· (\d+) din (\d+)$/,e=>"\xB7 "+e[1]+" \u0438\u0437 "+e[2]],[/^(\d+) din (\d+)$/,e=>e[1]+" \u0438\u0437 "+e[2]],[/^(\d+) din (\d+) în stoc$/,e=>e[1]+" \u0438\u0437 "+e[2]+" \u0432 \u043D\u0430\u043B\u0438\u0447\u0438\u0438"],[/^(Plan gratuit|Fără cont): ai deschis (\d+) din (\d+) rețete luna aceasta\. Rețetele nelimitate și valorile nutriționale sunt în Premium Essential\.$/,e=>(e[1]==="Plan gratuit"?"\u0411\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u0442\u0430\u0440\u0438\u0444":"\u0411\u0435\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430")+": \u043E\u0442\u043A\u0440\u044B\u0442\u043E "+e[2]+" \u0438\u0437 "+e[3]+" \u0440\u0435\u0446\u0435\u043F\u0442\u043E\u0432 \u0432 \u044D\u0442\u043E\u043C \u043C\u0435\u0441\u044F\u0446\u0435. \u041D\u0435\u043E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u043D\u044B\u0435 \u0440\u0435\u0446\u0435\u043F\u0442\u044B \u0438 \u043F\u0438\u0449\u0435\u0432\u0430\u044F \u0446\u0435\u043D\u043D\u043E\u0441\u0442\u044C \u2014 \u0432 Premium Essential."],[/^tot ce ai în frigider \((\d+) produse?\)$/,e=>"\u0432\u0441\u0451, \u0447\u0442\u043E \u0435\u0441\u0442\u044C \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435 ("+e[1]+" \u043F\u0440\u043E\u0434.)"],[/^Planifică mesele săptămânii după ce ai în frigider\. (\d+) din (\d+) mese planificate$/,e=>"\u041F\u043B\u0430\u043D\u0438\u0440\u0443\u0439\u0442\u0435 \u0431\u043B\u044E\u0434\u0430 \u043D\u0430 \u043D\u0435\u0434\u0435\u043B\u044E \u043F\u043E \u0442\u043E\u043C\u0443, \u0447\u0442\u043E \u0435\u0441\u0442\u044C \u0432 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0435. \u0417\u0430\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u043E: "+e[1]+" \u0438\u0437 "+e[2]],[/^(\d+) din (\d+) mese planificate$/,e=>"\u0417\u0430\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u043E: "+e[1]+" \u0438\u0437 "+e[2]],[/^Săptămâna (.+)$/,e=>"\u041D\u0435\u0434\u0435\u043B\u044F "+e[1]],[/^Opțiunile zilei (.+)$/,e=>I18N_RU[e[1]]?"\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F \u0434\u043B\u044F \u0434\u043D\u044F: "+I18N_RU[e[1]]:null],[/^(.+) în meniu$/,e=>I18N_RU[e[1]]?I18N_RU[e[1]]+" \u0432 \u043C\u0435\u043D\u044E":null],[/^țintă (.+)$/,e=>"\u0446\u0435\u043B\u044C "+e[1]],[/^din ([\d.,]+) l$/,e=>"\u0438\u0437 "+e[1]+" \u043B"],[/^Ți-ai dat acordul pe ([\d.]+)\. Greutatea, măsurătorile și jurnalul alimentar se salvează în contul tău\.$/,e=>"\u0412\u044B \u0434\u0430\u043B\u0438 \u0441\u043E\u0433\u043B\u0430\u0441\u0438\u0435 "+e[1]+". \u0412\u0435\u0441, \u0437\u0430\u043C\u0435\u0440\u044B \u0438 \u0434\u043D\u0435\u0432\u043D\u0438\u043A \u043F\u0438\u0442\u0430\u043D\u0438\u044F \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u044E\u0442\u0441\u044F \u0432 \u0432\u0430\u0448\u0435\u043C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0435."],[/^(\d+) provocări$/,e=>"\u0427\u0435\u043B\u043B\u0435\u043D\u0434\u0436\u0435\u0439: "+e[1]],[/^(\d+) insigne câștigate$/,e=>"\u041F\u043E\u043B\u0443\u0447\u0435\u043D\u043E \u0437\u043D\u0430\u0447\u043A\u043E\u0432: "+e[1]],[/^Automat: (.+)$/,e=>"\u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438: "+i18nW(e[1])],[/^(\d+) zile$/,e=>e[1]+" \u0434\u043D."],[/^Total în (\S+)$/,e=>I18N_MON[e[1]]?"\u0418\u0442\u043E\u0433\u043E \u0437\u0430 "+I18N_MON[e[1]]:null],[/^Nicio cheltuială în (\S+) (\d{4})\. Adaug-o mai sus sau scanează un bon\.$/,e=>"\u041D\u0435\u0442 \u0440\u0430\u0441\u0445\u043E\u0434\u043E\u0432 \u0437\u0430 "+(I18N_MON[e[1]]||e[1])+" "+e[2]+" \u0433. \u0414\u043E\u0431\u0430\u0432\u044C\u0442\u0435 \u0440\u0430\u0441\u0445\u043E\u0434 \u0432\u044B\u0448\u0435 \u0438\u043B\u0438 \u043E\u0442\u0441\u043A\u0430\u043D\u0438\u0440\u0443\u0439\u0442\u0435 \u0447\u0435\u043A."],[/^Îți lipsesc (\d+) ingrediente?\.$/,e=>"\u041D\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u0438\u043D\u0433\u0440\u0435\u0434\u0438\u0435\u043D\u0442\u043E\u0432: "+e[1]+"."],[/^Îți lipsește un ingredient\.$/,()=>"\u041D\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u043E\u0434\u043D\u043E\u0433\u043E \u0438\u043D\u0433\u0440\u0435\u0434\u0438\u0435\u043D\u0442\u0430."],[/^Tot din (.+?), plus: (.+)$/,e=>"\u0412\u0441\u0451 \u0438\u0437 "+e[1]+", \u043F\u043B\u044E\u0441: "+i18nW(e[2])],[/^(.+) și încă (\d+)\.$/,e=>e[1].split(", ").map(i18nW).join(", ")+" \u0438 \u0435\u0449\u0451 "+e[2]+"."],[/^Pagina nu există · (.+)$/,e=>"\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430 \xB7 "+e[1]],[/^Procurat: (.+) \(merge în Frigider\)$/,e=>"\u041A\u0443\u043F\u043B\u0435\u043D\u043E: "+e[1]+" (\u043F\u0435\u0440\u0435\u0439\u0434\u0451\u0442 \u0432 \u0425\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A)"],[/^Pune la Produse recomandate: (.+)$/,e=>"\u0412 \u0440\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u043C\u044B\u0435 \u043F\u0440\u043E\u0434\u0443\u043A\u0442\u044B: "+e[1]],[/^Șterge ([^.?!]{1,40})$/,e=>"\u0423\u0434\u0430\u043B\u0438\u0442\u044C: "+e[1]],[/^Bifează tot din (.+)$/,e=>"\u041E\u0442\u043C\u0435\u0442\u0438\u0442\u044C \u0432\u0441\u0451: "+i18nW(e[1])],[/^Gătește cu ([^.?!]{1,40})$/,e=>"\u041F\u0440\u0438\u0433\u043E\u0442\u043E\u0432\u0438\u0442\u044C \u0441: "+e[1]],[/^Scoate (.+) din frigider$/,e=>"\u0423\u0431\u0440\u0430\u0442\u044C \u0438\u0437 \u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A\u0430: "+e[1]],[/^Elimină ([^.?!]{1,40})$/,e=>"\u0423\u0431\u0440\u0430\u0442\u044C: "+e[1]],[/^Salvează la favorite$/,()=>"\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0432 \u0438\u0437\u0431\u0440\u0430\u043D\u043D\u043E\u0435"],[/^Arată mai multe rețete \(încă (\d+)\)$/,e=>"\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0435\u0449\u0451 \u0440\u0435\u0446\u0435\u043F\u0442\u044B (\u043E\u0441\u0442\u0430\u043B\u043E\u0441\u044C "+e[1]+")"]];function i18nMore(e,t){for(const[a,i]of I18N_PAT){const n=t.match(a);if(n){const s=i(n);if(s!=null&&s!==t)return e.replace(t,s)}}if(t.includes(" \xB7 ")){const a=t.split(" \xB7 ");let i=!1;const n=a.map(s=>{const l=s.trim()?i18nTxt(s):null;return l!=null&&l!==s?(i=!0,l):s});if(i)return e.replace(t,n.join(" \xB7 "))}if(/, /.test(t)&&t.length<400){const a=t.split(", ");if(a.length>1&&a.every(i=>I18N_RU[i.trim()]||I18N_RU[i.trim().replace(/\.$/,"")]))return e.replace(t,a.map(i=>{const n=i.trim().replace(/\.$/,"");return I18N_RU[i.trim()]||I18N_RU[n]+(i.trim().endsWith(".")?".":"")}).join(", "))}return null}function i18nNode(e){if(LANG!=="ru"||!e)return;if(e.nodeType===3){const s=e.parentNode;if(s&&!I18N_SKIP.test(s.nodeName)&&!(s.closest&&s.closest("[contenteditable],.noi18n"))){const l=i18nTxt(e.nodeValue);l!=null&&l!==e.nodeValue&&(e.nodeValue=l)}return}if(e.nodeType!==1||I18N_SKIP.test(e.nodeName)&&e.nodeName!=="INPUT"&&e.nodeName!=="TEXTAREA"||e.closest&&e.closest("[contenteditable],.noi18n"))return;const t=s=>{for(const l of["placeholder","aria-label","title"]){const r=s.getAttribute&&s.getAttribute(l);if(r){const o=i18nTxt(r);o!=null&&o!==r&&s.setAttribute(l,o)}}};t(e),e.querySelectorAll&&e.querySelectorAll("[placeholder],[aria-label],[title]").forEach(t);const a=document.createTreeWalker(e,NodeFilter.SHOW_TEXT);let i;const n=[];for(;i=a.nextNode();)n.push(i);n.forEach(i18nNode)}function i18nStart(){if(LANG==="ru"){if(!I18N_RU)if(window.I18N_RU_DATA)I18N_RU=window.I18N_RU_DATA;else{const e=document.createElement("script");e.src="i18n-ru.js?v=a1daed1c",e.onload=()=>{I18N_RU=window.I18N_RU_DATA||{},i18nStart()},document.head.appendChild(e);return}document.documentElement.lang="ru",i18nNode(document.body),new MutationObserver(e=>{for(const t of e)if(t.type==="characterData")i18nNode(t.target);else if(t.type==="attributes"){const a=t.target.getAttribute(t.attributeName),i=a&&i18nTxt(a);i!=null&&i!==a&&t.target.setAttribute(t.attributeName,i)}else t.addedNodes.forEach(i18nNode)}).observe(document.body,{childList:!0,subtree:!0,characterData:!0,attributes:!0,attributeFilter:["placeholder","aria-label","title"]})}}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",i18nStart):i18nStart();function quickPrefs(){const e=typeof themeGet=="function"?themeGet():"light",t={light:"dark",dark:"auto",auto:"light"}[e]||"dark",a={light:"Luminos",dark:"\xCEntunecat",auto:"Automat"}[e];return`<div class="qprefs"><button class="chip" onclick="themeSet('${t}');drawPop()">${I("palette")}${a}</button><button class="chip" onclick="langToggle()">${I("chat")}${LANG==="ru"?"Rom\xE2n\u0103":"\u0420\u0443\u0441\u0441\u043A\u0438\u0439"}</button></div>`}function moreOpen(){moreClose(),POP=null,drawPop();const e=ME(),t=new Set(BNAV.map(c=>c[0])),a=c=>c==="mesaje"?e&&S.msgUnread||0:c==="familie"&&e?invitesTo(e.id).length:0,i=c=>`<button class="mtile" ${c.t!=="l"&&S.page===c.p?'aria-current="page"':""} onclick="moreClose();${navGo(c)}"><span class="mic">${I(navIc(c))}${a(c.p)?`<span class="badge red">${a(c.p)}</span>`:""}</span><span>${esc(navLabel(c))}</span></button>`,n=[];let s=[];navModel().forEach(({g:c,items:u})=>{const d=u.filter(p=>p.t==="l"||!t.has(p.p));d.length&&(c?n.push([c.l,d]):s=s.concat(d))}),s.length&&n.push([n.length?"Altele":"",s]);const l=e?[["Contul meu",[["cont","Contul meu","user"],["setari","Set\u0103ri","settings"],...pageOff("premium")?[]:[["premium","Premium","crown"]]]]]:[],r=document.createElement("div");r.id="moresheet",r.className="moresheet",r.setAttribute("role","dialog"),r.setAttribute("aria-modal","true"),r.setAttribute("aria-label","Mai mult"),r.innerHTML=`<div class="mback" onclick="moreClose()"></div><div class="mpanel"><div class="mhead"><b>Mai mult</b><button class="iconbtn" onclick="moreClose()" aria-label="\xCEnchide">${I("x")}</button></div>
   ${n.map(([c,u])=>`${c?`<h4>${esc(c)}</h4>`:""}<div class="mgrd">${u.map(i).join("")}</div>`).join("")}
   ${l.map(([c,u])=>`<h4>${c}</h4><div class="mgrd">${u.map(([d,p,f])=>`<button class="mtile" onclick="moreClose();go('${d}')"><span class="mic">${I(f)}</span><span>${p}</span></button>`).join("")}</div>`).join("")}
   ${e?"":`<div class="rowacts"><button class="btn primary" onclick="moreClose();authModal('login')">${I("login")}Autentificare</button><button class="btn" onclick="moreClose();authModal('register')">Creeaz\u0103 cont</button></div>`}</div>`,document.body.appendChild(r),document.body.classList.add("noscroll"),setTimeout(()=>r.classList.add("on"),10);const o=r.querySelector(".mtile");o&&o.focus({preventScroll:!0})}function moreClose(){const e=document.getElementById("moresheet");e&&e.remove(),document.body.classList.remove("noscroll")}document.addEventListener("keydown",e=>{e.key==="Escape"&&document.getElementById("moresheet")&&moreClose()}),ROUTE_PAGES.push("setari","provocari","antrenori");const PAGE_ADM=["retete","nutritie","frigider","casa","lista","plan","fav","stats","bani","premium","familie","antrenor","antrenori","mesaje","provocari"],pageOffAll=e=>!!((S.pages||{})[e]||{}).off,PG_AUD=[["visitor","Vizitatori"],["member","Membri"],["trainer","Antrenori"],["moderator","Moderatori"],["admin","Administratori"]],audOk=e=>{const t=((S.pages||{})[e]||{}).aud;if(!Array.isArray(t)||!t.length)return!0;const a=ME(),i=a?a.role:"visitor";return i==="super"||t.includes(i)},pageOff=e=>pageOffAll(e)||!audOk(e),HIDE_OK=["nutritie","frigider","casa","lista","plan","fav","stats","bani","familie","antrenor","antrenori","mesaje","provocari"],myHid=e=>{const t=ME();return!!t&&(t.menuHide||[]).includes(e)};function offBanner(){if(!pageOffAll(S.page)){const e=((S.pages||{})[S.page]||{}).aud||[];return`<div class="box honey small offban">${I("eye")} Pagina e vizibil\u0103 doar pentru: <b>${esc(PG_AUD.filter(t=>e.includes(t[0])).map(t=>t[1]).join(", "))}</b>. O vezi pentru c\u0103 e\u0219ti \xEEn echip\u0103. <button class="link" onclick="S.atab='pages';go('admin')">Administrare \u2192 Pagini</button></div>`}return`<div class="box honey small offban">${I("eye")} Pagina este <b>dezactivat\u0103</b>: vizitatorii \u0219i utilizatorii nu o v\u0103d. O vezi doar tu, ca administrator. <button class="link" onclick="S.atab='pages';go('admin')">Administrare \u2192 Pagini</button></div>`}function kitchenGate(){return`<div class="card gate"><span class="ic h">${I("lock")}</span><h1>Pagina Cas\u0103 este \xEEn Premium</h1>
@@ -1554,14 +1554,30 @@ function perCoachUp() {
    - alimente cu grame: din baza USDA a site-ului, din rețete, din produsele din magazine sau după codul de bare
    - proteine, grăsimi, glucide pe zi și pe masă (cu „Valori nutriționale complete”)
    - poza farfuriei recunoscută cu AI (Smart Kitchen), omul confirmă alimentele și gramele
-   - sport cu calorii arse (MET × greutate × timp), apă cu țintă, calendarul dietei, memento-uri push */
+   - sport cu calorii arse (MET × greutate × timp), apă cu țintă, calendarul dietei, memento-uri push
+   18.11.2026 (după FatSecret):
+   - gratuit: seria de zile cu bulinele săptămânii și insigne; „Repetă de ieri” pe fiecare masă; raportul săptămânii pe scurt
+   - Premium Essential: raportul detaliat (macro pe zile, top alimente, comparație, PDF și Excel), ținte proprii de macro
+     (grame sau procente), mese cu nume proprii */
 Object.assign(PATHS, {
   notebook: '<path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3v18M9.5 8h6M9.5 12h6"/>',
   chevl: '<path d="M15 18l-6-6 6-6"/>',
-  chevr: '<path d="M9 18l6-6-6-6"/>'
+  chevr: '<path d="M9 18l6-6-6-6"/>',
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  award: '<circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>',
+  sheet: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>'
 });
 FEAT_L.photo_log = "Poza farfuriei recunoscută cu AI";
 { const g = FEAT_G.find(x => x[0] === PK_SK); g && !g[1].includes("photo_log") && g[1].push("photo_log"); }
+Object.assign(FEAT_L, {
+  journal_reports: "Raport săptămânal detaliat (macro pe zile, top alimente, comparație, PDF și Excel)",
+  macro_targets: "Ținte proprii de macro (proteine, grăsimi și glucide, în grame sau procente)",
+  custom_meals: "Mese cu nume proprii (ex. „Înainte de sală”)"
+});
+{ const g = FEAT_G.find(x => x[0] === PK_ESS); g && ["journal_reports", "macro_targets", "custom_meals"].forEach(f => g[1].includes(f) || g[1].push(f)); }
+PERSIST.includes("jrSeen") || PERSIST.push("jrSeen");          // insignele deja văzute (felicităm doar pentru cele noi)
 PAGE_META.jurnal = ["Jurnal alimentar", "notebook"];
 for (const a of [NEEDLOGIN, ROUTE_PAGES, HIDE_OK, PAGE_ADM]) a.includes("jurnal") || a.push("jurnal");
 GATE.jurnal = ["notebook", "Jurnalul tău alimentar", "Notează ce mănânci în câteva secunde: caută alimentul, scanează codul de bare sau fotografiază farfuria. Vezi caloriile, apa și sportul fiecărei zile. Ai nevoie de un cont gratuit."];
@@ -1580,6 +1596,10 @@ const jrN = v => v == null ? "–" : num(jrR1(+v));
 const jrL = ml => String(Math.round(ml / 100) / 10).replace(".", ",") + " l";
 function jrSlotNow() { const d = new Date(), h = d.getHours() + d.getMinutes() / 60; return h < 10.5 ? "breakfast" : h < 12 ? "snack" : h < 15.5 ? "lunch" : h < 18 ? "afternoon" : "dinner"; }
 const jrSlotDef = () => jrDay() === todayS() ? jrSlotNow() : "lunch";
+// mesele cu nume proprii (Premium Essential): numele ales se vede peste tot în jurnal; pe server masa rămâne aceeași
+const jrMealsPref = () => (PRG.me && PRG.me.prefs && PRG.me.prefs.meals) || null;
+function jrSlotName(s) { const m = jrMealsPref(), n = m && m[s] && m[s].n; return n || SLOT_RO[s] || s; }
+function jrSlotOn(s) { const m = jrMealsPref(); return m && m[s] ? !!m[s].on : JR_MAIN.includes(s); }
 function jrSrc(d) { return d >= jrCut() ? PRG.me : JR.hist; }
 const jrListAny = d => (((jrSrc(d) || {}).journal) || []).filter(x => x.day === d);
 const jrExAny = d => (((jrSrc(d) || {}).exercise) || []).filter(x => x.day === d);
@@ -1593,9 +1613,13 @@ function jrSplit(kcal, prot) { const p = Math.round(prot || kcal * 0.2 / 4), f =
 function jrGoal() {
   const g = S.goal;
   if (!g || !(+g.kcal > 0)) return null;
-  const kcal = +g.kcal, d = jrSplit(kcal, +g.prot || null);
+  const kcal = +g.kcal;
+  if (g.mac === "%" && +g.pp > 0 && +g.pf > 0 && +g.pc > 0) return { kcal, ...jrPct(kcal, +g.pp, +g.pf, +g.pc) };
+  const d = jrSplit(kcal, +g.prot || null);
   return { kcal, prot: +g.prot || d.prot, fat: +g.fat || d.fat, carb: +g.carb || d.carb };
 }
+// procentele din calorii → grame (proteinele și glucidele au 4 kcal/g, grăsimile 9 kcal/g)
+const jrPct = (kcal, pp, pf, pc) => ({ prot: Math.round(kcal * pp / 400), fat: Math.round(kcal * pf / 900), carb: Math.round(kcal * pc / 400) });
 function jrWeight() { const w = (PRG.me && PRG.me.weights) || []; return w.length ? +w[w.length - 1].kg : (S.goal && +String(S.goal.w || "").replace(",", ".")) || null; }
 const jrWaterGoal = () => (PRG.me && PRG.me.prefs && +PRG.me.prefs.water) || 2000;
 // ținta salvată pe server (pe alt dispozitiv) o înlocuiește pe cea veche de aici
@@ -1611,9 +1635,9 @@ async function jrHistLoad(force) {
   JR.histBusy = true;
   const r = await api("/me/progress?days=365");
   JR.histBusy = false;
-  if (r.ok) { JR.hist = r.data; S.page === "jurnal" && !editing() && draw(); }
+  if (r.ok) { JR.hist = r.data; $("jrrep") && jrRepDraw(); S.page === "jurnal" && !editing() && draw(); }
 }
-function jrAfterWrite() { if (jrDay() < jrCut()) jrHistLoad(true); }
+function jrAfterWrite() { if (jrDay() < jrCut()) jrHistLoad(true); jrBadgeCheck(); }
 function jrErr(r) { toast(r.data && r.data.error || "Nu am putut salva."); }
 // „228 kcal · P 7,9 · G 4,1 · C 40,5”
 function jrVals(v, mac) {
@@ -1631,8 +1655,9 @@ PAGES.jurnal = function () {
   const d = jrDay();
   if (d < jrCut() && !JR.hist) { jrHistLoad(); return head + jrDayBar(d) + '<p class="muted">Se încarcă…</p>'; }
   const list = jrListAny(d), ex = jrExAny(d), burn = ex.reduce((a, x) => a + (+x.kcal || 0), 0);
-  return head + jrDayBar(d) + jrSummary(jrSum(list), burn, jrGoal()) + jrActions() + jrPlanned(d) + jrMeals(list)
-    + `<div class="jrgrid">${jrWaterCard(d)}${jrSportCard(d, ex)}</div>` + jrCalendar() + jrRemind();
+  jrBadgeCheck();
+  return head + jrDayBar(d) + jrStreakCard() + jrSummary(jrSum(list), burn, jrGoal()) + jrActions() + jrPlanned(d) + jrMeals(list)
+    + `<div class="jrgrid">${jrWaterCard(d)}${jrSportCard(d, ex)}</div>` + jrWeekCard() + jrCalendar() + jrRemind();
 };
 const jrDayName = d => { const dt = new Date(d + "T12:00"); return `${dayName(dt).toLowerCase()}, ${dt.getDate()} ${MONTHS[dt.getMonth()]}`; };
 function jrDayLabel(d) { const t = todayS(); return d === t ? "Azi" : d === addDaysS(t, -1) ? "Ieri" : dayName(new Date(d + "T12:00")); }
@@ -1677,13 +1702,23 @@ function jrItem(x, mac) {
   return `<li class="jrli"><button class="jrit" onclick="jrEdit(${x.id})" aria-label="Schimbă ${esc(x.title)}"><span class="jrin"><b>${esc(x.title)}</b>${q || m ? `<span class="small muted">${[q, m].filter(Boolean).join(" · ")}</span>` : ""}</span><span class="jrk">${x.kcal != null ? num(x.kcal) : "–"}</span></button></li>`;
 }
 function jrMeals(list) {
-  const mac = feat("nutrition"), by = {};
-  for (const x of list) (by[x.slot && JR_SLOTS.includes(x.slot) ? x.slot : "other"] = by[x.slot && JR_SLOTS.includes(x.slot) ? x.slot : "other"] || []).push(x);
-  const show = JR_SLOTS.filter(s => JR_MAIN.includes(s) || (by[s] && by[s].length)), extra = JR_SLOTS.filter(s => !show.includes(s));
-  const sec = (s, label, items) => `<section class="jrmeal"><div class="jrmh"><b>${label}</b><span class="small muted">${items.length ? num(Math.round(jrSum(items).kcal)) + " kcal" : ""}</span>
-    ${s !== "other" ? `<button class="iconbtn" onclick="jrAdd('${s}')" aria-label="Adaugă la ${esc(label)}">${I("plus")}</button>` : ""}</div>${items.length ? `<ul class="jrul">${items.map(x => jrItem(x, mac)).join("")}</ul>` : ""}</section>`;
-  return `<div class="card jrmeals">${show.map(s => sec(s, SLOT_RO[s], by[s] || [])).join("")}${by.other ? sec("other", "Altele", by.other) : ""}
-   ${extra.length ? `<div class="jrextra">${extra.map(s => `<button class="chip" onclick="jrAdd('${s}')">${I("plus")}<span>${SLOT_RO[s]}</span></button>`).join("")}</div>` : ""}</div>`;
+  const mac = feat("nutrition"), by = {}, prev = {}, d = jrDay(), key = x => x.slot && JR_SLOTS.includes(x.slot) ? x.slot : "other";
+  for (const x of list) (by[key(x)] = by[key(x)] || []).push(x);
+  for (const x of jrListAny(addDaysS(d, -1))) if (key(x) !== "other") (prev[x.slot] = prev[x.slot] || []).push(x);
+  // o masă apare dacă e aleasă să apară mereu, dacă are ceva notat sau dacă ieri a avut ceva (ca să poată fi repetată)
+  const show = JR_SLOTS.filter(s => jrSlotOn(s) || (by[s] && by[s].length) || (prev[s] && prev[s].length)), extra = JR_SLOTS.filter(s => !show.includes(s));
+  const rep = s => {
+    const p = prev[s];
+    if (!p || !p.length || (by[s] && by[s].length)) return "";
+    const names = p.slice(0, 2).map(x => x.title).join(", ") + (p.length > 2 ? ` +${p.length - 2}` : "");
+    return `<button class="jrrep" onclick="jrRepeat('${s}')"><span class="jrrepi">${I("repeat")}</span><span class="jrin"><b>${d === todayS() ? "Repetă de ieri" : "Repetă din ziua de dinainte"}</b>
+      <span class="small muted"><span>${esc(names)}</span> · <span>${num(Math.round(jrSum(p).kcal))} kcal</span></span></span></button>`;
+  };
+  const sec = (s, label, items) => `<section class="jrmeal"><div class="jrmh"><b>${esc(label)}</b><span class="small muted">${items.length ? num(Math.round(jrSum(items).kcal)) + " kcal" : ""}</span>
+    ${s !== "other" ? `<button class="iconbtn" onclick="jrAdd('${s}')" aria-label="Adaugă la ${esc(label)}">${I("plus")}</button>` : ""}</div>${items.length ? `<ul class="jrul">${items.map(x => jrItem(x, mac)).join("")}</ul>` : s !== "other" ? rep(s) : ""}</section>`;
+  return `<div class="card jrmeals">${show.map(s => sec(s, jrSlotName(s), by[s] || [])).join("")}${by.other ? sec("other", "Altele", by.other) : ""}
+   ${extra.length ? `<div class="jrextra">${extra.map(s => `<button class="chip" onclick="jrAdd('${s}')">${I("plus")}<span>${esc(jrSlotName(s))}</span></button>`).join("")}</div>` : ""}
+   <div class="jrmfoot"><button class="link small" onclick="jrMealsEdit()">${I(feat("custom_meals") ? "settings" : "lock")}<span>Personalizează mesele</span></button></div></div>`;
 }
 function jrWaterCard(d) {
   const w = ((jrDaily(d) || {}).w) || 0, goal = jrWaterGoal(), pct = Math.min(100, Math.round(w / goal * 100));
@@ -1715,13 +1750,13 @@ function jrAdd(slot) {
   openModal('<div class="sheet-b jradd" id="jradd"></div>');
   jrAddDraw();
 }
-const jrSlotSel = (id, cur) => `<label class="lbl">Masa<select id="${id}" class="field">${JR_SLOTS.map(s => `<option value="${s}" ${cur === s ? "selected" : ""}>${SLOT_RO[s]}</option>`).join("")}</select></label>`;
+const jrSlotSel = (id, cur) => `<label class="lbl">Masa<select id="${id}" class="field">${JR_SLOTS.map(s => `<option value="${s}" ${cur === s ? "selected" : ""}>${esc(jrSlotName(s))}</option>`).join("")}</select></label>`;
 function jrAddDraw() {
   const box = $("jradd"), a = JR.add;
   if (!box || !a) return;
   if (a.item) { box.innerHTML = jrAmountHtml(); jrAmt(); setTimeout(() => { const g = $("jrg"); if (g) { g.focus(); g.select && g.select(); } }, 40); return; }
   if (a.manual) { box.innerHTML = jrManualHtml(); setTimeout(() => { const n = $("jmn"); n && n.focus(); }, 40); return; }
-  box.innerHTML = `<div style="padding-right:36px"><p class="eyebrow">${I("notebook")} ${esc(SLOT_RO[a.slot] || "Jurnal")}</p><h2 style="font-size:22px">Ce ai mâncat?</h2></div>
+  box.innerHTML = `<div style="padding-right:36px"><p class="eyebrow">${I("notebook")} ${esc(SLOT_RO[a.slot] ? jrSlotName(a.slot) : "Jurnal")}</p><h2 style="font-size:22px">Ce ai mâncat?</h2></div>
    <label class="lbl grow">Caută un aliment, o rețetă sau un produs<input id="jrq" class="field" value="${esc(a.q)}" placeholder="ex. ovăz, iaurt, ciorbă" autocomplete="off" oninput="JR.add.q=this.value;jrResPaint()"></label>
    <div id="jrres" class="jrres"></div>`;
   jrResPaint();
@@ -1859,7 +1894,7 @@ function jrEdit(id) {
   JR.edit = x;
   const qty = x.grams ? `<label class="lbl">Cantitatea (grame)<input id="jeq" class="field w90" type="number" inputmode="decimal" min="1" max="5000" value="${x.grams}" oninput="jrEditPrev()"></label>`
     : x.recipe || x.portions ? `<label class="lbl">Porții<input id="jeq" class="field w90" type="number" inputmode="decimal" min="0.1" max="20" step="0.1" value="${x.portions || 1}" oninput="jrEditPrev()"></label>` : "";
-  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("notebook")} ${esc(SLOT_RO[x.slot] || "Jurnal")}</p><h2 style="font-size:21px">${esc(x.title)}</h2><p class="small muted">${jrVals(x, feat("nutrition"))}</p></div>
+  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("notebook")} ${esc(SLOT_RO[x.slot] ? jrSlotName(x.slot) : "Jurnal")}</p><h2 style="font-size:21px">${esc(x.title)}</h2><p class="small muted">${jrVals(x, feat("nutrition"))}</p></div>
    <form class="stack" onsubmit="event.preventDefault();jrEditSave()">${qty}${jrSlotSel("jes", x.slot)}
     <div id="jeprev" class="jrprev" aria-live="polite"></div>
     <div class="rowacts"><button class="btn primary">${I("check")}Salvează</button><button type="button" class="btn danger" onclick="jrEditDel()">${I("trash")}Șterge</button></div></form></div>`, 1);
@@ -2070,7 +2105,7 @@ function jrRemind() {
    <p class="small muted">Nu primești memento dacă ai notat deja masa, ai atins ținta de apă sau te-ai cântărit în ultimele 6 zile.</p>${dev}
    <form class="stack" onsubmit="event.preventDefault();jrRemSave()">
     <div class="jrremrow"><label class="switch"><input type="checkbox" id="rm_on" ${r.meals.on ? "checked" : ""}><span>Mesele</span></label>
-     <div class="jrtimes"><label class="lbl">Mic dejun${tm("rm_b", r.meals.b)}</label><label class="lbl">Prânz${tm("rm_l", r.meals.l)}</label><label class="lbl">Cină${tm("rm_d", r.meals.d)}</label></div></div>
+     <div class="jrtimes"><label class="lbl"><span>${esc(jrSlotName("breakfast"))}</span>${tm("rm_b", r.meals.b)}</label><label class="lbl"><span>${esc(jrSlotName("lunch"))}</span>${tm("rm_l", r.meals.l)}</label><label class="lbl"><span>${esc(jrSlotName("dinner"))}</span>${tm("rm_d", r.meals.d)}</label></div></div>
     <div class="jrremrow"><label class="switch"><input type="checkbox" id="rw_on" ${r.water.on ? "checked" : ""}><span>Apa</span></label>
      <div class="jrtimes"><label class="lbl">La fiecare<select id="rw_ev" class="field">${[1, 2, 3, 4].map(h => `<option value="${h}" ${+r.water.every === h ? "selected" : ""}>${h === 1 ? "oră" : h + " ore"}</option>`).join("")}</select></label>
       <label class="lbl">De la${tm("rw_f", r.water.from)}</label><label class="lbl">Până la${tm("rw_t", r.water.to)}</label></div></div>
@@ -2102,38 +2137,94 @@ function jrGoalModal(focus) {
     <div id="g_prev" class="goalprev" aria-live="polite"></div>
     <div class="form"><label class="lbl">Ținta de calorii (kcal pe zi)<input id="g_k" class="field w90" inputmode="numeric" value="${esc(g.kcal || "")}" oninput="JR.gkTouched=true"></label>
      <label class="lbl">Ținta de apă (litri pe zi)<input id="g_wat" class="field w90" inputmode="decimal" value="${String(water / 1000).replace(".", ",")}"></label></div>
+    ${jrMacBox(g)}
     <div class="rowacts"><button class="btn primary">${I("check")}Salvează ținta</button></div></form></div>`, 1, focus === "water" ? "#g_wat" : undefined);
   const t = goalCalc(goalRead());
   JR.gkTouched = !!g.kcal && !(t && t.kcal === +g.kcal);
   jrGoalPrev();
 }
+// ținte proprii de macro (Premium Essential): automat, în grame sau în procente din calorii
+function jrMacBox(g) {
+  if (!feat("macro_targets")) { JR.mac = null; return `<button type="button" class="jrlock" onclick="featLocked('macro_targets')">${I("lock")}<span>Țintele tale de proteine, grăsimi și glucide (în grame sau procente): ${esc(pkgOf("macro_targets"))}</span></button>`; }
+  const mode = ["g", "%"].includes(g.mac) ? g.mac : "auto";
+  JR.mac = { mode, g: { p: g.prot || "", f: g.fat || "", c: g.carb || "" }, pc: { p: g.pp || "", f: g.pf || "", c: g.pc || "" } };
+  return `<fieldset class="jrmacf"><legend>Proteine, grăsimi și glucide</legend>
+    <div class="seg" role="radiogroup" aria-label="Cum stabilești proteinele, grăsimile și glucidele">${[["auto", "Automat"], ["g", "În grame"], ["%", "În procente"]].map(([v, n]) =>
+      `<label><input type="radio" name="g_mac" value="${v}" ${mode === v ? "checked" : ""} onchange="jrMacMode(this.value)"><span>${n}</span></label>`).join("")}</div>
+    <div id="g_macin"></div></fieldset>`;
+}
+function jrMacMode(v) {
+  const M = JR.mac;
+  if (!M) return;
+  jrMacKeep(); M.mode = v;
+  const kc = jrGoalKc(), auto = jrSplit(kc || 2000, (goalCalc(goalRead()) || {}).prot || null);
+  // la trecerea pe grame sau procente pornim de la împărțirea de acum, ca omul doar să o ajusteze
+  if (v === "g" && !M.g.p) M.g = { p: auto.prot, f: auto.fat, c: auto.carb };
+  if (v === "%" && !M.pc.p) { const k = Math.max(1, auto.prot * 4 + auto.fat * 9 + auto.carb * 4), p = Math.round(auto.prot * 400 / k), f = Math.round(auto.fat * 900 / k); M.pc = { p, f, c: 100 - p - f }; }
+  jrMacInputs(); jrGoalPrev();
+}
+function jrMacKeep() {
+  const M = JR.mac, v = id => String(($(id) || {}).value || "").replace(",", ".").trim();
+  if (!M || !$("g_mp")) return;
+  M[M.mode === "%" ? "pc" : "g"] = { p: v("g_mp"), f: v("g_mf"), c: v("g_mc") };
+}
+function jrMacInputs() {
+  const el = $("g_macin"), M = JR.mac;
+  if (!el || !M) return;
+  if (M.mode === "auto") { el.innerHTML = '<p class="small muted">Proteinele vin din greutatea și obiectivul tău, grăsimile sunt 30% din calorii, iar glucidele restul.</p>'; return; }
+  const pc = M.mode === "%", x = pc ? M.pc : M.g, u = pc ? "%" : "g";
+  el.innerHTML = `<div class="form">${[["g_mp", "Proteine", x.p], ["g_mf", "Grăsimi", x.f], ["g_mc", "Glucide", x.c]].map(([id, n, v]) =>
+    `<label class="lbl">${n} (${u})<input id="${id}" class="field w90" inputmode="decimal" value="${esc(v)}"></label>`).join("")}</div>`;
+}
+const jrGoalKc = () => Math.round(+String(($("g_k") || {}).value || "").replace(/[^\d]/g, "")) || ((goalCalc(goalRead()) || {}).kcal) || 0;
+// ce intră în țintă după modul ales; null + mesaj dacă valorile nu sunt bune
+function jrMacRead(kc, autoProt) {
+  const M = JR.mac, mode = M && feat("macro_targets") ? M.mode : "auto";
+  if (mode === "auto") return { mac: "auto", ...jrSplit(kc, autoProt) };
+  const n = id => { const s = String(($(id) || {}).value || "").replace(",", ".").trim(); return s === "" ? NaN : +s; }, p = n("g_mp"), f = n("g_mf"), c = n("g_mc");
+  if (mode === "%") {
+    if (![p, f, c].every(v => v >= 5 && v <= 80)) return { err: "Procentele: între 5% și 80% fiecare." };
+    if (Math.abs(p + f + c - 100) > 1) return { err: `Proteinele, grăsimile și glucidele trebuie să dea împreună 100% (acum: ${num(Math.round((p + f + c) * 10) / 10)}%).` };
+    return { mac: "%", pp: Math.round(p), pf: Math.round(f), pc: Math.round(c), ...jrPct(kc, p, f, c) };
+  }
+  if (!(p >= 0 && p <= 400 && f >= 0 && f <= 400 && c >= 0 && c <= 1000)) return { err: "Scrie gramele: proteine și grăsimi până la 400 g, glucide până la 1000 g." };
+  return { mac: "g", prot: Math.round(p), fat: Math.round(f), carb: Math.round(c) };
+}
 function jrGoalPrev() {
   const t = goalCalc(goalRead()), el = $("g_prev"), k = $("g_k");
   if (k && !JR.gkTouched && t) k.value = t.kcal;
+  if ($("g_macin") && !$("g_macin").innerHTML) jrMacInputs();
   if (!el) return;
-  const kc = +((k && k.value) || 0) || (t && t.kcal) || 0, m = jrSplit(kc, t ? t.prot : null);
+  const kc = +((k && k.value) || 0) || (t && t.kcal) || 0, m = jrMacRead(kc, t ? t.prot : null);
+  const fromMac = m.err ? 0 : m.prot * 4 + m.fat * 9 + m.carb * 4;
   el.innerHTML = (t ? `<p class="small muted">Arzi aproximativ ${num(t.tdee)} kcal pe zi. IMC: ${String(t.bmi).replace(".", ",")}.</p>` : '<p class="small muted">Completează greutatea, înălțimea și vârsta ca să calculăm ținta, sau scrie direct caloriile.</p>')
-    + (kc >= 800 ? `<div class="jrsplit"><span><b>${m.prot} g</b> proteine</span><span><b>${m.fat} g</b> grăsimi</span><span><b>${m.carb} g</b> glucide</span></div>` : "");
+    + (kc >= 800 ? (m.err ? `<p class="small jrwarn">${esc(m.err)}</p>` : `<div class="jrsplit"><span><b>${m.prot} g</b> proteine</span><span><b>${m.fat} g</b> grăsimi</span><span><b>${m.carb} g</b> glucide</span></div>`
+      + (m.mac === "g" && Math.abs(fromMac - kc) >= 50 ? `<p class="small muted">Din aceste grame ies ${num(fromMac)} kcal, iar ținta ta e ${num(kc)} kcal.</p>` : "")) : "");
 }
 async function jrGoalSave() {
-  const e = goalRead(), t = goalCalc(e), kc = Math.round(+String(($("g_k") || {}).value || "").replace(/[^\d]/g, "")) || (t && t.kcal) || 0;
+  const e = goalRead(), t = goalCalc(e), kc = jrGoalKc();
   if (!(kc >= 800 && kc <= 6000)) return toast("Ținta de calorii trebuie să fie între 800 și 6000 kcal.");
   const water = Math.round((+String(($("g_wat") || {}).value || "").replace(",", ".") || 2) * 1000);
   if (!(water >= 500 && water <= 6000)) return toast("Ținta de apă: între 0,5 și 6 litri.");
-  const m = jrSplit(kc, t ? t.prot : null), goal = { ...e, kcal: kc, prot: m.prot, fat: m.fat, carb: m.carb, at: todayS(), ts: Date.now() };
+  const m = jrMacRead(kc, t ? t.prot : null);
+  if (m.err) return toast(m.err);
+  const goal = { ...e, kcal: kc, ...m, at: todayS(), ts: Date.now() };
   S.goal = goal; persist();
   const r = await api("/me/prefs", { method: "PUT", body: { goal, water } });
   if (!r.ok) return toast(r.data && r.data.error || "Ținta e salvată doar pe acest dispozitiv.");
   if (PRG.me) PRG.me = { ...PRG.me, prefs: r.data.prefs };
-  DAILY_GOAL.w = water; closeModal(); toast(`Ținta ta: ${num(kc)} kcal pe zi`);
+  if (r.data.prefs && r.data.prefs.goal) { S.goal = { ...r.data.prefs.goal }; persist(); }
+  DAILY_GOAL.w = water; JR.mac = null; closeModal(); toast(`Ținta ta: ${num(kc)} kcal pe zi`);
 }
-// ținta din planificator ajunge și pe server (fără să ceară acordul în mijlocul planificării)
+// ținta din planificator ajunge și pe server (fără să ceară acordul în mijlocul planificării);
+// țintele proprii de macro rămân: în procente se recalculează gramele, în grame rămân cum le-a scris omul
 { const o = goalSave; goalSave = function () {
   const r = o.apply(this, arguments);
   try {
     if (SRV && ME() && S.goal && S.goal.kcal) {
-      const m = jrSplit(+S.goal.kcal, +S.goal.prot || null);
-      S.goal = { ...S.goal, fat: m.fat, carb: m.carb, ts: Date.now() }; persist();
+      const g = S.goal, kc = +g.kcal;
+      const m = g.mac === "%" && +g.pp > 0 ? jrPct(kc, +g.pp, +g.pf, +g.pc) : g.mac === "g" && g.fat != null && g.carb != null ? { prot: +g.prot, fat: +g.fat, carb: +g.carb } : jrSplit(kc, +g.prot || null);
+      S.goal = { ...g, ...m, ts: Date.now() }; persist();
       api("/me/prefs", { method: "PUT", body: { goal: S.goal }, noConsent: true });
     }
   } catch (x) {}
@@ -2143,6 +2234,337 @@ async function jrGoalSave() {
 { const o = pushState; pushState = async function () { const r = await o.apply(this, arguments); S.page === "jurnal" && !editing() && draw(); return r; }; }
 // din „Progresul meu” (clienții antrenorilor) se ajunge la jurnalul complet
 { const o = myProgress; myProgress = function () { return `<div class="rowacts jrlink"><button class="btn sm" onclick="go('jurnal')">${I("notebook")}Deschide jurnalul complet</button></div>` + o.apply(this, arguments); }; }
+
+// ---------- seria de zile și insignele (gratuit) ----------
+const jrDiff = (a, b) => Math.round((Date.parse(b + "T12:00:00Z") - Date.parse(a + "T12:00:00Z")) / 864e5);
+const jrDe = n => n !== 0 && (n % 100 === 0 || n % 100 >= 20);              // „20 de zile”, dar „3 zile”
+const jrZile = n => n === 1 ? "o zi" : `${num(n)} ${jrDe(n) ? "de " : ""}zile`;
+const jrRuPl = (n, a, b, c) => { n = Math.abs(Math.round(n)); const x = n % 10, y = n % 100; return x === 1 && y !== 11 ? a : x >= 2 && x <= 4 && (y < 12 || y > 14) ? b : c; };
+const jrMon0 = d => addDaysS(d, -((new Date(d + "T12:00").getDay() + 6) % 7));    // lunea săptămânii
+const JR_WD = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"];
+function jrStreak() {
+  const js = PRG.me && PRG.me.jstats, runs = (js && js.runs) || [], t = todayS(), y = addDaysS(t, -1);
+  let cur = 0, best = 0, total = 0, today = false;
+  for (const [s, n] of runs) {
+    if (s > t) continue;
+    const e = addDaysS(s, n - 1), end = e > t ? t : e, len = jrDiff(s, end) + 1;
+    best = Math.max(best, len); total += len;
+    if (end >= y) { cur = len; today = end === t; }               // seria e vie dacă ține până azi sau până ieri
+  }
+  return { ok: !!js, runs, cur, best, total, today, recipes: (js && js.recipes) || 0, water: (js && js.water) || 0 };
+}
+const JR_BADGES = [
+  { k: "first", i: "leaf", t: "Primul pas", d: "Notează prima zi în jurnal.", v: s => s.total, n: 1 },
+  { k: "s3", i: "flame", t: "Trei zile la rând", d: "Notează 3 zile la rând.", v: s => s.best, n: 3 },
+  { k: "s7", i: "flame", t: "O săptămână", d: "Notează 7 zile la rând.", v: s => s.best, n: 7 },
+  { k: "s14", i: "flame", t: "Două săptămâni", d: "Notează 14 zile la rând.", v: s => s.best, n: 14 },
+  { k: "s30", i: "crown", t: "O lună întreagă", d: "Notează 30 de zile la rând.", v: s => s.best, n: 30 },
+  { k: "d50", i: "cal", t: "50 de zile", d: "Ajungi la 50 de zile notate în jurnal.", v: s => s.total, n: 50 },
+  { k: "d100", i: "star", t: "100 de zile", d: "Ajungi la 100 de zile notate în jurnal.", v: s => s.total, n: 100 },
+  { k: "water", i: "drop", t: "Hidratat", d: "Atinge ținta de apă în 7 zile.", v: s => s.water, n: 7 },
+  { k: "chef", i: "chef", t: "Bucătar", d: "Notează 10 rețete diferite de pe site.", v: s => s.recipes, n: 10 }
+];
+const jrBadgeList = st => JR_BADGES.map(b => { const v = Math.max(0, +b.v(st) || 0); return { ...b, have: Math.min(b.n, v), got: v >= b.n }; });
+function jrStreakCard() {
+  const st = jrStreak();
+  if (!st.ok) return "";
+  const t = todayS(), mon = jrMon0(t), ends = st.runs.map(([s, n]) => [s, addDaysS(s, n - 1)]), has = d => ends.some(([s, e]) => d >= s && d <= e);
+  const got = jrBadgeList(st).filter(b => b.got).length;
+  const unit = LANG === "ru" ? jrRuPl(st.cur, "день подряд", "дня подряд", "дней подряд") : st.cur === 1 ? "zi la rând" : `${jrDe(st.cur) ? "de " : ""}zile la rând`;
+  const hint = st.cur ? (!st.today ? "Notează ceva azi ca să nu pierzi seria." : st.best > st.cur ? `Recordul tău: ${jrZile(st.best)}.` : st.cur > 1 ? "E recordul tău. Ține-o tot așa!" : "Revino mâine ca să continui seria.")
+    : st.total ? `Recordul tău: ${jrZile(st.best)}. Notează azi și pornești o serie nouă.` : "Notează ce mănânci azi și pornești prima serie.";
+  return `<div class="card jrstreak"><div class="jrsk"><span class="jrflame${st.cur ? " on" : ""}">${I("flame")}</span>
+     <div class="jrskt"><p><b>${num(st.cur)}</b> <span class="noi18n">${unit}</span></p><span class="small muted">${hint}</span></div></div>
+    <div class="jrweekd" role="group" aria-label="Săptămâna aceasta">${JR_WD.map((w, i) => {
+      const d = addDaysS(mon, i), on = has(d), fut = d > t;
+      return `<button class="jrwdot${on ? " on" : ""}${d === t ? " today" : ""}" ${fut ? "disabled" : `onclick="jrPick('${d}')"`} aria-label="${jrDayName(d)}: ${on ? "notat" : "nenotat"}"><span>${w}</span><i>${on ? I("check") : ""}</i></button>`;
+    }).join("")}</div>
+    <button class="jrbdg" onclick="jrBadges()">${I("award")}<span>Insigne: ${got} din ${JR_BADGES.length}</span></button></div>`;
+}
+function jrBadges() {
+  const list = jrBadgeList(jrStreak());
+  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("award")} Insigne</p><h2 style="font-size:22px">Insignele jurnalului</h2>
+    <p class="muted small">Le primești notând zi de zi ce mănânci, cât bei și ce rețete gătești.</p></div>
+    <ul class="jrbadges">${list.map(b => `<li class="${b.got ? "got" : ""}"><span class="jrbadge">${I(b.i)}</span><div class="jrbt"><b>${b.t}</b><span class="small muted">${b.d}</span>
+      ${b.got ? `<span class="small jrok">${I("check")}<span>Câștigată</span></span>` : `<span class="jrbar"><span style="width:${Math.round(b.have / b.n * 100)}%"></span></span><span class="small muted">${num(b.have)} / ${num(b.n)}</span>`}</div></li>`).join("")}</ul></div>`, 1);
+}
+// insignă nouă → felicitare (după mesajul salvării); prima dată doar ținem minte ce are omul deja
+function jrBadgeCheck() {
+  const me = ME(), st = jrStreak();
+  if (!me || !st.ok) return;
+  const got = jrBadgeList(st).filter(b => b.got).map(b => b.k);
+  const all = S.jrSeen = S.jrSeen && typeof S.jrSeen === "object" ? S.jrSeen : {}, seen = all[me.id];
+  if (!Array.isArray(seen)) { all[me.id] = got; persist(); return; }
+  const fresh = got.filter(k => !seen.includes(k));
+  if (!fresh.length) return;
+  all[me.id] = seen.concat(fresh); persist();
+  const b = JR_BADGES.find(x => x.k === fresh[fresh.length - 1]);
+  clearTimeout(JR.bt);
+  JR.bt = setTimeout(() => toast(`Insignă nouă: ${b.t}!`, { label: "Vezi", fn: jrBadges }), 2700);
+}
+
+// ---------- „Repetă de ieri” (gratuit): masa de ieri copiată într-un clic ----------
+async function jrRepeat(slot) {
+  if (JR.saving) return;
+  const d = jrDay();
+  JR.saving = true;
+  const r = await api("/me/journal/copy", { method: "POST", body: { from: addDaysS(d, -1), to: d, slot } });
+  JR.saving = false;
+  if (!r.ok) return jrErr(r);
+  const ids = r.data.copied || [];
+  delete r.data.copied;
+  PRG.me = r.data; jrAfterWrite(); draw();
+  const n = ids.length;
+  toast(`${jrSlotName(slot)}: ${n === 1 ? "un aliment copiat" : `${n} ${jrDe(n) ? "de " : ""}alimente copiate`}`, { label: "Anulează", fn: () => jrRepeatUndo(ids) });
+}
+async function jrRepeatUndo(ids) {
+  let r = null;
+  for (const id of ids) { r = await api("/me/journal/" + id, { method: "DELETE" }); if (!r.ok) break; }
+  if (!r) return;
+  if (!r.ok) return jrErr(r);
+  PRG.me = r.data; jrAfterWrite(); draw(); toast("Am anulat copierea");
+}
+
+// ---------- mesele cu nume proprii (Premium Essential) ----------
+function jrMealsEdit() {
+  if (!feat("custom_meals")) return featLocked("custom_meals");
+  const m = jrMealsPref() || {};
+  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">${I("notebook")} Mesele tale</p><h2 style="font-size:22px">Personalizează mesele</h2>
+    <p class="muted small">Dă-le numele tău (ex. „Înainte de sală”) și alege care apar mereu în jurnal. Pe celelalte le adaugi cu un clic, când ai nevoie.</p></div>
+   <form class="stack" onsubmit="event.preventDefault();jrMealsSave()">${JR_SLOTS.map(s => `<div class="jrmealrow"><label class="lbl grow"><span>${SLOT_RO[s]}</span><input id="jm_n_${s}" class="field" maxlength="30" value="${esc((m[s] && m[s].n) || "")}" placeholder="${esc(SLOT_RO[s])}"></label>
+     <label class="switch"><input type="checkbox" id="jm_on_${s}" ${jrSlotOn(s) ? "checked" : ""}><span>Apare mereu</span></label></div>`).join("")}
+    <div class="rowacts"><button class="btn primary">${I("check")}Salvează</button>${Object.keys(m).length ? `<button type="button" class="btn" onclick="jrMealsSave(true)">${I("reset")}Numele inițiale</button>` : ""}</div></form></div>`, 1, "#jm_n_breakfast");
+}
+async function jrMealsSave(reset) {
+  let meals = null;
+  if (!reset) {
+    meals = {};
+    for (const s of JR_SLOTS) {
+      const n = String(($("jm_n_" + s) || {}).value || "").replace(/\s+/g, " ").trim().slice(0, 30);
+      meals[s] = { on: !!($("jm_on_" + s) || {}).checked, n: n === SLOT_RO[s] ? "" : n };
+    }
+    if (!JR_SLOTS.some(s => meals[s].on)) return toast("Alege cel puțin o masă care apare mereu.");
+  }
+  const r = await api("/me/prefs", { method: "PUT", body: { meals } });
+  if (!r.ok) return jrErr(r);
+  PRG.me = { ...PRG.me, prefs: r.data.prefs }; closeModal(); toast(reset ? "Mesele au din nou numele inițiale" : "Mesele tale au fost salvate");
+}
+
+// ---------- raportul săptămânii: pe scurt gratuit; detaliat, cu PDF și Excel, în Premium Essential ----------
+function jrRange(mon) {
+  const a = new Date(mon + "T12:00"), b = new Date(addDaysS(mon, 6) + "T12:00"), y = b.getFullYear() !== new Date().getFullYear() ? " " + b.getFullYear() : "";
+  return a.getMonth() === b.getMonth() ? `${a.getDate()}–${b.getDate()} ${MONTHS[b.getMonth()]}${y}` : `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]}${y}`;
+}
+function jrWeights() {
+  const m = new Map();
+  for (const src of [JR.hist, PRG.me]) for (const w of ((src || {}).weights || [])) m.set(w.day, +w.kg);
+  return [...m].sort((a, b) => a[0] < b[0] ? -1 : 1).map(([day, kg]) => ({ day, kg }));
+}
+const jrKgS = v => String(Math.round(v * 10) / 10).replace(".", ",");
+const jrKg = v => `${v > 0.04 ? "+" : v < -0.04 ? "−" : ""}${jrKgS(Math.abs(v))} kg`;
+function jrWeek(mon) {
+  const t = todayS(), g = jrGoal(), sun = addDaysS(mon, 6), days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDaysS(mon, i), list = jrListAny(d), ex = jrExAny(d), s = jrSum(list), dl = jrDaily(d) || {}, burn = ex.reduce((a, x) => a + (+x.kcal || 0), 0);
+    let st = null;
+    if (list.length && g) { const q = s.kcal / Math.max(1, g.kcal + burn); st = q > 1.1 ? "over" : q < 0.9 ? "under" : "ok"; }
+    days.push({ d, list, n: list.length, ...s, burn, min: ex.reduce((a, x) => a + (+x.minutes || 0), 0), w: +dl.w || 0, st, fut: d > t });
+  }
+  const lg = days.filter(x => x.n), avg = k => lg.length ? lg.reduce((a, x) => a + x[k], 0) / lg.length : null, wd = days.filter(x => x.w > 0);
+  const ws = jrWeights(), inW = ws.filter(x => x.day >= mon && x.day <= sun), bef = ws.filter(x => x.day < mon).pop(), last = inW[inW.length - 1];
+  const top = {};
+  for (const x of lg.flatMap(y => y.list)) { const k = String(x.title || "").trim(); if (!k) continue; const o = top[k] = top[k] || { t: k, kcal: 0, n: 0 }; o.kcal += +x.kcal || 0; o.n++; }
+  return { mon, sun, days, g, logged: lg.length, past: days.filter(x => !x.fut).length, kcal: avg("kcal"), prot: avg("prot"), fat: avg("fat"), carb: avg("carb"),
+    inT: days.filter(x => x.st === "ok").length, water: wd.length ? wd.reduce((a, x) => a + x.w, 0) / wd.length : null,
+    wDelta: last ? (bef ? last.kg - bef.kg : inW.length > 1 ? last.kg - inW[0].kg : null) : null, wLast: last ? last.kg : null,
+    burn: days.reduce((a, x) => a + x.burn, 0), min: days.reduce((a, x) => a + x.min, 0), top: Object.values(top).sort((a, b) => b.kcal - a.kcal).slice(0, 5) };
+}
+function jrWkTiles(w) {
+  const tile = (l, v, sub) => `<div class="jrwkc"><span class="small muted">${l}</span><b>${v}</b>${sub ? `<span class="small muted">${sub}</span>` : ""}</div>`;
+  return `<div class="jrwkt">${tile("Media pe zi", w.kcal != null ? `${num(Math.round(w.kcal))} kcal` : "–", `${w.logged} din ${w.past} zile notate`)}${tile("Zile în țintă", w.g && w.logged ? `${w.inT} din ${w.logged}` : "–", w.g ? "" : "fără țintă")}${tile("Greutatea", w.wDelta != null ? jrKg(w.wDelta) : "–", w.wLast != null ? `acum ${jrKgS(w.wLast)} kg` : "nicio cântărire")}${tile("Apă pe zi", w.water != null ? jrL(w.water) : "–", "")}</div>`;
+}
+function jrWeekCard() {
+  if (!PRG.me || !(PRG.me.journal || []).length) return "";
+  let w = jrWeek(jrMon0(todayS())), lbl = "Săptămâna aceasta";
+  if (w.logged < 2) { const p = jrWeek(addDaysS(w.mon, -7)); if (p.logged && p.logged >= w.logged) { w = p; lbl = "Săptămâna trecută"; } }
+  return `<div class="card panel jrwk"><div class="jrwkh"><h3>${I("chart")}<span>${lbl}</span></h3><span class="small muted">${jrRange(w.mon)}</span></div>
+   ${jrWkTiles(w)}<div class="rowacts"><button class="btn sm" onclick="jrReport('${w.mon}')">${I("file")}Raportul săptămânii</button></div></div>`;
+}
+function jrReport(mon) {
+  JR.rep = { mon: mon || jrMon0(todayS()), w: null };
+  openModal('<div class="sheet-b jrrepm" id="jrrep"></div>');
+  jrRepDraw();
+}
+function jrRepGo(n) {
+  const R = JR.rep;
+  if (!R) return;
+  const m = addDaysS(R.mon, n * 7);
+  if (m > jrMon0(todayS()) || m < jrMon0(addDaysS(todayS(), -364))) return;
+  R.mon = m; jrRepDraw();
+}
+function jrRepDraw() {
+  const box = $("jrrep"), R = JR.rep;
+  if (!box || !R) return;
+  const mon = R.mon, full = feat("journal_reports"), prevMon = addDaysS(mon, -7), cur0 = jrMon0(todayS()), min0 = jrMon0(addDaysS(todayS(), -364));
+  const head = `<div style="padding-right:36px"><p class="eyebrow">${I("chart")} Raport săptămânal</p>
+    <div class="jrrnav"><button class="iconbtn" onclick="jrRepGo(-1)" ${mon <= min0 ? "disabled" : ""} aria-label="Săptămâna de dinainte">${I("chevl")}</button><h2>${jrRange(mon)}</h2>
+    <button class="iconbtn" onclick="jrRepGo(1)" ${mon >= cur0 ? "disabled" : ""} aria-label="Săptămâna următoare">${I("chevr")}</button></div></div>`;
+  if ((full ? prevMon : mon) < jrCut() && !JR.hist) { jrHistLoad(); box.innerHTML = head + '<p class="muted">Se încarcă…</p>'; return; }
+  const w = R.w = jrWeek(mon);
+  box.innerHTML = head + jrWkTiles(w) + jrWkChart(w) + (full ? jrWkFull(w, jrWeek(prevMon))
+    : `<button class="jrlock" onclick="featLocked('journal_reports')">${I("lock")}<span>Raportul detaliat (macro pe zile, ce a adus cele mai multe calorii, comparația cu săptămâna trecută, PDF și Excel): ${esc(pkgOf("journal_reports"))}</span></button>`);
+  box.querySelectorAll(".jrcb").forEach(g => { g.onmouseenter = g.onclick = () => jrCap(+g.dataset.i); });
+}
+// coloanele caloriilor pe zile, cu linia țintei; valoarea apare la atingere / la trecerea cu mouse-ul
+function jrWkChart(w) {
+  const W = 336, H = 160, L = 6, Rr = 6, T = 22, B = 24, base = H - B, cw = (W - L - Rr) / 7, bw = 20, f1 = v => v.toFixed(1);
+  const tgt = w.g ? w.g.kcal : 0, mx = Math.max(tgt * 1.12, ...w.days.map(x => x.kcal), 400), y = v => base - v / mx * (base - T);
+  const bars = w.days.map((x, i) => {
+    const cx = L + cw * i + cw / 2, x0 = cx - bw / 2, h = x.kcal > 0 ? Math.max(4, base - y(x.kcal)) : 0, top = base - h, r = Math.min(4, h / 2);
+    const bar = h ? `<path class="b" d="M${f1(x0)},${base}V${f1(top + r)}Q${f1(x0)},${f1(top)} ${f1(x0 + r)},${f1(top)}H${f1(x0 + bw - r)}Q${f1(x0 + bw)},${f1(top)} ${f1(x0 + bw)},${f1(top + r)}V${base}Z"/>` : "";
+    return `<g class="jrcb${x.fut ? " fut" : ""}" data-i="${i}">${bar}<rect class="hit" x="${f1(L + cw * i)}" y="0" width="${f1(cw)}" height="${H}"/><text x="${f1(cx)}" y="${H - 8}">${JR_WD[i]}</text></g>`;
+  }).join("");
+  const ty = tgt ? y(tgt) : 0;
+  return `<figure class="jrchart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc("Calorii pe zile: " + w.days.map((x, i) => `${JR_WD[i]} ${x.n ? num(Math.round(x.kcal)) : "–"}`).join(", "))}">
+    <line class="ax" x1="${L}" x2="${W - Rr}" y1="${base}" y2="${base}"/>${bars}
+    ${tgt ? `<line class="tg" x1="${L}" x2="${W - Rr}" y1="${f1(ty)}" y2="${f1(ty)}"/><text class="tgl" x="${L + 2}" y="${f1(ty - 6)}">ținta ${num(tgt)}</text>` : ""}</svg>
+    <figcaption id="jrcap" class="small muted" aria-live="polite">Atinge o zi ca să vezi caloriile.</figcaption></figure>`;
+}
+function jrCap(i) {
+  const R = JR.rep, x = R && R.w && R.w.days[i], el = $("jrcap");
+  if (!x || !el) return;
+  document.querySelectorAll(".jrcb.sel").forEach(g => g.classList.remove("sel"));
+  const g = document.querySelector(`.jrcb[data-i="${i}"]`);
+  g && (g.classList.add("sel"), g.closest("svg").classList.add("hassel"));
+  const stL = { ok: "în țintă", under: "sub țintă", over: "peste țintă" };
+  el.innerHTML = `<b>${jrDayName(x.d)}</b> · ${x.fut ? "<span>încă nu a venit</span>" : x.n ? `<span>${num(Math.round(x.kcal))} kcal</span>${x.st ? ` · <span>${stL[x.st]}</span>` : ""}` : "<span>nimic notat</span>"}`;
+}
+function jrWkFull(w, p) {
+  const mac = feat("nutrition"), r0 = v => v == null ? "–" : num(Math.round(v)), stL = { ok: "în țintă", under: "sub țintă", over: "peste țintă" };
+  const rows = w.days.map((x, i) => `<tr${x.fut ? ' class="fut"' : ""}><th>${JR_WD[i]} <span class="muted">${+x.d.slice(8)}</span></th><td>${x.n ? r0(x.kcal) : "–"}</td>${mac ? `<td>${x.n ? r0(x.prot) : "–"}</td><td>${x.n ? r0(x.fat) : "–"}</td><td>${x.n ? r0(x.carb) : "–"}</td>` : ""}<td>${x.w ? jrL(x.w) : "–"}</td><td>${x.min ? num(x.min) + " min" : "–"}</td><td>${x.st ? `<span class="jrst ${x.st}">${stL[x.st]}</span>` : ""}</td></tr>`).join("");
+  const table = `<div class="jrtblw"><table class="jrtbl"><thead><tr><th>Ziua</th><th>kcal</th>${mac ? "<th>Proteine</th><th>Grăsimi</th><th>Glucide</th>" : ""}<th>Apă</th><th>Sport</th><th></th></tr></thead><tbody>${rows}</tbody>
+    <tfoot><tr><th>Media</th><td>${r0(w.kcal)}</td>${mac ? `<td>${r0(w.prot)}</td><td>${r0(w.fat)}</td><td>${r0(w.carb)}</td>` : ""}<td>${w.water != null ? jrL(w.water) : "–"}</td><td>${w.min ? num(w.min) + " min" : "–"}</td><td></td></tr></tfoot></table></div>`;
+  const kc = (w.prot || 0) * 4 + (w.fat || 0) * 9 + (w.carb || 0) * 4, pct = v => kc ? Math.round(v / kc * 100) : 0;
+  const mrow = (lbl, v, goal, f, cls) => `<div class="jrmac ${cls}"><div class="jrmacl"><span>${lbl}</span><b>${goal ? `${r0(v)} / ${num(goal)} g` : `${r0(v)} g`}</b></div>
+    <div class="jrbar"><span style="width:${goal && v ? Math.min(100, Math.round(v / goal * 100)) : 0}%"></span></div><span class="small muted">${pct((v || 0) * f)}% din calorii</span></div>`;
+  const macs = mac && w.logged ? `<h3 class="jrh">Proteine, grăsimi și glucide, media pe zi</h3><div class="jrmacs">${mrow("Proteine", w.prot, w.g && w.g.prot, 4, "p")}${mrow("Grăsimi", w.fat, w.g && w.g.fat, 9, "f")}${mrow("Glucide", w.carb, w.g && w.g.carb, 4, "c")}</div>` : "";
+  const top = w.top.length ? `<h3 class="jrh">Ce a adus cele mai multe calorii</h3><ol class="jrtop5">${w.top.map(x => `<li><span class="jrin"><b>${esc(x.t)}</b><span class="small muted">${x.n === 1 ? "o dată" : `de ${x.n} ori`}</span></span><span class="jrk">${num(Math.round(x.kcal))} kcal</span></li>`).join("")}</ol>` : "";
+  const comp = `<h3 class="jrh">Față de săptămâna trecută</h3><div class="jrtblw"><table class="jrtbl jrcmp"><thead><tr><th></th><th>Aceasta</th><th>Trecută</th><th>Diferența</th></tr></thead><tbody>${jrCmpRows(w, p).map(([l, a, b, d]) => `<tr><th>${l}</th><td>${a}</td><td>${b}</td><td>${d}</td></tr>`).join("")}</tbody></table></div>`;
+  return `<h3 class="jrh">Pe zile</h3>${table}${macs}${top}${comp}
+    <div class="rowacts"><button class="btn sm" onclick="jrRepPDF()">${I("download")}Descarcă PDF</button><button class="btn sm" onclick="jrRepXLSX()">${I("sheet")}Descarcă Excel</button></div>`;
+}
+// rândurile comparației: [eticheta, săptămâna aceasta, cea trecută, diferența] (texte gata de afișat)
+function jrCmpRows(w, p) {
+  const n0 = v => num(Math.round(v)), kg = v => jrKgS(v) + " kg";
+  const dif = (a, b, f) => a == null || b == null ? "–" : `${a - b > 0 ? "+" : a - b < 0 ? "−" : ""}${f(Math.abs(a - b))}`;
+  return [["Media pe zi (kcal)", w.kcal, p.kcal, n0], ["Zile notate", w.logged, p.logged, n0], ["Zile în țintă", w.g ? w.inT : null, p.g ? p.inT : null, n0],
+    ["Apă pe zi", w.water, p.water, jrL], ["Sport (minute)", w.min, p.min, n0], ["Greutatea", w.wLast, p.wLast, kg]]
+    .map(([l, a, b, f]) => [l, a == null ? "–" : f(a), b == null ? "–" : f(b), dif(a, b, f)]);
+}
+// fișierul ajunge în „Descărcări” sau, pe telefon, în meniul de distribuire
+async function jrFileOut(blob, name, title) {
+  const f = new File([blob], name, { type: blob.type });
+  if (navigator.canShare && navigator.canShare({ files: [f] }) && /Android|iPhone|iPad/i.test(navigator.userAgent) && !window.GustoAndroid)
+    try { await navigator.share({ files: [f], title }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  toast("Fișierul a fost descărcat");
+}
+function jrPdfHtml(w, p) {
+  const mac = feat("nutrition"), r0 = v => v == null ? "–" : num(Math.round(v)), me = ME() || {}, stL = { ok: "în țintă", under: "sub țintă", over: "peste țintă" };
+  const brand = esc(String((S.theme && S.theme.brand) || "Try To Be FIT").slice(0, 24));
+  const sum = [["Zile notate", `${w.logged} din ${w.past}`], ["Media pe zi", w.kcal != null ? `${r0(w.kcal)} kcal` : "–"], ["Ținta", w.g ? `${num(w.g.kcal)} kcal` : "–"], ["Zile în țintă", w.g && w.logged ? `${w.inT} din ${w.logged}` : "–"],
+    ["Greutatea", w.wDelta != null ? jrKg(w.wDelta) : "–"], ["Apă pe zi", w.water != null ? jrL(w.water) : "–"], ["Sport", w.min ? `${num(w.min)} min` : "–"]];
+  const days = w.days.map(x => `<tr><td>${jrDayName(x.d)}</td><td>${x.n ? `${r0(x.kcal)} kcal` : "–"}</td>${mac ? `<td>${x.n ? `<span>P ${r0(x.prot)}</span> · <span>G ${r0(x.fat)}</span> · <span>C ${r0(x.carb)}</span>` : "–"}</td>` : ""}<td>${x.w ? jrL(x.w) : "–"}</td><td>${x.min ? num(x.min) + " min" : "–"}</td><td>${x.st ? stL[x.st] : ""}</td></tr>`).join("");
+  const macs = mac && w.logged ? [["Proteine", w.prot, w.g && w.g.prot, 4], ["Grăsimi", w.fat, w.g && w.g.fat, 9], ["Glucide", w.carb, w.g && w.g.carb, 4]] : [];
+  const kc = (w.prot || 0) * 4 + (w.fat || 0) * 9 + (w.carb || 0) * 4;
+  return `<header><div class="pl"><div><b>${brand}</b><span>${esc(me.name || "")}</span></div></div><div class="pr"><span>Raport săptămânal</span><b>${jrRange(w.mon)}</b></div></header>
+   <h1>Raport săptămânal</h1><p class="pf">${jrRange(w.mon)}</p>
+   <section><h2>Pe scurt</h2><table>${sum.map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join("")}</table></section>
+   <section><h2>Pe zile</h2><table class="grid"><tr><th>Ziua</th><th>Calorii</th>${mac ? "<th>Proteine · Grăsimi · Glucide (g)</th>" : ""}<th>Apă</th><th>Sport</th><th></th></tr>${days}</table></section>
+   ${macs.length ? `<section><h2>Proteine, grăsimi și glucide, media pe zi</h2><table class="grid"><tr><th></th><th>Media</th><th>Ținta</th><th>Din calorii</th></tr>${macs.map(([l, v, g, f]) => `<tr><td>${l}</td><td>${r0(v)} g</td><td>${g ? num(g) + " g" : "–"}</td><td>${kc ? Math.round((v || 0) * f / kc * 100) : 0}%</td></tr>`).join("")}</table></section>` : ""}
+   ${w.top.length ? `<section><h2>Ce a adus cele mai multe calorii</h2><table class="grid">${w.top.map(x => `<tr><td>${esc(x.t)}</td><td>${x.n === 1 ? "o dată" : `de ${x.n} ori`}</td><td>${num(Math.round(x.kcal))} kcal</td></tr>`).join("")}</table></section>` : ""}
+   <section><h2>Față de săptămâna trecută</h2><table class="grid"><tr><th></th><th>Aceasta</th><th>Trecută</th><th>Diferența</th></tr>${jrCmpRows(w, p).map(([l, a, b, d]) => `<tr><td>${l}</td><td>${a}</td><td>${b}</td><td>${d}</td></tr>`).join("")}</table></section>
+   <footer>${brand} · trytobefit.md · ${esc(fmtDate(todayS()))}</footer>`;
+}
+async function jrRepPDF() {
+  if (!feat("journal_reports")) return featLocked("journal_reports");
+  const R = JR.rep;
+  if (!R || JR.pdf) return;
+  const w = jrWeek(R.mon), p = jrWeek(addDaysS(R.mon, -7));
+  JR.pdf = true; toast("Pregătesc PDF-ul…");
+  let h2c, lib;
+  try { [h2c, lib] = await Promise.all([loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js", "html2canvas"), loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", "jspdf")]); }
+  catch (e) { JR.pdf = false; return toast("Nu am putut încărca generatorul de PDF. Verifică internetul."); }
+  const o = document.createElement("div");
+  o.className = "pdfsheet jrpdf"; o.style.setProperty("--bc", (S.theme && S.theme.color) || "#2f6b47");
+  o.innerHTML = jrPdfHtml(w, p);
+  document.body.appendChild(o);
+  try {
+    await new Promise(r => setTimeout(r, 80));          // traducerea în rusă (dacă e aleasă) ajunge întâi pe foaie
+    const c = await h2c(o, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false }), doc = new lib.jsPDF({ unit: "mm", format: "a4" });
+    const W = 210, Hp = 297, hh = c.height * W / c.width;
+    for (let v = 0, i = 0; v < hh; v += Hp, i++) { i && doc.addPage(); doc.addImage(c, "JPEG", 0, -v, W, hh, undefined, "FAST"); }
+    await jrFileOut(doc.output("blob"), `raport-jurnal-${R.mon}.pdf`, "Raport săptămânal");
+  } catch (e) { toast("PDF-ul nu a putut fi generat: " + (e && e.message || e)); }
+  finally { o.remove(); JR.pdf = false; }
+}
+// Excel (.xlsx) scris direct în browser: foi „Rezumat”, „Zile”, „Alimente”
+function jrRepXLSX() {
+  if (!feat("journal_reports")) return featLocked("journal_reports");
+  const R = JR.rep;
+  if (!R) return;
+  const w = jrWeek(R.mon), p = jrWeek(addDaysS(R.mon, -7)), me = ME() || {}, mac = feat("nutrition");
+  const tr = s => (LANG === "ru" && i18nTxt(s)) || s, r1 = v => v == null || !isFinite(v) ? "" : Math.round(v * 10) / 10, m1 = v => mac ? r1(v) : "", stL = { ok: "în țintă", under: "sub țintă", over: "peste țintă" };
+  const sum = [[tr("Raport săptămânal"), tr(jrRange(w.mon))], [tr("Persoana"), me.name || ""], [], [tr("Indicator"), tr("Săptămâna aceasta"), tr("Săptămâna trecută")],
+    [tr("Zile notate"), w.logged, p.logged], [tr("Media pe zi (kcal)"), r1(w.kcal), r1(p.kcal)], [tr("Ținta (kcal pe zi)"), w.g ? w.g.kcal : "", p.g ? p.g.kcal : ""],
+    [tr("Zile în țintă"), w.g ? w.inT : "", p.g ? p.inT : ""], [tr("Proteine pe zi (g)"), m1(w.prot), m1(p.prot)], [tr("Grăsimi pe zi (g)"), m1(w.fat), m1(p.fat)], [tr("Glucide pe zi (g)"), m1(w.carb), m1(p.carb)],
+    [tr("Apă pe zi (l)"), w.water != null ? r1(w.water / 1000) : "", p.water != null ? r1(p.water / 1000) : ""], [tr("Sport (minute)"), w.min, p.min], [tr("Calorii arse la sport"), w.burn, p.burn],
+    [tr("Greutatea (kg)"), w.wLast != null ? r1(w.wLast) : "", p.wLast != null ? r1(p.wLast) : ""]];
+  const days = [[tr("Data"), tr("Ziua"), tr("Calorii"), tr("Proteine (g)"), tr("Grăsimi (g)"), tr("Glucide (g)"), tr("Apă (l)"), tr("Sport (minute)"), tr("Calorii arse"), tr("Față de țintă")],
+    ...w.days.filter(x => !x.fut).map(x => [x.d, tr(jrDayName(x.d)), x.n ? Math.round(x.kcal) : "", x.n ? m1(x.prot) : "", x.n ? m1(x.fat) : "", x.n ? m1(x.carb) : "", x.w ? r1(x.w / 1000) : "", x.min || "", x.burn || "", x.st ? tr(stL[x.st]) : ""])];
+  const foods = [[tr("Data"), tr("Masa"), tr("Aliment"), tr("Grame"), tr("Porții"), tr("Calorii"), tr("Proteine (g)"), tr("Grăsimi (g)"), tr("Glucide (g)")],
+    ...w.days.flatMap(x => x.list.map(e => [x.d, SLOT_RO[e.slot] ? tr(jrSlotName(e.slot)) : "", e.title || "", e.grams || "", e.portions || "", e.kcal != null ? +e.kcal : "", m1(e.prot), m1(e.fat), m1(e.carb)]))];
+  const blob = jrXlsx([{ name: tr("Rezumat"), rows: sum, widths: [30, 20, 20], bold: [0, 3] }, { name: tr("Zile"), rows: days, widths: [12, 24, 10, 13, 13, 13, 9, 14, 13, 14], bold: [0] },
+    { name: tr("Alimente"), rows: foods, widths: [12, 18, 40, 9, 9, 10, 13, 13, 13], bold: [0] }]);
+  jrFileOut(blob, `raport-jurnal-${R.mon}.xlsx`, "Raport săptămânal");
+}
+// un fișier .xlsx minimal (Office Open XML, arhivă ZIP fără compresie): text, numere, primul rând îngroșat
+function jrXlsx(sheets) {
+  const enc = new TextEncoder(), xe = v => String(v).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const col = i => { let s = ""; for (i++; i; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + (i - 1) % 26) + s; return s; };
+  const nm = s => xe(String(s).replace(/[\[\]:*?\/\\]/g, " ").slice(0, 31) || "Foaie");
+  const sheetXml = sh => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
+    + (sh.widths ? `<cols>${sh.widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>` : "")
+    + `<sheetData>${sh.rows.map((r, ri) => `<row r="${ri + 1}">${(r || []).map((v, ci) => {
+      if (v == null || v === "") return "";
+      const ref = col(ci) + (ri + 1), st = (sh.bold || []).includes(ri) ? ' s="1"' : "";
+      return typeof v === "number" && isFinite(v) ? `<c r="${ref}"${st}><v>${v}</v></c>` : `<c r="${ref}"${st} t="inlineStr"><is><t xml:space="preserve">${xe(v)}</t></is></c>`;
+    }).join("")}</row>`).join("")}</sheetData></worksheet>`;
+  const files = [
+    ["[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`],
+    ["_rels/.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+    ["xl/workbook.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s, i) => `<sheet name="${nm(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>`],
+    ["xl/_rels/workbook.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+    ["xl/styles.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`],
+    ...sheets.map((s, i) => [`xl/worksheets/sheet${i + 1}.xml`, sheetXml(s)])
+  ].map(([n, x]) => ({ n: enc.encode(n), d: enc.encode(x) }));
+  const T = jrXlsx.crc || (jrXlsx.crc = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })());
+  const crc = b => { let c = 0xffffffff; for (let i = 0; i < b.length; i++) c = T[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const parts = [], cd = [];
+  let off = 0;
+  for (const f of files) {
+    const c = crc(f.d), sz = f.d.length, lh = new DataView(new ArrayBuffer(30)), ch = new DataView(new ArrayBuffer(46));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(12, 0x21, true); lh.setUint32(14, c, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true); lh.setUint16(26, f.n.length, true);
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(14, 0x21, true); ch.setUint32(16, c, true); ch.setUint32(20, sz, true); ch.setUint32(24, sz, true); ch.setUint16(28, f.n.length, true); ch.setUint32(42, off, true);
+    parts.push(new Uint8Array(lh.buffer), f.n, f.d); cd.push(new Uint8Array(ch.buffer), f.n);
+    off += 30 + f.n.length + sz;
+  }
+  const cds = cd.reduce((a, x) => a + x.length, 0), end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cds, true); end.setUint32(16, off, true);
+  return new Blob([...parts, ...cd, new Uint8Array(end.buffer)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
 
 // meniul: „Jurnal alimentar” în grupul „Familie și sănătate” (navTree îl adaugă și în meniurile salvate)
 // traduceri pentru textele cu numere
@@ -2171,7 +2593,29 @@ async function jrGoalSave() {
     [/^În jurnal: (.+)$/, m => `В дневнике: ${m[1]}`],
     [/^Notat: (.+), ([\d.,]+) kcal$/, m => `Записано: ${m[1]}, ${m[2]} ккал`],
     [/^Caut produsul (\d+)…$/, m => `Ищу товар ${m[1]}…`],
-    [/^Adaugă la (.+)$/, m => `Добавить: ${m[1]}`]
+    [/^Adaugă la (.+)$/, m => `Добавить: ${m[1]}`],
+    // seria de zile, insignele, „Repetă de ieri”
+    [/^Recordul tău: (o zi|([\d.]+) (?:de )?zile)\.( Notează azi și pornești o serie nouă\.)?$/, m => { const n = m[2] ? +m[2].replace(/\./g, "") : 1; return `Ваш рекорд: ${n} ${ruPl(n, "день", "дня", "дней")}.${m[3] ? " Запишите что-нибудь сегодня — и начнётся новая серия." : ""}`; }],
+    [/^Insigne: (\d+) din (\d+)$/, m => `Значки: ${m[1]} из ${m[2]}`],
+    [/^Insignă nouă: (.+)!$/, m => `Новый значок: ${i18nTxt(m[1]) || m[1]}!`],
+    [/^(.+): (notat|nenotat)$/, m => `${i18nTxt(m[1]) || m[1]}: ${m[2] === "notat" ? "записано" : "не записано"}`],
+    [/^(.+): un aliment copiat$/, m => `${i18nTxt(m[1]) || m[1]}: скопирован 1 продукт`],
+    [/^(.+): (\d+) (?:de )?alimente copiate$/, m => `${i18nTxt(m[1]) || m[1]}: скопировано ${m[2]} ${ruPl(m[2], "продукт", "продукта", "продуктов")}`],
+    // raportul săptămânii
+    [/^(\d+)–(\d+) (ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie)( \d{4})?$/, m => `${m[1]}–${m[2]} ${ruMg[MONTHS.indexOf(m[3])]}${m[4] || ""}`],
+    [/^(\d+) (ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie) – (\d+) (ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie)( \d{4})?$/,
+      m => `${m[1]} ${ruMg[MONTHS.indexOf(m[2])]} – ${m[3]} ${ruMg[MONTHS.indexOf(m[4])]}${m[5] || ""}`],
+    [/^(\d+) din (\d+) zile notate$/, m => `записано ${m[1]} из ${m[2]} ${ruPl(m[2], "дня", "дней", "дней")}`],
+    [/^([+−]?[\d.,]+) kg$/, m => `${m[1]} кг`],
+    [/^acum ([\d.,]+) kg$/, m => `сейчас ${m[1]} кг`],
+    [/^ținta ([\d.,]+)$/, m => `цель ${m[1]}`],
+    [/^(\d+)% din calorii$/, m => `${m[1]}% калорий`],
+    [/^de (\d+) ori$/, m => `${m[1]} ${ruPl(m[1], "раз", "раза", "раз")}`],
+    [/^Calorii pe zile: (.+)$/, m => `Калории по дням: ${m[1].replace(/\b(Lu|Ma|Mi|Jo|Vi|Sâ|Du)\b/g, d => ({ Lu: "Пн", Ma: "Вт", Mi: "Ср", Jo: "Чт", Vi: "Пт", "Sâ": "Сб", Du: "Вс" }[d]))}`],
+    // țintele de macro
+    [/^(Proteine|Grăsimi|Glucide) \((g|%)\)$/, m => `${{ Proteine: "Белки", Grăsimi: "Жиры", Glucide: "Углеводы" }[m[1]]} (${m[2] === "g" ? "г" : "%"})`],
+    [/^Din aceste grame ies ([\d.,]+) kcal, iar ținta ta e ([\d.,]+) kcal\.$/, m => `Из этих граммов получается ${m[1]} ккал, а ваша цель — ${m[2]} ккал.`],
+    [/^Proteinele, grăsimile și glucidele trebuie să dea împreună 100% \(acum: ([\d.,]+)%\)\.$/, m => `Белки, жиры и углеводы вместе должны давать 100% (сейчас: ${m[1]}%).`]
   ); }
 { const st = document.createElement("style"); st.textContent = `
 .jrday{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:12px}
@@ -2274,8 +2718,93 @@ async function jrGoalSave() {
 .jrspin{width:44px;height:44px;border-radius:50%;border:4px solid var(--soft);border-top-color:var(--green);animation:jrspin 1s linear infinite;margin:18px auto}
 @keyframes jrspin{to{transform:rotate(360deg)}}
 .jrlink{margin-bottom:10px}
+.jrstreak{display:flex;align-items:center;gap:14px 18px;flex-wrap:wrap;padding:12px 16px;margin-bottom:12px}
+.jrsk{display:flex;align-items:center;gap:12px;flex:1 1 220px;min-width:0}
+.jrflame{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--soft);color:var(--muted)}
+.jrflame svg{width:24px;height:24px}
+.jrflame.on{background:color-mix(in srgb,var(--honey) 24%,transparent);color:var(--honey-ink)}
+.jrskt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.jrskt p{margin:0;display:flex;align-items:baseline;gap:6px;line-height:1.15}
+.jrskt p b{font-size:26px;font-variant-numeric:tabular-nums}
+.jrskt p span{font-weight:700}
+.jrweekd{display:flex;gap:4px}
+.jrwdot{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;padding:2px;min-width:34px;font-size:11px;font-weight:700;color:var(--muted)}
+.jrwdot i{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff;box-sizing:border-box}
+.jrwdot i svg{width:14px;height:14px;stroke-width:3}
+.jrwdot.on i{background:var(--green);border-color:var(--green)}
+.jrwdot.today span{color:var(--ink)}
+.jrwdot.today i{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--green)}
+.jrwdot[disabled]{opacity:.45;cursor:default}
+.jrbdg{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px;color:var(--ink)}
+.jrbdg svg{color:var(--honey-ink)}
+.jrbdg:hover{background:var(--soft)}
+.jrbadges{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.jrbadges li{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:12px}
+.jrbadge{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--soft);color:var(--muted)}
+.jrbadges li.got .jrbadge{background:linear-gradient(135deg,var(--honey),color-mix(in srgb,var(--honey) 60%,#c4561c));color:#fff}
+.jrbt{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.jrbt .jrbar{height:6px}
+.jrbt .jrbar span{background:var(--honey)}
+.jrrep{display:flex;align-items:center;gap:10px;width:100%;margin-top:6px;border:1px dashed var(--sage);background:none;border-radius:12px;padding:8px 10px;text-align:left;color:var(--ink)}
+.jrrep:hover{background:var(--green-soft)}
+.jrrepi{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--green-soft);color:var(--green-dk);flex:none}
+.jrrepi svg{width:16px;height:16px}
+.jrmfoot{display:flex;justify-content:flex-end;padding:4px 0 8px}
+.jrmfoot .link{display:inline-flex;align-items:center;gap:6px}
+.jrmealrow{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.jrmealrow .switch{padding-bottom:10px}
+.jrwk{margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.jrwk h3{display:flex;align-items:center;gap:8px;font-size:17px}
+.jrwkh{display:flex;align-items:center;justify-content:space-between;gap:6px 12px;flex-wrap:wrap}
+.jrwkt{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.jrwkc{display:flex;flex-direction:column;gap:2px;background:var(--soft);border-radius:12px;padding:10px 12px;min-width:0}
+.jrwkc b{font-size:19px;font-variant-numeric:tabular-nums}
+.jrrepm{display:flex;flex-direction:column;gap:14px}
+.jrrnav{display:flex;align-items:center;gap:6px}
+.jrrnav h2{font-size:21px;flex:1;text-align:center;margin:0}
+.jrchart{margin:0;display:flex;flex-direction:column;gap:4px}
+.jrchart svg{width:100%;height:auto;max-height:220px;display:block}
+.jrchart .b{fill:var(--green)}
+.jrchart svg.hassel .jrcb:not(.sel) .b{opacity:.4}
+.jrchart .hit{fill:transparent;cursor:pointer}
+.jrchart text{font-size:11px;fill:var(--muted);text-anchor:middle;font-family:var(--font)}
+.jrchart .tg{stroke:var(--ink);stroke-width:1;stroke-dasharray:4 4;opacity:.55;pointer-events:none}
+.jrchart .tgl{text-anchor:start;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:3px;pointer-events:none}
+.jrchart .ax{stroke:var(--line);stroke-width:1}
+.jrchart figcaption{min-height:20px;text-align:center}
+.jrh{font-size:16px;margin:4px 0 0}
+.jrtblw{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}
+.jrtbl{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.jrtbl th,.jrtbl td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+.jrtbl th:first-child{text-align:left}
+.jrtbl thead th{font-size:12px;color:var(--muted);font-weight:700;background:var(--soft)}
+.jrtbl tfoot th,.jrtbl tfoot td{font-weight:700;border-bottom:0}
+.jrtbl tbody tr:last-child th,.jrtbl tbody tr:last-child td{border-bottom-color:var(--line)}
+.jrtbl tr.fut{opacity:.45}
+.jrcmp tbody tr:last-child th,.jrcmp tbody tr:last-child td{border-bottom:0}
+.jrst{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--soft)}
+.jrst.ok{background:var(--green-soft);color:var(--green-dk)}
+.jrst.over{background:var(--warn-soft);color:var(--honey-ink)}
+.jrst.under{background:#e8f1f8;color:#2f6d99}
+html[data-dark] .jrst.under{background:#1d2a33;color:#8cc0e6}
+.jrtop5{margin:0;padding:0;list-style:none;counter-reset:t;display:flex;flex-direction:column}
+.jrtop5 li{display:flex;align-items:center;gap:10px;counter-increment:t;padding:7px 0;border-bottom:1px solid var(--line)}
+.jrtop5 li:last-child{border-bottom:0}
+.jrtop5 li::before{content:counter(t);width:24px;height:24px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.jrmacf{border:1px solid var(--line);border-radius:14px;padding:10px 14px 12px;margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.jrmacf legend{font-weight:700;padding:0 6px}
+.jrwarn{color:var(--honey-ink);font-weight:600}
+.pdfsheet.jrpdf{background:#fff;color:#1d2a21}
+.jrpdf .pl div{display:flex;flex-direction:column}
+.jrpdf table th{width:auto}
+.jrpdf table:not(.grid) th{width:200px}
+.jrpdf table.grid th{font-size:12px;background:#f5f6f1;color:#4c5a51}
+.jrpdf table.grid td{white-space:nowrap}
+.jrpdf h1{font-size:26px}
 html[data-dark] .jrc.under,html[data-dark] .jrleg i.under{background:#1d2a33}
-@media (max-width:560px){.jrnums{min-width:0;flex-basis:100%}.jrmacs{grid-template-columns:1fr}.jrtop{justify-content:center}.jrc{height:44px}.jrc small{font-size:9px}}
+@media (max-width:560px){.jrnums{min-width:0;flex-basis:100%}.jrmacs{grid-template-columns:1fr}.jrtop{justify-content:center}.jrc{height:44px}.jrc small{font-size:9px}
+ .jrwkt{grid-template-columns:repeat(2,minmax(0,1fr))}.jrstreak{gap:12px}.jrsk{flex:1 1 0}.jrflame{width:40px;height:40px}.jrskt p b{font-size:22px}
+ .jrbdg{order:1;padding:6px 10px;font-size:12px}.jrweekd{order:2;flex-basis:100%;justify-content:space-between}.jrwdot{min-width:0;flex:1}}
 @media (prefers-reduced-motion:reduce){.jrspin{animation:none}.jrring .fg{transition:none}}
 `; document.head.appendChild(st); }
 
@@ -2478,21 +3007,23 @@ DEF_HOME.splice(0, DEF_HOME.length,
   { id: "b6", type: "calc", show: true, aud: "all", ...BLOCK_NEW.calc },
   { id: "b3", type: "widgets", show: true, aud: "all" },
   { id: "b4", type: "banner", show: true, aud: "nopremium", eyebrow: "Premium", title: "Gătește fără limite", text: "Rețete nelimitate, valori nutriționale, planificator automat și rapoarte anti-risipă.", btn: "Vezi planurile", to: "premium", img: "photo/premium-fit.jpg", tone: "dark" });
-// pe server, blocurile noi se păstrează ca tipul existent „features” (cu v = tiles / calc): baza de date și serverele mai vechi rămân compatibile
-const BLK_V = { feats: "tiles", calc: "calc" };
-const blkOut = b => b && BLK_V[b.type] ? { ...b, type: "features", v: BLK_V[b.type] } : b;
+// pe server, blocurile noi se păstrează ca tipuri existente („features” cu v = tiles / calc, „text” cu v = img):
+// baza de date și serverele mai vechi rămân compatibile
+const BLK_V = { feats: ["features", "tiles"], calc: ["features", "calc"], img: ["text", "img"] };
+const blkOut = b => b && BLK_V[b.type] ? { ...b, type: BLK_V[b.type][0], v: BLK_V[b.type][1] } : b;
 function blkIn(b) {
-  if (!b || b.type !== "features" || !b.v) return b;
-  const t = Object.keys(BLK_V).find(k => BLK_V[k] === b.v); if (!t) return b;
+  if (!b || !b.v) return b;
+  const t = Object.keys(BLK_V).find(k => BLK_V[k][0] === b.type && BLK_V[k][1] === b.v); if (!t) return b;
   const o = { ...b, type: t }; delete o.v; return o;
 }
 { const o = api; api = async function (path, opts) {
-  const home = typeof path === "string" && (path === "/home" || path.startsWith("/home/"));
+  const home = typeof path === "string" && (path === "/home" || path.startsWith("/home/") || path === "/pages/premium");
   if (home && opts && opts.body && Array.isArray(opts.body.blocks)) opts = { ...opts, body: { ...opts.body, blocks: opts.body.blocks.map(blkOut) } };
   const r = await o.call(this, path, opts);
   if (home && r && r.data) {
     if (Array.isArray(r.data.blocks)) r.data.blocks = r.data.blocks.map(blkIn);
     if (r.data.home && Array.isArray(r.data.home.blocks)) r.data.home.blocks = r.data.home.blocks.map(blkIn);
+    if (Array.isArray(r.data.premium)) r.data.premium = r.data.premium.map(blkIn);
   }
   return r;
 }; }
@@ -2784,6 +3315,339 @@ html[data-dark] .hc-res{background:var(--soft)}
  .sitefoot{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
 }
 `; document.head.appendChild(st); }
+
+/* ===== Editorul vizual pe toate paginile (18.11.2026) =====
+   Fiecare pagină a site-ului (Rețete, Jurnal, Frigider, Listă, Planificator…) se aranjează din editorul vizual, ca prima pagină:
+   - secțiunile paginii se mută prin tragere, se ascund sau se arată doar unora (vizitatori, conectați, cu sau fără Premium)
+   - între ele se pun blocuri proprii: banner, text, avantaje, „Ce poți face aici”, calculator, rețete, imagine, hero
+   - titlurile și textele paginii se schimbă, cu varianta în rusă (opțional)
+   Aranjamentul stă pe server (setarea „layouts”). O pagină fără aranjament se vede exact ca înainte; butoanele și
+   formularele paginii merg la fel, fiindcă secțiunile doar își schimbă locul. */
+const PL_PAGES = ["retete", "nutritie", "plan", "fav", "frigider", "lista", "casa", "bani", "stats", "jurnal", "familie", "antrenori", "antrenor", "provocari", "mesaje", "cont", "setari"];
+const PL_TYPES = ["banner", "text", "img", "features", "feats", "calc", "recipes", "widgets", "hero"];
+PERSIST.includes("layouts") || PERSIST.push("layouts");
+for (const p of PL_PAGES) BLOCK_PAGES[p] = PL_TYPES;
+for (const p of ["home", "premium"]) BLOCK_PAGES[p] && !BLOCK_PAGES[p].includes("img") && BLOCK_PAGES[p].push("img");
+const plName = p => (PAGE_META[p] || [p])[0];
+const plNorm = s => String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+const plLay = p => ((S.layouts && typeof S.layouts === "object" ? S.layouts : {})[p]) || null;
+
+// ---------- blocul nou „Imagine” (pe toate paginile, și pe prima pagină / Premium) ----------
+BLOCK_DEF.img = { label: "Imagine", icon: "image", desc: "O imagine mare, cu un text sub ea și, dacă vrei, un link către o pagină.",
+  f: [["img", "Imagine", "img"], ["cap", "Text sub imagine"], ["alt", "Ce se vede în imagine (pentru cititoarele de ecran)"],
+      ["to", "La clic duce la", { sel: [["", "Nicăieri (doar imaginea)"], ...LINK_PAGES], def: "" }],
+      ["fit", "Mărimea", { sel: [["wide", "Pe toată lățimea"], ["narrow", "Mai mică, la mijloc"]], def: "wide" }]] };
+BLOCK_NEW.img = { img: "photo/salata-pui.jpg", cap: "", alt: "", to: "", fit: "wide" };
+BLK.img = function (b) {
+  b = ruView(b);
+  const src = b.img ? IM(b.img) : "", to = LINK_PAGES.some(([k]) => k === b.to) ? b.to : "";
+  if (!src) return '<section class="imgblk empty"><p class="muted">Alege o imagine pentru acest bloc.</p></section>';
+  const img = `<img src="${src}" alt="${esc(b.alt || "")}" loading="lazy">`;
+  return `<figure class="imgblk${b.fit === "narrow" ? " narrow" : ""}">${to ? `<button type="button" class="imglink" onclick="go('${to}')" aria-label="${esc(b.alt || b.cap || plName(to))}">${img}</button>` : img}${b.cap ? `<figcaption>${esc(b.cap)}</figcaption>` : ""}</figure>`;
+};
+
+// ---------- secțiunile unei pagini: fiecare element de pe primul nivel, cu o cheie stabilă ----------
+const PL_GENERIC = new Set(["card", "panel", "wide", "stack", "grid", "row", "rowacts", "box", "sm", "small", "muted", "honey", "green", "soft", "pad", "big", "full", "on", "off", "open", "sel", "active", "hidden", "show"]);
+function plKeyBase(el) {
+  if (el.id) return "#" + el.id;
+  const tag = el.tagName.toLowerCase(), cls = [...el.classList].filter(c => !PL_GENERIC.has(c));
+  if (cls.length) return tag + "." + cls.slice(0, 2).join(".");
+  const h = el.querySelector("h1,h2,h3,h4");
+  const t = h ? plNorm(h.textContent).replace(/[\d.,:;()+\-–%!?]+/g, "").replace(/\s+/g, " ").trim().toLowerCase().slice(0, 40) : "";
+  return tag + (el.classList.length ? "." + [...el.classList].slice(0, 2).join(".") : "") + (t ? "|" + t : "");
+}
+// null = pagina are text liber pe primul nivel (nu o rearanjăm, ca să nu pierdem nimic)
+function plSections(frag) {
+  const out = [], seen = {};
+  for (const n of [...frag.childNodes]) {
+    if (n.nodeType === 3) { if (n.nodeValue.trim()) return null; continue; }
+    if (n.nodeType !== 1 || n.classList.contains("edentry")) continue;
+    const base = plKeyBase(n), k = seen[base] = (seen[base] || 0) + 1;
+    out.push({ key: (k > 1 ? base + "~" + k : base).slice(0, 80), el: n });
+  }
+  return out;
+}
+const PL_LABELS = { pagehead: "Titlul paginii", jrday: "Ziua (înainte / înapoi)", jrstreak: "Seria de zile și insignele", jrsum: "Caloriile zilei",
+  jracts: "Butoanele: aliment, cod de bare, poza farfuriei", jrplan: "Mesele din planificator", jrmeals: "Mesele zilei", jrgrid: "Apa și sportul",
+  jrwk: "Săptămâna ta", jrcal: "Calendarul dietei", jrrem: "Memento-uri", jrlink: "Legătura către jurnal", offbanner: "Anunț: pagină oprită",
+  rlayout: "Filtrele și lista de rețete", ftools: "Căutarea alimentelor", fcats: "Categoriile", foodres: "Lista alimentelor", atabs: "Filele paginii",
+  weeknav: "Săptămâna (înainte / înapoi)", planweek: "Zilele săptămânii", stats: "Cifrele pe scurt", toolbar: "Bara de căutare și filtre",
+  empty: "Mesajul pentru pagina goală", addpanel: "Formularul de adăugare", recobottom: "Produse recomandate", hcols: "Produsele casei pe coloane",
+  fambar: "Bara familiei", monthbar: "Luna (înainte / înapoi)", filters: "Filtrele", trgrid: "Lista antrenorilor", csub: "Subfilele",
+  joincard: "Codul de invitație", msgwrap: "Conversațiile", panels: "Panourile contului", settoc: "Cuprinsul setărilor" };
+function plLabel(el) {
+  if (el.id && PL_LABELS[el.id]) return PL_LABELS[el.id];
+  for (const c of el.classList) if (PL_LABELS[c]) return PL_LABELS[c];
+  if (/^(P|H[1-6]|LABEL|SPAN|B|STRONG)$/.test(el.tagName) && plNorm(el.textContent)) return "Text: " + plNorm(el.textContent).slice(0, 50);
+  const h = el.querySelector("h1,h2,h3,h4,legend,.eyebrow");
+  if (h && plNorm(h.textContent)) return plNorm(h.textContent).slice(0, 60);
+  const b = el.querySelector("b,strong,p,label,button");
+  return b && plNorm(b.textContent) ? plNorm(b.textContent).slice(0, 50) : "Secțiune";
+}
+// textele fixe ale unei secțiuni (titluri, paragrafe, etichete, butoane), fără datele din liste și tabele
+function plCollect(el) {
+  const out = [], seen = new Set(), ok = "h1,h2,h3,h4,h5,p,label,legend,button,th,figcaption,summary,.eyebrow,.lbl";
+  const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) {
+    const t = plNorm(n.nodeValue), par = n.parentElement;
+    if (t.length < 2 || t.length > 300 || !/\p{L}/u.test(t) || /\d/.test(t) || seen.has(t)) continue;
+    if (!par || !par.closest(ok) || par.closest("li,td,option,select,textarea,script,style,svg,.noi18n")) continue;
+    seen.add(t); out.push(t);
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+// textele schimbate de admin: în română textul nou; în rusă varianta rusă (fără ea rămâne traducerea automată a textului inițial)
+function plTextApply(el, texts) {
+  if (!texts || !Object.keys(texts).length) return;
+  const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), list = [];
+  for (let n; (n = w.nextNode());) list.push(n);
+  for (const n of list) {
+    const raw = n.nodeValue, t = plNorm(raw), o = t && texts[t];
+    if (!o || n.parentElement && n.parentElement.closest("script,style,textarea")) continue;
+    const v = LANG === "ru" ? o.ru : o.ro;
+    if (v) n.nodeValue = raw.replace(raw.trim(), v);
+  }
+}
+const plBlock = b => { const r = BLK[b.type]; try { return r ? r(b) : ""; } catch (e) { console.error(e); return ""; } };
+// pagina așa cum o văd toți, după aranjamentul publicat
+function plRender(lay, secs) {
+  const blocks = Array.isArray(lay.blocks) ? lay.blocks : [], byKey = new Map(secs.map(s => [s.key, s])), placed = new Set(), out = [];
+  for (const b of blocks) {
+    if (b.type === "sec") {
+      const s = byKey.get(b.key);
+      if (!s || placed.has(b.key)) continue;
+      placed.add(b.key);
+      out.push({ s, hide: b.show === false || !audOK(b.aud) });
+    } else if (b.show !== false && audOK(b.aud) && PL_TYPES.includes(b.type)) out.push({ html: plBlock(b) });
+  }
+  // secțiunile pe care aranjamentul nu le cunoaște (apar doar uneori) rămân lângă vecinul lor firesc
+  secs.forEach((s, i) => {
+    if (placed.has(s.key)) return;
+    let at = 0;
+    for (let k = i - 1; k >= 0; k--) { const j = out.findIndex(o => o.s && o.s.key === secs[k].key); if (j >= 0) { at = j + 1; break; } }
+    out.splice(at, 0, { s }); placed.add(s.key);
+  });
+  return out.filter(o => !o.hide).map(o => { if (o.html != null) return o.html; plTextApply(o.s.el, lay.texts); return o.s.el.outerHTML; }).join("");
+}
+// în editor: secțiunile noi intră în ciornă la locul lor firesc
+function plMerge(secs) {
+  const B = ED.blocks;
+  secs.forEach((s, i) => {
+    if (B.some(b => b.type === "sec" && b.key === s.key) || /^Se încarcă/.test(plNorm(s.el.textContent))) return;   // „Se încarcă…” e trecător
+    let at = 0;
+    for (let k = i - 1; k >= 0; k--) { const j = B.findIndex(b => b.type === "sec" && b.key === secs[k].key); if (j >= 0) { at = j + 1; break; } }
+    B.splice(at, 0, { id: "s" + uid8(), type: "sec", key: s.key, show: true, aud: "all", lbl: plLabel(s.el) });
+  });
+}
+function plWrapSec(b, i, n, s) {
+  if (s) b.lbl = plLabel(s.el);       // eticheta rămâne și pentru zilele în care secțiunea nu apare
+  const lbl = b.lbl || "Secțiune", off = b.show === false;
+  return `<div class="eb plsec ${off ? "off" : ""}" data-key="${esc(b.key)}"><div class="ebar"><button type="button" class="edgrip" aria-label="Trage ca să muți secțiunea" title="Trage ca să muți secțiunea">${I("grip")}</button>
+    <span class="etag">${I("layout")}<span>${esc(lbl)}</span></span><span class="tag">Secțiune a paginii</span>${off ? '<span class="tag">Ascunsă</span>' : ""}${b.aud && b.aud !== "all" ? `<span class="tag honey">${AUD_L[b.aud] || b.aud}</span>` : ""}
+    <span class="eacts"><button onclick="edAddAt(${i + 1})" aria-label="Adaugă un bloc dedesubt" title="Adaugă un bloc dedesubt">${I("plus")}</button><button onclick="plSecEdit(${i})">${I("edit")}Editează</button>
+    <button onclick="edMove(${i},-1)" ${i === 0 ? "disabled" : ""} aria-label="Mută în sus">${I("up")}</button><button onclick="edMove(${i},1)" ${i === n - 1 ? "disabled" : ""} aria-label="Mută în jos">${I("down")}</button>
+    <button onclick="edToggle(${i})" aria-label="${off ? "Arată secțiunea" : "Ascunde secțiunea"}">${I(off ? "eyeoff" : "eye")}</button></span></div>
+    <div class="ebody">${s ? s.el.outerHTML : '<p class="muted small">Secțiunea nu apare acum: se arată doar când are conținut.</p>'}</div></div>`;
+}
+function plEditHtml(secs) {
+  plMerge(secs);
+  const byKey = new Map(secs.map(s => [s.key, s])), B = ED.blocks, n = B.length;
+  const items = B.map((b, i) => {
+    if (b.type !== "sec") return edWrap(b, i, n, plBlock(b), b.show !== false && audOK(b.aud));
+    const s = byKey.get(b.key);
+    if (s) plTextApply(s.el, ED.texts);
+    return plWrapSec(b, i, n, s);
+  }).join("");
+  return `<div class="edlist" id="edlist">${items}</div><button class="addblock" onclick="edAddAt(${n})">${I("plus")}Adaugă un bloc</button>`;
+}
+// fiecare pagină trece prin aranjament (doar dacă are unul) sau prin editor (dacă e editată acum)
+const PL_ORIG = {};
+function plWrapPages() {
+  for (const p of PL_PAGES) {
+    const f = PAGES[p];
+    if (typeof f !== "function" || f.plw) continue;
+    PL_ORIG[p] = f;
+    const w = function () {
+      const html = f.apply(this, arguments), edit = ED && ED.kind === "layout" && ED.page === p, lay = !edit && plLay(p);
+      let out = html;
+      if (edit || lay) try {
+        const t = document.createElement("template");
+        t.innerHTML = html;
+        const secs = plSections(t.content);
+        if (secs) out = edit ? plEditHtml(secs) : plRender(lay, secs);
+      } catch (e) { console.error("Editorul paginilor:", e); out = html; }
+      return (!ED && can("frontend") ? `<div class="edentry"><button class="btn sm" onclick="plStart('${p}')">${I("layout")}Editează pagina</button></div>` : "") + out;
+    };
+    w.plw = true;
+    PAGES[p] = w;
+  }
+}
+plWrapPages();
+// prima pagină nu trebuie să creadă că e editată când editezi altă pagină
+{ const o = PAGES.acasa; PAGES.acasa = function () {
+  if (ED && ED.kind === "layout") { const e = ED; ED = null; try { return o.apply(this, arguments); } finally { ED = e; } }
+  return o.apply(this, arguments);
+}; }
+
+// ---------- pornirea, publicarea, anularea ----------
+function plStart(p) {
+  if (!can("frontend")) return deny("Editorul vizual îl pot folosi doar Administratorul principal și cei cărora le-a dat acest drept.");
+  if (!PL_PAGES.includes(p) || !PL_ORIG[p]) return;
+  const lay = plLay(p) || {};
+  ED = { page: p, kind: "layout", blocks: clone(Array.isArray(lay.blocks) ? lay.blocks : []), texts: clone(lay.texts && typeof lay.texts === "object" ? lay.texts : {}), theme: clone(S.theme) };
+  POP = null; S.page = p;
+  draw(); scrollTo({ top: 0 });
+}
+const plOut = b => b.type === "sec" ? { id: b.id, type: "sec", key: b.key, show: b.show !== false, aud: b.aud || "all", ...(b.lbl ? { lbl: String(b.lbl).slice(0, 80) } : {}) } : b;
+async function plPublish() {
+  if (!can("frontend")) return deny();
+  const p = ED.page, body = { blocks: ED.blocks.map(plOut), texts: ED.texts || {} }, th = clone(ED.theme), thCh = JSON.stringify(th) !== JSON.stringify(S.theme);
+  if (SRV) {
+    const r = await api("/pages/layout/" + p, { method: "PUT", body });
+    if (!r.ok) return toast(r.data && r.data.error || "Pagina nu a putut fi publicată.");
+    S.layouts = r.data.layouts || {};
+    if (thCh) { S.theme = th; homePush(); }
+  } else { S.layouts = { ...(S.layouts || {}), [p]: clone(body) }; S.theme = th; audit(`A publicat modificări pe pagina „${plName(p)}”`); }
+  ED = null; save(); draw(); toast(`Pagina „${plName(p)}” a fost actualizată`);
+}
+{ const o = edPublish; edPublish = function () { if (ED && ED.kind === "layout") return plPublish(); return o.apply(this, arguments); }; }
+function plReset(p) {
+  ask("Restabilești pagina?", `Pagina „${esc(plName(p))}” revine la forma inițială: secțiunile în ordinea lor, fără blocurile și textele adăugate. Nu se poate anula.`, "Restabilește", async () => {
+    if (SRV) {
+      const r = await api("/pages/layout/" + p, { method: "DELETE" });
+      if (!r.ok) return toast(r.data && r.data.error || "Nu am putut restabili pagina.");
+      S.layouts = r.data.layouts || {};
+    } else { const l = { ...(S.layouts || {}) }; delete l[p]; S.layouts = l; }
+    if (ED && ED.kind === "layout" && ED.page === p) ED = null;
+    save(); draw(); toast(`Pagina „${plName(p)}” a revenit la forma inițială`);
+  }, true);
+}
+// bara editorului: numele paginii editate și drumul înapoi la ea
+{ const o = drawEdbar; drawEdbar = function () {
+  const r = o.apply(this, arguments);
+  try {
+    if (ED && ED.kind === "layout") {
+      const bar = $("edbar"), tag = bar && bar.querySelector(".edtag");
+      if (tag) {
+        tag.innerHTML = `${I("edit")}<span>Editezi pagina „${esc(plName(ED.page))}”</span>`;
+        S.page !== ED.page && tag.insertAdjacentHTML("afterend", `<button class="btn sm" onclick="go('${ED.page}')">${I("back")}Înapoi la pagina editată</button>`);
+      }
+    }
+  } catch (x) { console.error(x); }
+  return r;
+}; }
+// fiecare bloc are și „+” (bloc nou dedesubt) — pe toate paginile, inclusiv pe prima pagină și Premium
+{ const o = edWrap; edWrap = function (e, t) {
+  return o.apply(this, arguments).replace('<span class="eacts">', `<span class="eacts"><button onclick="edAddAt(${t + 1})" aria-label="Adaugă un bloc dedesubt" title="Adaugă un bloc dedesubt">${I("plus")}</button>`);
+}; }
+// banerul nu are „Poziție pe pagină” (sus / lateral / jos) decât pe prima pagină
+{ const o = edEdit; edEdit = function (i) {
+  const b = ED && ED.kind === "layout" && ED.blocks[i];
+  if (!b || b.type !== "banner") return o.apply(this, arguments);
+  const f = BLOCK_DEF.banner.f;
+  BLOCK_DEF.banner.f = f.filter(x => x[0] !== "zone");
+  try { return o.apply(this, arguments); } finally { BLOCK_DEF.banner.f = f; }
+}; }
+{ const o = edSave; edSave = function (i) {
+  const b = ED && ED.kind === "layout" && ED.blocks[i];
+  if (!b || b.type !== "banner") return o.apply(this, arguments);
+  const f = BLOCK_DEF.banner.f;
+  BLOCK_DEF.banner.f = f.filter(x => x[0] !== "zone");
+  try { return o.apply(this, arguments); } finally { BLOCK_DEF.banner.f = f; }
+}; }
+
+// ---------- „Editează” pe o secțiune: textele ei și cine o vede ----------
+function plSecEdit(i) {
+  const b = ED && ED.blocks[i];
+  if (!b || b.type !== "sec") return;
+  let txt = [];
+  try {
+    const t = document.createElement("template");
+    t.innerHTML = PL_ORIG[ED.page]();
+    const s = (plSections(t.content) || []).find(x => x.key === b.key);
+    txt = s ? plCollect(s.el) : [];
+  } catch (e) { console.error(e); }
+  ED.tx = txt;
+  const row = (t, k) => {
+    const o = (ED.texts || {})[t] || {}, long = t.length > 70;
+    return `<div class="pltx"><span class="small muted">Inițial: <span class="noi18n">${esc(t)}</span></span>
+      <label class="lbl">Textul${long ? `<textarea id="pt_${k}" class="field noi18n" rows="2" maxlength="600">${esc(o.ro || t)}</textarea>` : `<input id="pt_${k}" class="field noi18n" maxlength="300" value="${esc(o.ro || t)}">`}</label>
+      <label class="lbl">În rusă (opțional)<input id="ptr_${k}" class="field noi18n" lang="ru" maxlength="300" value="${esc(o.ru || "")}" placeholder="Gol = traducerea automată"></label></div>`;
+  };
+  openModal(`<div class="sheet-b"><div style="padding-right:36px"><p class="eyebrow">Editezi secțiunea</p><h2 style="font-size:22px">${esc(b.lbl || "Secțiune")}</h2>
+    <p class="muted small">Schimbă titlurile și textele fixe. Un text schimbat se schimbă oriunde apare pe această pagină. Lasă-l neschimbat ca să rămână cel inițial.</p></div>
+   <form class="stack" onsubmit="event.preventDefault();plSecSave(${i})">
+    ${txt.length ? `<div class="pltxs">${txt.map(row).join("")}</div>` : '<p class="small muted">Secțiunea aceasta nu are titluri sau texte fixe de schimbat. O poți muta, ascunde sau arăta doar unora.</p>'}
+    <label class="lbl">Cine vede secțiunea${selHTML("pt_aud", Object.entries(AUD_L), b.aud || "all")}</label>
+    <label class="switch"><input type="checkbox" id="pt_show" ${b.show !== false ? "checked" : ""}>Secțiune vizibilă pe pagină</label>
+    <div class="rowacts"><button class="btn primary">Aplică în ciornă</button><button type="button" class="btn" onclick="closeModalKeep()">Renunță</button></div></form></div>`, 1);
+}
+function plSecSave(i) {
+  const b = ED && ED.blocks[i];
+  if (!b) return;
+  ED.texts = ED.texts || {};
+  (ED.tx || []).forEach((t, k) => {
+    const ro = plNorm(($("pt_" + k) || {}).value).slice(0, 600), ru = plNorm(($("ptr_" + k) || {}).value).slice(0, 600), o = {};
+    if (ro && ro !== t) o.ro = ro;
+    if (ru) o.ru = ru;
+    if (Object.keys(o).length) ED.texts[t] = o; else delete ED.texts[t];
+  });
+  b.aud = ($("pt_aud") || {}).value || "all";
+  b.show = !!($("pt_show") || {}).checked;
+  delete ED.tx;
+  closeModalKeep();
+  toast("Aplicat în ciornă. Apasă Publică ca să fie vizibil tuturor.");
+}
+
+// ---------- aranjamentele vin cu prima pagină (/api/home) ----------
+{ const o = api; api = async function (path, opts) {
+  const r = await o.apply(this, arguments);
+  try { if (path === "/home" && (!opts || !opts.method || opts.method === "GET") && r && r.ok && r.data && "layouts" in r.data && !(ED && ED.kind === "layout")) S.layouts = r.data.layouts && typeof r.data.layouts === "object" ? r.data.layouts : {}; } catch (x) {}
+  return r;
+}; }
+{ const o = homeLoad; homeLoad = async function () {
+  const before = JSON.stringify(S.layouts || {}), r = await o.apply(this, arguments), ch = JSON.stringify(S.layouts || {}) !== before;
+  if (ch) persist();
+  return r || ch;
+}; }
+
+// ---------- Administrare → Aspect → Editor vizual: toate paginile ----------
+{ const o = ATAB_FN.look; ATAB_FN.look = function () {
+  const html = o.apply(this, arguments), L = S.layouts || {}, mine = PL_PAGES.filter(p => PL_ORIG[p]);
+  const box = `<p class="small muted plpl">Celelalte pagini ale site-ului (secțiuni, blocuri proprii, texte):</p>
+   <div class="plpages">${mine.map(p => `<button class="chip" onclick="plStart('${p}')">${I((PAGE_META[p] || [])[1] || "layout")}<span>${esc(plName(p))}</span>${L[p] ? '<span class="tag honey">modificată</span>' : ""}</button>`).join("")}</div>
+   ${mine.some(p => L[p]) ? `<details class="plreset"><summary>${I("reset")}Restabilește o pagină la forma inițială</summary><div class="plpages">${mine.filter(p => L[p]).map(p => `<button class="link" onclick="plReset('${p}')">${I("reset")}<span>${esc(plName(p))}</span></button>`).join("")}</div></details>` : ""}`;
+  const mark = '<p class="small muted">Acces: Administratorul principal';
+  return html.includes(mark) ? html.replace(mark, box + mark) : html;
+}; }
+
+{ const st = document.createElement("style"); st.textContent = `
+.imgblk{margin:0;display:flex;flex-direction:column;gap:8px}
+.imgblk img{display:block;width:100%;max-height:520px;object-fit:cover;border-radius:22px;background:var(--soft)}
+.imgblk.narrow{max-width:640px;margin:0 auto;width:100%}
+.imgblk figcaption{color:var(--muted);font-size:14px;text-align:center}
+.imgblk .imglink{display:block;width:100%;border:0;padding:0;background:none;border-radius:22px;cursor:pointer}
+.imgblk .imglink:hover img{filter:brightness(.96)}
+.imgblk.empty{border:2px dashed var(--line);border-radius:22px;padding:28px;text-align:center}
+.eb.plsec{border-style:dotted;background:color-mix(in srgb,var(--ink) 2%,transparent)}
+.eb.plsec .ebody>*{margin-top:0;margin-bottom:0}
+.plpages{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.plpages .chip{display:inline-flex;align-items:center;gap:6px}
+.plpages .chip .tag{font-size:11px;padding:1px 6px}
+.plreset{margin:2px 0 10px}
+.plreset summary{cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--green-dk)}
+.plreset .link{display:inline-flex;align-items:center;gap:6px}
+.pltxs{display:flex;flex-direction:column;gap:12px;max-height:46vh;overflow:auto;padding-right:4px}
+.pltx{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+`; document.head.appendChild(st); }
+{ I18N_PAT.push(
+    [/^Text: (.+)$/, m => `Текст: ${m[1]}`],
+    [/^Pagina „(.+)” revine la forma inițială: secțiunile în ordinea lor, fără blocurile și textele adăugate\. Nu se poate anula\.$/, m => `Страница «${i18nTxt(m[1]) || m[1]}» вернётся к исходному виду: разделы в исходном порядке, без добавленных блоков и текстов. Это нельзя отменить.`],
+    [/^Editezi pagina „(.+)”$/, m => `Вы редактируете страницу «${i18nTxt(m[1]) || m[1]}»`],
+    [/^Pagina „(.+)” a fost actualizată$/, m => `Страница «${i18nTxt(m[1]) || m[1]}» обновлена`],
+    [/^Pagina „(.+)” a revenit la forma inițială$/, m => `Страница «${i18nTxt(m[1]) || m[1]}» возвращена к исходному виду`]
+  ); }
 load(),PROD_SEED.forEach(([e,t,a,i,n])=>{S.products&&!S.products[e]&&(S.products[e]={cat:t,img:a,p:i,u:n})}),routeBoot();{const e=location.hash||"",t=/^#reset=([A-Za-z0-9_-]{20,100})$/.exec(e),a=/^#(confidentialitate|termeni)$/.exec(e);if(t){RESET_TOKEN=t[1];try{history.replaceState(null,"",location.pathname+location.search)}catch{}}a&&(S.page="legal",LEGAL_TAB=a[1])}const PAGE_HASH=/^#(frigider|lista|plan|casa|retete|mesaje|cont|nutritie)$/;{const e=PAGE_HASH.exec(location.hash||"");if(e){S.page=e[1];try{history.replaceState(null,"",location.pathname+location.search)}catch{}}}window.addEventListener("hashchange",()=>{const e=PAGE_HASH.exec(location.hash||"");if(e){try{history.replaceState(null,"",location.pathname+location.search)}catch{}go(e[1])}});{const e=/^#verify=([A-Za-z0-9_-]{20,100})$/.exec(location.hash||"");if(e){try{history.replaceState(null,"",location.pathname+location.search)}catch{}SRV&&api("/auth/verify",{method:"POST",body:{token:e[1]}}).then(async t=>{toast(t.ok?"Adresa de email a fost confirmat\u0103. Mul\u021Bumim!":t.data&&t.data.error||"Linkul de confirmare nu este valid."),t.ok&&typeof meRefresh=="function"&&(await meRefresh(),draw())})}}{const e=/^#join=([A-Za-z0-9-]{6,14})$/.exec(location.hash||"");if(e){S.joinCode=e[1].toUpperCase().replace(/[^A-Z0-9]/g,""),S.page="familie";try{history.replaceState(null,"",location.pathname+location.search)}catch{}}}if(!Array.isArray(S.home)||S.home.some(e=>!e||!e.type)){S.home=clone(DEF_HOME);try{save()}catch{}}SRV&&srvMigrate(),applyTheme(S.theme),HASHREADY=ensureHashes(),draw();{const e=$("boot");e&&(e.style.transition="opacity .25s",e.style.opacity="0",setTimeout(()=>e.remove(),260))}SRV&&srvBoot().then(()=>{const e=ROUTE_REC&&s2RecBySlug(ROUTE_REC);ROUTE_REC=null,e&&(S.page!=="retete"&&S.page!=="acasa"&&(S.page="retete",draw()),openRecipe(e.id))}).catch(()=>{}),RESET_TOKEN&&setTimeout(resetModal,400),SRV&&"serviceWorker"in navigator&&location.protocol==="https:"&&window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})}),window.addEventListener("offline",()=>{document.body.classList.add("offline"),toast("E\u0219ti offline. Lista \u0219i frigiderul merg mai departe; modific\u0103rile se trimit c\xE2nd revine internetul.")}),window.addEventListener("online",()=>{document.body.classList.remove("offline"),typeof srvDirty=="function"&&S.pend&&(SYNC.dirty=!0,srvPush()),typeof shopDirty=="function"&&SHOPX.fam&&shopDirty(),toast("Internetul a revenit. Sincronizez.")}),navigator.onLine||document.body.classList.add("offline");
 
 </script>
